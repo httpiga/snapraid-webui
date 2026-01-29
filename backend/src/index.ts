@@ -2,7 +2,6 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import path from "path";
-import { fileURLToPath } from "url";
 import { existsSync, mkdirSync } from "fs";
 import { createServer } from "http";
 
@@ -16,9 +15,6 @@ import authRoutes from "./routes/auth.js";
 import { initializeWebSocket } from "./websocket.js";
 import { initializeScheduler } from "./services/scheduler.js";
 import { createSessionMiddleware, authMiddleware } from "./middleware/auth.js";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 const app = express();
 const server = createServer(app);
@@ -66,7 +62,7 @@ app.get("/api/health", (_req, res) => {
 });
 
 // Serve static files from frontend build in production
-const frontendPath = path.join(__dirname, "../../frontend/dist");
+const frontendPath = path.join(import.meta.dir, "../../frontend/dist");
 if (existsSync(frontendPath)) {
   app.use(express.static(frontendPath));
 

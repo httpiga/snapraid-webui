@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "lib": ["ES2022"],
     "strict": true,
     "esModuleInterop": true,
@@ -18,7 +18,7 @@
     "paths": {
       "@shared/*": ["../shared/*"]
     },
-    "types": ["node"]
+    "types": ["bun-types", "node"]
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]

@@ -65,7 +65,6 @@ docker compose up -d
 ### Prerequisites
 
 - [Bun](https://bun.sh/) >= 1.0
-- [Node.js](https://nodejs.org/) >= 20 (for frontend tooling)
 - SnapRAID installed on your system
 
 ### Setup

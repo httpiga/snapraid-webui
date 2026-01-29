@@ -6,6 +6,7 @@ node_modules/
 dist/
 build/
 .output/
+*.tsbuildinfo
 
 # Environment files
 .env
@@ -29,11 +30,11 @@ logs/
 # Test coverage
 coverage/
 
-# Bun
+# Package managers
 bun.lockb
-
-# Inspiration repo (reference only)
-inspiration-repo/
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
 
 # Config folder (user data, not committed)
 config/

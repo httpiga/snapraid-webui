@@ -2,16 +2,21 @@
   "name": "snapraid-webui",
   "version": "0.1.0",
   "private": true,
+  "workspaces": [
+    "backend",
+    "frontend",
+    "shared"
+  ],
   "scripts": {
-    "dev": "concurrently \"pnpm run dev:backend\" \"pnpm run dev:frontend\"",
-    "dev:backend": "pnpm --filter @snapraid-webui/backend dev",
-    "dev:frontend": "pnpm --filter @snapraid-webui/frontend dev",
-    "build": "pnpm run build:frontend && pnpm run build:backend",
-    "build:backend": "pnpm --filter @snapraid-webui/backend build",
-    "build:frontend": "pnpm --filter @snapraid-webui/frontend build",
-    "start": "pnpm --filter @snapraid-webui/backend start",
-    "lint": "pnpm --filter @snapraid-webui/frontend lint",
-    "typecheck": "pnpm --filter @snapraid-webui/backend typecheck && pnpm --filter @snapraid-webui/frontend typecheck"
+    "dev": "concurrently \"bun run dev:backend\" \"bun run dev:frontend\"",
+    "dev:backend": "bun run --filter @snapraid-webui/backend dev",
+    "dev:frontend": "bun run --filter @snapraid-webui/frontend dev",
+    "build": "bun run build:frontend && bun run build:backend",
+    "build:backend": "bun run --filter @snapraid-webui/backend build",
+    "build:frontend": "bun run --filter @snapraid-webui/frontend build",
+    "start": "bun run --filter @snapraid-webui/backend start",
+    "lint": "bun run --filter @snapraid-webui/frontend lint",
+    "typecheck": "bun run --filter @snapraid-webui/backend typecheck && bun run --filter @snapraid-webui/frontend typecheck"
   },
   "devDependencies": {
     "concurrently": "^9.1.0",

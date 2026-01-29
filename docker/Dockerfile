@@ -1,55 +1,37 @@
 # Build frontend
-FROM node:22-alpine AS frontend-builder
-
-WORKDIR /app/frontend
-
-# Copy package files
-COPY frontend/package.json frontend/pnpm-lock.yaml* ./
-COPY pnpm-workspace.yaml ../
-COPY shared/ ../shared/
-
-# Install pnpm and dependencies
-RUN corepack enable && pnpm install --frozen-lockfile
-
-# Copy source and build
-COPY frontend/ ./
-RUN pnpm run build
-
-# Build backend
-FROM node:22-alpine AS backend-builder
-
-WORKDIR /app/backend
-
-# Copy package files
-COPY backend/package.json backend/pnpm-lock.yaml* ./
-COPY pnpm-workspace.yaml ../
-COPY shared/ ../shared/
-
-# Install pnpm and dependencies
-RUN corepack enable && pnpm install --frozen-lockfile
-
-# Copy source
-COPY backend/ ./
-
-# Final image
-FROM node:22-alpine
+FROM oven/bun:1 AS frontend-builder
 
 WORKDIR /app
 
-# Install pnpm
-RUN corepack enable
+# Copy workspace files
+COPY package.json bun.lockb* ./
+COPY shared/ ./shared/
+COPY frontend/ ./frontend/
 
-# Install smartmontools for SMART data
-RUN apk add --no-cache smartmontools
+# Install dependencies and build frontend
+RUN bun install
+RUN cd frontend && bun run build
 
-# Copy backend dependencies and source
-COPY --from=backend-builder /app/backend/node_modules ./backend/node_modules
-COPY --from=backend-builder /app/backend/package.json ./backend/
-COPY --from=backend-builder /app/backend/src ./backend/src
-COPY --from=backend-builder /app/shared ./shared
+# Final image
+FROM oven/bun:1
 
-# Copy frontend build
+WORKDIR /app
+
+# Install smartmontools for SMART data (using debian-based bun image)
+USER root
+RUN apt-get update && apt-get install -y smartmontools && rm -rf /var/lib/apt/lists/*
+USER bun
+
+# Copy workspace files
+COPY package.json bun.lockb* ./
+COPY shared/ ./shared/
+COPY backend/ ./backend/
+
+# Copy frontend build from builder
 COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
+
+# Install only production dependencies
+RUN bun install --production
 
 # Create config directory
 RUN mkdir -p /app/config
@@ -69,4 +51,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
 
 # Start the server
 WORKDIR /app/backend
-CMD ["npx", "tsx", "src/index.ts"]
+CMD ["bun", "run", "src/index.ts"]
