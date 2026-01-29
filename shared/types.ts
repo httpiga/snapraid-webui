@@ -352,6 +352,8 @@ export interface LogFile {
   command: SnapRaidCommand;
   timestamp: string;
   size: number;
+  /** True if the log is from a scheduled run, false if from a manual operation */
+  scheduled?: boolean;
 }
 
 // ============================================================================

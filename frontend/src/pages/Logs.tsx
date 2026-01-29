@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { getCommandBadgeVariant } from "@/lib/utils";
 import { useGetLogsQuery, useGetLogContentQuery } from "@/store/api";
-import { FileText, Calendar, Download } from "lucide-react";
+import { User, Clock, Calendar, Download } from "lucide-react";
 import type { LogFile } from "@shared/types";
 
 export function Logs() {
@@ -72,7 +72,17 @@ export function Logs() {
                       }`}
                     >
                       <div className="flex items-center gap-2 mb-1">
-                        <FileText className="h-4 w-4" />
+                        {log.scheduled ? (
+                          <Clock
+                            className="h-4 w-4 text-muted-foreground"
+                            aria-label="Scheduled operation"
+                          />
+                        ) : (
+                          <User
+                            className="h-4 w-4 text-muted-foreground"
+                            aria-label="Manual operation"
+                          />
+                        )}
                         <Badge variant={getCommandBadgeVariant(log.command)}>
                           {log.command}
                         </Badge>
@@ -105,11 +115,18 @@ export function Logs() {
                   {selectedLog ? selectedLog.filename : "Log Content"}
                 </CardTitle>
                 <CardDescription>
-                  {selectedLog
-                    ? `${selectedLog.command} - ${formatDate(
-                        selectedLog.timestamp
-                      )}`
-                    : "Select a log file to view its content"}
+                  {selectedLog ? (
+                    <>
+                      {selectedLog.command} —{" "}
+                      {formatDate(selectedLog.timestamp)}
+                      {" · "}
+                      {selectedLog.scheduled
+                        ? "Scheduled operation"
+                        : "Manual operation"}
+                    </>
+                  ) : (
+                    "Select a log file to view its content"
+                  )}
                 </CardDescription>
               </div>
               {selectedLog && (

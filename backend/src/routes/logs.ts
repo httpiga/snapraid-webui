@@ -47,12 +47,29 @@ router.get("/", async (_req, res) => {
         );
       }
 
+      // Peek at start of file to detect scheduled vs manual (scheduled logs start with "=== Scheduled:")
+      let scheduled = false;
+      try {
+        const handle = await fs.open(filePath, "r");
+        const buf = Buffer.alloc(200);
+        const { bytesRead } = await handle.read(buf, 0, 200, 0);
+        await handle.close();
+        if (bytesRead > 0) {
+          scheduled = buf
+            .toString("utf-8", 0, bytesRead)
+            .includes("=== Scheduled:");
+        }
+      } catch {
+        // Keep scheduled false if read fails
+      }
+
       logFiles.push({
         filename,
         path: filePath,
         command,
         timestamp,
         size: stats.size,
+        scheduled,
       });
     }
 
