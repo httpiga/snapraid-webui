@@ -3,11 +3,10 @@ import { existsSync } from "fs";
 import type { ParsedSnapRaidConfig } from "@snapraid-webui/shared";
 
 /**
- * Parse a snapraid.conf file into a structured object
+ * Parse snapraid.conf content (string) into a structured object.
+ * Extracted for testability without filesystem.
  */
-export async function parseSnapRaidConfig(
-  configPath: string
-): Promise<ParsedSnapRaidConfig> {
+export function parseConfigFromContent(content: string): ParsedSnapRaidConfig {
   const config: ParsedSnapRaidConfig = {
     parity: [],
     content: [],
@@ -16,11 +15,6 @@ export async function parseSnapRaidConfig(
     include: [],
   };
 
-  if (!existsSync(configPath)) {
-    return config;
-  }
-
-  const content = await fs.readFile(configPath, "utf-8");
   const lines = content.split("\n");
 
   for (const line of lines) {
@@ -97,6 +91,20 @@ export async function parseSnapRaidConfig(
   }
 
   return config;
+}
+
+/**
+ * Parse a snapraid.conf file into a structured object
+ */
+export async function parseSnapRaidConfig(
+  configPath: string
+): Promise<ParsedSnapRaidConfig> {
+  if (!existsSync(configPath)) {
+    return parseConfigFromContent("");
+  }
+
+  const content = await fs.readFile(configPath, "utf-8");
+  return parseConfigFromContent(content);
 }
 
 /**

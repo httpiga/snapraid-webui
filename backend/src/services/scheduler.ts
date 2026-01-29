@@ -52,9 +52,10 @@ async function saveSchedules(schedules: Schedule[]): Promise<void> {
 }
 
 /**
- * Calculate the next run time for a cron expression (5-field: minute hour day month weekday)
+ * Calculate the next run time for a cron expression (5-field: minute hour day month weekday).
+ * Exported for testing.
  */
-function getNextRunTime(cronExpression: string): string | undefined {
+export function getNextRunTime(cronExpression: string): string | undefined {
   try {
     const interval = cronParser.parseExpression(cronExpression, {
       currentDate: new Date(),
