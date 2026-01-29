@@ -2,6 +2,10 @@ import { Router, type IRouter } from "express";
 import type { SnapRaidCommand } from "@snapraid-webui/shared";
 import { SNAPRAID_CONF_FILE } from "../config.js";
 import { snapraidRunner } from "../services/snapraid-runner.js";
+import {
+  sendNotification,
+  getOperationNotificationPayload,
+} from "../services/notifications/index.js";
 
 const router: IRouter = Router();
 
@@ -176,10 +180,23 @@ router.post("/command/:cmd", async (req, res) => {
       // Start the command but don't wait for it
       snapraidRunner
         .executeCommand(command, SNAPRAID_CONF_FILE, undefined, args)
-        .then((result) => {
-          console.log(
-            `Command ${command} completed with exit code ${result.exitCode}`
+        .then(async (result) => {
+          const payload = getOperationNotificationPayload(
+            command,
+            result.exitCode
           );
+          if (payload) {
+            try {
+              await sendNotification(
+                payload.event,
+                payload.title,
+                payload.message,
+                payload.details
+              );
+            } catch (err) {
+              console.error("Failed to send operation notification:", err);
+            }
+          }
         })
         .catch((error) => {
           console.error(`Command ${command} failed:`, error);

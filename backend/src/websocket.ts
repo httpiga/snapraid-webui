@@ -4,6 +4,10 @@ import type { WSMessage, SnapRaidCommand } from "@snapraid-webui/shared";
 import { snapraidRunner } from "./services/snapraid-runner.js";
 import { SNAPRAID_CONF_FILE } from "./config.js";
 import { createLogFile, appendToLogFile } from "./routes/logs.js";
+import {
+  sendNotification,
+  getOperationNotificationPayload,
+} from "./services/notifications/index.js";
 
 // Connected clients
 const clients = new Set<WebSocket>();
@@ -85,6 +89,24 @@ export async function executeCommandWithStreaming(
       exitCode: result.exitCode,
       timestamp: new Date().toISOString(),
     });
+
+    // Send notification for sync/scrub (manual run via WebSocket)
+    const payload = getOperationNotificationPayload(command, result.exitCode);
+    if (payload) {
+      try {
+        await sendNotification(
+          payload.event,
+          payload.title,
+          payload.message,
+          payload.details
+        );
+      } catch (err) {
+        console.error(
+          "[notifications] Failed to send operation notification:",
+          err
+        );
+      }
+    }
 
     return result;
   } catch (error) {

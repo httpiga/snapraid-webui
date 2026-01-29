@@ -11,6 +11,10 @@ import type {
 import { SCHEDULES_FILE, SNAPRAID_CONF_FILE } from "../config.js";
 import { snapraidRunner } from "./snapraid-runner.js";
 import { createLogFile, appendToLogFile } from "../routes/logs.js";
+import {
+  sendNotification,
+  getOperationNotificationPayload,
+} from "./notifications/index.js";
 
 // Active cron jobs
 const activeJobs = new Map<string, cron.ScheduledTask>();
@@ -107,6 +111,25 @@ async function executeScheduledCommand(schedule: Schedule): Promise<void> {
 
     // Update last run time
     await updateScheduleLastRun(schedule.id);
+
+    // Send notification for sync/scrub
+    const payload = getOperationNotificationPayload(
+      schedule.command,
+      result.exitCode,
+      { scheduleName: schedule.name }
+    );
+    if (payload) {
+      try {
+        await sendNotification(
+          payload.event,
+          payload.title,
+          payload.message,
+          payload.details
+        );
+      } catch (err) {
+        console.error("Failed to send schedule completion notification:", err);
+      }
+    }
 
     console.log(
       `Schedule ${schedule.name} completed with exit code ${result.exitCode}`

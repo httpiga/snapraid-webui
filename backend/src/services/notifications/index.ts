@@ -4,6 +4,7 @@ import type {
   NotificationSettings,
   NotificationEvent,
   NotificationChannel,
+  SnapRaidCommand,
 } from "@snapraid-webui/shared";
 import { APP_CONFIG_FILE } from "../../config.js";
 import { sendDiscordNotification } from "./discord.js";
@@ -157,6 +158,89 @@ export async function sendNotification(
 
   const success = Object.values(results).some((r) => r);
   return { success, results };
+}
+
+/** Exit code when process is killed by SIGTERM */
+const EXIT_SIGTERM = 128 + 15;
+/** Exit code when process is killed by SIGINT */
+const EXIT_SIGINT = 128 + 2;
+
+/**
+ * Build notification payload for a completed sync/scrub operation.
+ * Returns null for commands that don't have notification events (check, fix).
+ */
+export function getOperationNotificationPayload(
+  command: SnapRaidCommand,
+  exitCode: number,
+  context?: { scheduleName?: string }
+): {
+  event: NotificationEvent;
+  title: string;
+  message: string;
+  details: Record<string, string>;
+} | null {
+  const aborted = exitCode === EXIT_SIGTERM || exitCode === EXIT_SIGINT;
+  const source = context?.scheduleName
+    ? `Scheduled: ${context.scheduleName}`
+    : "Manual";
+  const details: Record<string, string> = {
+    Command: command,
+    "Exit code": String(exitCode),
+    Source: source,
+    Time: new Date().toISOString(),
+  };
+
+  if (command === "sync") {
+    if (exitCode === 0) {
+      return {
+        event: "sync_complete",
+        title: "Sync completed",
+        message: "SnapRAID sync finished successfully.",
+        details,
+      };
+    }
+    if (aborted) {
+      return {
+        event: "sync_aborted",
+        title: "Sync aborted",
+        message: "SnapRAID sync was aborted by user.",
+        details,
+      };
+    }
+    return {
+      event: "sync_error",
+      title: "Sync failed",
+      message: `SnapRAID sync failed with exit code ${exitCode}.`,
+      details,
+    };
+  }
+
+  if (command === "scrub") {
+    if (exitCode === 0) {
+      return {
+        event: "scrub_complete",
+        title: "Scrub completed",
+        message: "SnapRAID scrub finished successfully.",
+        details,
+      };
+    }
+    if (aborted) {
+      return {
+        event: "scrub_error",
+        title: "Scrub aborted",
+        message: "SnapRAID scrub was aborted by user.",
+        details,
+      };
+    }
+    return {
+      event: "scrub_error",
+      title: "Scrub failed",
+      message: `SnapRAID scrub failed with exit code ${exitCode}.`,
+      details,
+    };
+  }
+
+  return null;
 }
 
 /**
