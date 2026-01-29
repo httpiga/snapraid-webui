@@ -47,6 +47,8 @@ content mock-disks/disk2/snapraid.content
 # Data disks (name and path with trailing slash)
 data d1 mock-disks/disk1/
 data d2 mock-disks/disk2/
+
+exclude /.Trashes/
 `;
 
 async function seedMockDisks() {

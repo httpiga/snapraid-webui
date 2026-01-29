@@ -28,31 +28,17 @@ export function parseStatusOutput(output: string): SnapRaidStatus {
       status.hasErrors = true;
     }
 
-    // Check parity status
+    // Check parity status (SnapRAID status output: "No sync is in progress" vs "NOT fully synced" / "sync in progress at X%")
     if (
-      line.includes("No sync is required") ||
-      line.includes("No sync is in progress")
+      line.includes("NOT fully synced") ||
+      line.includes("You have a sync in progress at")
     ) {
-      status.parityUpToDate = true;
-    } else if (line.includes("sync is required") || line.includes("SYNC")) {
       status.parityUpToDate = false;
+    } else if (line.includes("No sync is in progress")) {
+      status.parityUpToDate = true;
     }
 
-    // Parse file counts
-    const addedMatch = line.match(/(\d+)\s+added/i);
-    if (addedMatch) {
-      status.newFiles = parseInt(addedMatch[1], 10);
-    }
-
-    const modifiedMatch = line.match(/(\d+)\s+(?:modified|changed|updated)/i);
-    if (modifiedMatch) {
-      status.modifiedFiles = parseInt(modifiedMatch[1], 10);
-    }
-
-    const deletedMatch = line.match(/(\d+)\s+(?:deleted|removed)/i);
-    if (deletedMatch) {
-      status.deletedFiles = parseInt(deletedMatch[1], 10);
-    }
+    // new/modified/deleted counts come from 'snapraid diff', not status; status parser leaves them 0
 
     // Parse scrub percentage
     const scrubMatch = line.match(/(\d+(?:\.\d+)?)\s*%\s+scrubbed/i);

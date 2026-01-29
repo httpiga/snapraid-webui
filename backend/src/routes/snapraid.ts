@@ -65,6 +65,15 @@ router.get("/status", async (_req, res) => {
     }
 
     const status = await snapraidRunner.getStatus(SNAPRAID_CONF_FILE);
+    // Merge new/modified/deleted from diff (status command doesn't output these)
+    try {
+      const diff = await snapraidRunner.getDiff(SNAPRAID_CONF_FILE);
+      status.newFiles = diff.newFiles;
+      status.modifiedFiles = diff.modifiedFiles;
+      status.deletedFiles = diff.deletedFiles;
+    } catch (_) {
+      // Keep status defaults if diff fails
+    }
     res.json(status);
   } catch (error) {
     console.error("Error getting status:", error);
