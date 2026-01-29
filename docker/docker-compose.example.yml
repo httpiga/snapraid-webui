@@ -1,0 +1,77 @@
+# SnapRAID Web UI - Docker Compose Example
+#
+# Copy this file to docker-compose.yml and adjust the paths to your setup.
+# Then run: docker compose up -d
+#
+# Documentation: https://github.com/httpiga/snapraid-webui
+
+services:
+  snapraid-webui:
+    image: ghcr.io/httpiga/snapraid-webui:latest
+    container_name: snapraid-webui
+    restart: unless-stopped
+
+    volumes:
+      # SnapRAID binary from host (required)
+      # The container needs access to the snapraid binary installed on your host
+      - /usr/bin/snapraid:/usr/bin/snapraid:ro
+
+      # Persistent config folder (required)
+      # This stores your snapraid.conf, schedules, and notification settings
+      - ./config:/app/config
+
+      # ============================================================
+      # MOUNT YOUR DISKS BELOW
+      # ============================================================
+      # Mount your data disks (adjust paths to match your setup)
+      # The paths inside the container should match your snapraid.conf
+      #
+      # Example with 3 data disks:
+      # - /mnt/disk1:/mnt/disk1
+      # - /mnt/disk2:/mnt/disk2
+      # - /mnt/disk3:/mnt/disk3
+      #
+      # Example with different naming:
+      # - /srv/data/movies:/mnt/disk1
+      # - /srv/data/music:/mnt/disk2
+      # - /srv/data/photos:/mnt/disk3
+
+      # Mount your parity disk(s)
+      # - /mnt/parity:/mnt/parity
+
+      # If you store content files on separate locations, mount those too
+      # - /var/snapraid:/var/snapraid
+
+    ports:
+      - "3000:3000"
+
+    environment:
+      # Timezone (important for schedules)
+      - TZ=UTC
+
+      # Optional: Enable authentication
+      # Generate password hash with: docker run --rm -it node:22-alpine -e "console.log(require('bcryptjs').hashSync('YOUR_PASSWORD', 10))"
+      # - AUTH_ENABLED=true
+      # - AUTH_USERNAME=admin
+      # - AUTH_PASSWORD_HASH=$2a$10$...
+
+      # Optional: Session secret (auto-generated if not set)
+      # - SESSION_SECRET=your-random-secret-string
+
+    # Required for:
+    # - Executing snapraid commands
+    # - Reading SMART data from disks
+    # - Accessing disk devices
+    privileged: true
+
+    # Alternative to privileged mode (more restrictive):
+    # cap_add:
+    #   - SYS_RAWIO  # For SMART access
+    # devices:
+    #   - /dev/sda
+    #   - /dev/sdb
+    #   # ... add all your disk devices
+# Optional: Create a network for additional services
+# networks:
+#   default:
+#     name: snapraid-net
