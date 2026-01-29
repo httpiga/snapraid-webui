@@ -308,7 +308,8 @@ export async function updateSchedule(
   if (
     updates.enabled !== undefined ||
     updates.cronExpression ||
-    updates.command
+    updates.command !== undefined ||
+    updates.args !== undefined
   ) {
     stopCronJob(id);
     if (updated.enabled) {

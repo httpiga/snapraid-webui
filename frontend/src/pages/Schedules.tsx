@@ -12,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { CommandOptions } from "@/components/CommandOptions";
 import {
   useGetSchedulesQuery,
   useCreateScheduleMutation,
@@ -21,13 +22,12 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { Plus, Trash2, Edit, Calendar, Clock } from "lucide-react";
 import type { Schedule, SnapRaidCommand } from "@shared/types";
-
-const COMMANDS: { value: SnapRaidCommand; label: string }[] = [
-  { value: "sync", label: "Sync" },
-  { value: "scrub", label: "Scrub" },
-  { value: "check", label: "Check" },
-  { value: "status", label: "Status" },
-];
+import {
+  schedulableCommands,
+  getCommandConfig,
+  optionsToArgs,
+  argsToOptions,
+} from "@/lib/command-config";
 
 const CRON_PRESETS = [
   { label: "Every day at 2 AM", value: "0 2 * * *" },
@@ -46,6 +46,9 @@ interface ScheduleFormData {
   enabled: boolean;
 }
 
+/** Option values for the selected command (key -> value) */
+type OptionValues = Record<string, unknown>;
+
 export function Schedules() {
   const { data: schedules, isLoading } = useGetSchedulesQuery();
   const [createSchedule] = useCreateScheduleMutation();
@@ -61,6 +64,9 @@ export function Schedules() {
     cronExpression: "0 2 * * *",
     enabled: true,
   });
+  const [optionValues, setOptionValues] = useState<OptionValues>({});
+
+  const selectedCommandConfig = getCommandConfig(formData.command);
 
   const resetForm = () => {
     setFormData({
@@ -69,6 +75,7 @@ export function Schedules() {
       cronExpression: "0 2 * * *",
       enabled: true,
     });
+    setOptionValues({});
     setCronPreset("0 2 * * *");
     setEditingSchedule(null);
     setShowForm(false);
@@ -82,6 +89,10 @@ export function Schedules() {
       cronExpression: schedule.cronExpression,
       enabled: schedule.enabled,
     });
+    const cmdConfig = getCommandConfig(schedule.command);
+    setOptionValues(
+      cmdConfig ? argsToOptions(cmdConfig, schedule.args ?? []) : {}
+    );
 
     const preset = CRON_PRESETS.find(
       (p) => p.value === schedule.cronExpression
@@ -93,17 +104,22 @@ export function Schedules() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    const args = selectedCommandConfig
+      ? optionsToArgs(selectedCommandConfig, optionValues)
+      : [];
+
     try {
       if (editingSchedule) {
         await updateSchedule({
           id: editingSchedule.id,
-          updates: formData,
+          updates: { ...formData, args },
         }).unwrap();
         toast({ title: "Schedule updated" });
       } else {
         await createSchedule({
           ...formData,
           configPath: "",
+          args,
         }).unwrap();
         toast({ title: "Schedule created" });
       }
@@ -187,6 +203,29 @@ export function Schedules() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
+                  <Label htmlFor="command">Command</Label>
+                  <Select
+                    value={formData.command}
+                    onValueChange={(value) => {
+                      const cmd = value as SnapRaidCommand;
+                      setFormData({ ...formData, command: cmd });
+                      setOptionValues({});
+                    }}
+                  >
+                    <SelectTrigger id="command">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {schedulableCommands.map((cmd) => (
+                        <SelectItem key={cmd.command} value={cmd.command}>
+                          {cmd.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
                   <Label htmlFor="name">Name</Label>
                   <Input
                     id="name"
@@ -197,30 +236,6 @@ export function Schedules() {
                     placeholder="Daily Sync"
                     required
                   />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="command">Command</Label>
-                  <Select
-                    value={formData.command}
-                    onValueChange={(value) =>
-                      setFormData({
-                        ...formData,
-                        command: value as SnapRaidCommand,
-                      })
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {COMMANDS.map((cmd) => (
-                        <SelectItem key={cmd.value} value={cmd.value}>
-                          {cmd.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
                 </div>
 
                 <div className="space-y-2">
@@ -278,6 +293,19 @@ export function Schedules() {
                   />
                   <Label htmlFor="enabled">Enabled</Label>
                 </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Options</Label>
+                <Card>
+                  <CardContent className="pt-4">
+                    <CommandOptions
+                      commandConfig={selectedCommandConfig ?? null}
+                      value={optionValues}
+                      onChange={setOptionValues}
+                    />
+                  </CardContent>
+                </Card>
               </div>
 
               <div className="flex gap-2 justify-end">
