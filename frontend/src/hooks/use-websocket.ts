@@ -13,6 +13,10 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
 
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
+  const initialConnectTimeoutRef = useRef<NodeJS.Timeout | undefined>(
+    undefined
+  );
+  const closedByUsRef = useRef(false);
 
   const [isConnected, setIsConnected] = useState(false);
   const [isCommandRunning, setIsCommandRunning] = useState(false);
@@ -80,32 +84,50 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
     };
 
     ws.onclose = () => {
-      console.log("WebSocket disconnected");
+      const wasClosedByUs = closedByUsRef.current;
+      if (!wasClosedByUs) {
+        console.log("WebSocket disconnected");
+      }
       setIsConnected(false);
       wsRef.current = null;
+      closedByUsRef.current = false;
 
-      if (autoReconnect) {
+      if (autoReconnect && !wasClosedByUs) {
         reconnectTimeoutRef.current = setTimeout(() => {
           console.log("Attempting to reconnect...");
-          connect();
+          connectRef.current();
         }, 3000);
       }
     };
 
-    ws.onerror = (error) => {
-      console.error("WebSocket error:", error);
+    ws.onerror = () => {
+      // Only log if we had connected before (avoids noisy first-connection/proxy errors)
+      if (wsRef.current?.readyState === WebSocket.CONNECTING) {
+        // Let onclose handle reconnection; avoid duplicate "WebSocket error" log
+        return;
+      }
+      console.error("WebSocket error");
     };
   }, [onOutput, onComplete, onError, autoReconnect]);
 
   const disconnect = useCallback(() => {
+    closedByUsRef.current = true;
     if (reconnectTimeoutRef.current) {
       clearTimeout(reconnectTimeoutRef.current);
+      reconnectTimeoutRef.current = undefined;
     }
     if (wsRef.current) {
       wsRef.current.close();
       wsRef.current = null;
     }
   }, []);
+
+  // Refs so the mount effect doesn't depend on connect/disconnect (which change when
+  // parent passes new callbacks), avoiding disconnect/reconnect loops.
+  const connectRef = useRef(connect);
+  const disconnectRef = useRef(disconnect);
+  connectRef.current = connect;
+  disconnectRef.current = disconnect;
 
   const sendCommand = useCallback(
     (command: SnapRaidCommand, args: string[] = []) => {
@@ -135,11 +157,22 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
   }, []);
 
   useEffect(() => {
-    connect();
+    // Delay initial connection so the dev proxy and backend are ready and to avoid
+    // React Strict Mode double-mount leaving a stray "interrupted" connection.
+    const timeoutId = setTimeout(() => {
+      initialConnectTimeoutRef.current = undefined;
+      connectRef.current();
+    }, 200);
+    initialConnectTimeoutRef.current = timeoutId;
+
     return () => {
-      disconnect();
+      if (initialConnectTimeoutRef.current !== undefined) {
+        clearTimeout(initialConnectTimeoutRef.current);
+        initialConnectTimeoutRef.current = undefined;
+      }
+      disconnectRef.current();
     };
-  }, [connect, disconnect]);
+  }, []); // Intentionally empty: run only on mount/unmount to avoid disconnect/reconnect loops
 
   return {
     isConnected,
