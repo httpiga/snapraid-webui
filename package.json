@@ -16,9 +16,11 @@
     "build:frontend": "bun run --filter @snapraid-webui/frontend build",
     "start": "bun run --filter @snapraid-webui/backend start",
     "lint": "bun run --filter @snapraid-webui/frontend lint",
-    "typecheck": "bun run --filter @snapraid-webui/backend typecheck && bun run --filter @snapraid-webui/frontend typecheck"
+    "typecheck": "bun run --filter @snapraid-webui/backend typecheck && bun run --filter @snapraid-webui/frontend typecheck",
+    "seed:mock-disks": "bun run scripts/seed-mock-disks.ts"
   },
   "devDependencies": {
+    "@types/node": "^22.10.0",
     "concurrently": "^9.1.0",
     "typescript": "^5.7.3"
   }

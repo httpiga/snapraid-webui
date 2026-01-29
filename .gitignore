@@ -38,3 +38,6 @@ yarn.lock
 
 # Config folder (user data, not committed)
 config/
+
+# Mock disks
+mock-disks/

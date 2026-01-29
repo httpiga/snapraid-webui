@@ -5,6 +5,7 @@
     "": {
       "name": "snapraid-webui",
       "devDependencies": {
+        "@types/node": "^22.10.0",
         "concurrently": "^9.1.0",
         "typescript": "^5.7.3",
       },
