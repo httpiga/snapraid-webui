@@ -52,13 +52,14 @@ docker compose up -d
 
 ### Environment Variables
 
-| Variable             | Description              | Default       |
-| -------------------- | ------------------------ | ------------- |
-| `TZ`                 | Timezone                 | `UTC`         |
-| `AUTH_ENABLED`       | Enable authentication    | `false`       |
-| `AUTH_USERNAME`      | Username for auth        | `admin`       |
-| `AUTH_PASSWORD_HASH` | Bcrypt hash of password  | -             |
-| `CONFIG_PATH`        | Path to config directory | `/app/config` |
+| Variable             | Description              | Default                                       |
+| -------------------- | ------------------------ | --------------------------------------------- |
+| `TZ`                 | Timezone                 | `UTC`                                         |
+| `AUTH_ENABLED`       | Enable authentication    | `false`                                       |
+| `AUTH_USERNAME`      | Username for auth        | `admin`                                       |
+| `AUTH_PASSWORD_HASH` | Bcrypt hash of password  | -                                             |
+| `CONFIG_PATH`        | Path to config directory | `/app/config`                                 |
+| `SNAPRAID_BIN`       | Path to snapraid binary  | `/usr/bin/snapraid` or `snapraid` (from PATH) |
 
 ## Development
 

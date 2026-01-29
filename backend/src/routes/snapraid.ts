@@ -5,6 +5,24 @@ import { snapraidRunner } from "../services/snapraid-runner.js";
 
 const router: IRouter = Router();
 
+const SNAPRAID_NOT_FOUND_MESSAGE = "SnapRAID binary not found";
+const SNAPRAID_NOT_FOUND_CODE = "SNAPRAID_NOT_FOUND";
+
+function isSnapraidNotFoundError(err: unknown): boolean {
+  return (
+    err instanceof Error &&
+    "code" in err &&
+    (err as Error & { code: string }).code === "SNAPRAID_NOT_FOUND"
+  );
+}
+
+function sendSnapraidNotFound(res: import("express").Response): void {
+  res.status(503).json({
+    error: SNAPRAID_NOT_FOUND_MESSAGE,
+    code: SNAPRAID_NOT_FOUND_CODE,
+  });
+}
+
 // Valid commands that can be executed
 const VALID_COMMANDS: SnapRaidCommand[] = [
   "status",
@@ -50,7 +68,11 @@ router.get("/status", async (_req, res) => {
     res.json(status);
   } catch (error) {
     console.error("Error getting status:", error);
-    // Return a default status if snapraid is not available
+    if (isSnapraidNotFoundError(error)) {
+      sendSnapraidNotFound(res);
+      return;
+    }
+    // Return a default status for other errors
     res.json({
       hasErrors: false,
       parityUpToDate: true,
@@ -74,6 +96,10 @@ router.get("/diff", async (_req, res) => {
     res.json(diff);
   } catch (error) {
     console.error("Error getting diff:", error);
+    if (isSnapraidNotFoundError(error)) {
+      sendSnapraidNotFound(res);
+      return;
+    }
     res.status(500).json({ error: "Failed to get diff" });
   }
 });
@@ -88,6 +114,10 @@ router.get("/smart", async (_req, res) => {
     res.json(smart);
   } catch (error) {
     console.error("Error getting SMART info:", error);
+    if (isSnapraidNotFoundError(error)) {
+      sendSnapraidNotFound(res);
+      return;
+    }
     res.status(500).json({ error: "Failed to get SMART info" });
   }
 });
@@ -164,6 +194,10 @@ router.post("/command/:cmd", async (req, res) => {
     });
   } catch (error) {
     console.error(`Error executing command ${command}:`, error);
+    if (isSnapraidNotFoundError(error)) {
+      sendSnapraidNotFound(res);
+      return;
+    }
     res.status(500).json({
       success: false,
       error:
@@ -231,6 +265,10 @@ router.post("/fix", async (req, res) => {
     });
   } catch (error) {
     console.error("Error starting fix:", error);
+    if (isSnapraidNotFoundError(error)) {
+      sendSnapraidNotFound(res);
+      return;
+    }
     res
       .status(500)
       .json({ success: false, error: "Failed to start fix command" });

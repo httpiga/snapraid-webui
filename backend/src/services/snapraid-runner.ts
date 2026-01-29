@@ -83,10 +83,18 @@ export class SnapRaidRunner {
         resolve({ exitCode: code ?? 0, output });
       });
 
-      process.on("error", (err) => {
+      process.on("error", (err: NodeJS.ErrnoException) => {
         this.currentProcess = null;
         this.currentJob = null;
-        reject(err);
+        if (err.code === "ENOENT") {
+          const notFound = new Error("SnapRAID binary not found") as Error & {
+            code: string;
+          };
+          notFound.code = "SNAPRAID_NOT_FOUND";
+          reject(notFound);
+        } else {
+          reject(err);
+        }
       });
     });
   }

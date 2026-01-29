@@ -223,9 +223,16 @@ export function Operations() {
           description: `${cmd.name} executed successfully`,
         });
       } catch (error) {
+        const message =
+          error &&
+          typeof error === "object" &&
+          "error" in error &&
+          typeof (error as { error: unknown }).error === "string"
+            ? (error as { error: string }).error
+            : String(error);
         toast({
           title: "Command failed",
-          description: String(error),
+          description: message,
           variant: "destructive",
         });
       }

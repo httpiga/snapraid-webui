@@ -1,3 +1,4 @@
+import fs from "fs";
 import path from "path";
 
 // Environment configuration
@@ -11,5 +12,8 @@ export const SCHEDULES_FILE = path.join(CONFIG_PATH, "schedules.json");
 export const SNAPRAID_CONF_FILE = path.join(CONFIG_PATH, "snapraid.conf");
 export const LOGS_DIR = path.join(CONFIG_PATH, "logs");
 
-// SnapRAID binary
-export const SNAPRAID_BIN = process.env.SNAPRAID_BIN || "/usr/bin/snapraid";
+// SnapRAID binary: env override, else default Linux path, else "snapraid" (resolved from PATH, e.g. Homebrew on macOS)
+const defaultSnapraidPath = "/usr/bin/snapraid";
+export const SNAPRAID_BIN =
+  process.env.SNAPRAID_BIN ||
+  (fs.existsSync(defaultSnapraidPath) ? defaultSnapraidPath : "snapraid");
