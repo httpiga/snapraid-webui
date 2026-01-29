@@ -41,3 +41,6 @@ config/
 
 # Mock disks
 mock-disks/
+
+# Virtual disk images (scripts/setup-virtual-disks.sh)
+.virtual-disk-images/

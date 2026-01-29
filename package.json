@@ -18,6 +18,8 @@
     "lint": "bun run --filter @snapraid-webui/frontend lint",
     "typecheck": "bun run --filter @snapraid-webui/backend typecheck && bun run --filter @snapraid-webui/frontend typecheck",
     "seed:mock-disks": "bun run scripts/seed-mock-disks.ts",
+    "setup:virtual-disks": "bash scripts/setup-virtual-disks.sh setup",
+    "teardown:virtual-disks": "bash scripts/setup-virtual-disks.sh teardown",
     "prepare": "husky"
   },
   "devDependencies": {

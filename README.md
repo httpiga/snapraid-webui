@@ -85,6 +85,22 @@ bun run dev
 - Frontend: http://localhost:5173
 - Backend: http://localhost:3000
 
+### Local dev: virtual disks (macOS)
+
+SnapRAID requires content files on **different disks** (different devices). Using plain folders under `mock-disks/` makes SnapRAID treat them as the same disk and report: "Content files on the same disk".
+
+To satisfy SnapRAID locally without real disks, use three **virtual disk images** (macOS only):
+
+```bash
+# Create 3 sparse disk images, mount at mock-disks/, seed sample files
+bun run setup:virtual-disks
+
+# When done (optional): unmount; images stay in .virtual-disk-images/
+bun run teardown:virtual-disks
+```
+
+Then run `snapraid status` and `snapraid sync` from the web UI or CLI. On Linux you can achieve the same with `losetup` + separate loop devices and mount points.
+
 ### Project Structure
 
 ```
