@@ -9,7 +9,13 @@ import { useGetStatusQuery } from "@/store/api";
 import { CheckCircle, AlertCircle, HardDrive, FileText } from "lucide-react";
 
 export function Dashboard() {
-  const { data: status, isLoading, error } = useGetStatusQuery();
+  const {
+    data: status,
+    isLoading,
+    error,
+  } = useGetStatusQuery(undefined, {
+    refetchOnMountOrArgChange: true,
+  });
 
   if (isLoading) {
     return (

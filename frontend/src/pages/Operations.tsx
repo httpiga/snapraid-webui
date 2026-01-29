@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useDispatch } from "react-redux";
 import {
   Card,
   CardContent,
@@ -14,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { useWebSocket } from "@/hooks/use-websocket";
 import {
+  api,
   useExecuteCommandMutation,
   useAbortCommandMutation,
 } from "@/store/api";
@@ -156,6 +158,7 @@ const commands: CommandConfig[] = [
 ];
 
 export function Operations() {
+  const dispatch = useDispatch();
   const [selectedCommand, setSelectedCommand] = useState<CommandConfig | null>(
     null
   );
@@ -172,6 +175,7 @@ export function Operations() {
     clearOutput,
   } = useWebSocket({
     onComplete: (exitCode) => {
+      dispatch(api.util.invalidateTags(["Status"]));
       toast({
         title: exitCode === 0 ? "Command completed" : "Command failed",
         description: `Exit code: ${exitCode}`,
