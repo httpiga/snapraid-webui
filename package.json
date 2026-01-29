@@ -9,8 +9,8 @@
   ],
   "scripts": {
     "dev": "concurrently \"bun run dev:backend\" \"bun run dev:frontend\"",
-    "dev:backend": "bun run --filter @snapraid-webui/backend dev",
-    "dev:frontend": "bun run --filter @snapraid-webui/frontend dev",
+    "dev:backend": "bun run --elide-lines=0 --filter @snapraid-webui/backend dev",
+    "dev:frontend": "bun run --elide-lines=0 --filter @snapraid-webui/frontend dev",
     "build": "bun run build:frontend && bun run build:backend",
     "build:backend": "bun run --filter @snapraid-webui/backend build",
     "build:frontend": "bun run --filter @snapraid-webui/frontend build",
