@@ -1,4 +1,5 @@
 import cron from "node-cron";
+import cronParser from "cron-parser";
 import fs from "fs/promises";
 import { existsSync } from "fs";
 import { v4 as uuidv4 } from "uuid";
@@ -47,16 +48,15 @@ async function saveSchedules(schedules: Schedule[]): Promise<void> {
 }
 
 /**
- * Calculate the next run time for a cron expression
+ * Calculate the next run time for a cron expression (5-field: minute hour day month weekday)
  */
 function getNextRunTime(cronExpression: string): string | undefined {
   try {
-    // node-cron doesn't have a built-in way to get next run time
-    // We'll use a simple approximation
-    const task = cron.schedule(cronExpression, () => {}, { scheduled: false });
-    // This is a workaround - ideally use a library like cron-parser
-    task.stop();
-    return new Date(Date.now() + 60000).toISOString(); // Placeholder
+    const interval = cronParser.parseExpression(cronExpression, {
+      currentDate: new Date(),
+    });
+    const next = interval.next();
+    return next.toDate().toISOString();
   } catch {
     return undefined;
   }
@@ -196,10 +196,14 @@ export async function initializeScheduler(): Promise<void> {
 }
 
 /**
- * Get all schedules
+ * Get all schedules (nextRun recomputed from cron so it's always correct)
  */
 export async function getSchedules(): Promise<Schedule[]> {
-  return loadSchedules();
+  const schedules = await loadSchedules();
+  return schedules.map((s) => ({
+    ...s,
+    nextRun: getNextRunTime(s.cronExpression),
+  }));
 }
 
 /**
