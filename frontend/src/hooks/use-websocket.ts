@@ -179,6 +179,7 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
     isCommandRunning,
     currentCommand,
     output,
+    setOutput,
     sendCommand,
     abort,
     clearOutput,

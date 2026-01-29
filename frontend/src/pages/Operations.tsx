@@ -166,6 +166,7 @@ export function Operations() {
     isCommandRunning,
     currentCommand,
     output,
+    setOutput,
     sendCommand,
     abort,
     clearOutput,
@@ -214,10 +215,12 @@ export function Operations() {
     } else {
       // Use REST API for quick commands
       try {
-        await executeCommand({
+        const result = await executeCommand({
           command: cmd.command,
           args,
         }).unwrap();
+        const response = result as { output?: string };
+        setOutput(response.output ?? "");
         toast({
           title: "Command completed",
           description: `${cmd.name} executed successfully`,
