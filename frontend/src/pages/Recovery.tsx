@@ -12,22 +12,26 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { useWebSocket } from "@/hooks/use-websocket";
-import { toast } from "@/hooks/use-toast";
 import {
-  RotateCcw,
-  FolderOpen,
-  File,
-  AlertTriangle,
-  Play,
-  Square,
-} from "lucide-react";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useWebSocket } from "@/hooks/use-websocket";
+import { useGetConfigQuery } from "@/store/api";
+import { toast } from "@/hooks/use-toast";
+import { RotateCcw, File, AlertTriangle, Play, Square } from "lucide-react";
 
 export function Recovery() {
   const [filterPath, setFilterPath] = useState("");
   const [filterMissing, setFilterMissing] = useState(true);
   const [filterError, setFilterError] = useState(false);
   const [filterDisk, setFilterDisk] = useState("");
+
+  const { data: config } = useGetConfigQuery();
+  const diskNames = config?.data ? Object.keys(config.data).sort() : [];
 
   const {
     isConnected,
@@ -120,30 +124,39 @@ export function Recovery() {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="filterPath">File or Directory Filter</Label>
-              <div className="flex gap-2">
-                <Input
-                  id="filterPath"
-                  value={filterPath}
-                  onChange={(e) => setFilterPath(e.target.value)}
-                  placeholder="/path/to/file or /directory/"
-                />
-                <Button variant="outline" size="icon">
-                  <FolderOpen className="h-4 w-4" />
-                </Button>
-              </div>
+              <Input
+                id="filterPath"
+                value={filterPath}
+                onChange={(e) => setFilterPath(e.target.value)}
+                placeholder="e.g. /path/to/file or /directory/"
+              />
               <p className="text-xs text-muted-foreground">
-                Leave empty to recover all files matching other filters
+                Limit recovery to specific paths. Supports wildcards:{" "}
+                <code className="rounded bg-muted px-1">*</code> matches any
+                characters, <code className="rounded bg-muted px-1">?</code>{" "}
+                matches one character. Leave empty to recover all files matching
+                other filters.
               </p>
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="filterDisk">Disk Filter</Label>
-              <Input
-                id="filterDisk"
-                value={filterDisk}
-                onChange={(e) => setFilterDisk(e.target.value)}
-                placeholder="d1"
-              />
+              <Select
+                value={filterDisk || "all"}
+                onValueChange={(v) => setFilterDisk(v === "all" ? "" : v)}
+              >
+                <SelectTrigger id="filterDisk">
+                  <SelectValue placeholder="All disks" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All disks</SelectItem>
+                  {diskNames.map((name) => (
+                    <SelectItem key={name} value={name}>
+                      {name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <p className="text-xs text-muted-foreground">
                 Only recover files from a specific disk
               </p>
