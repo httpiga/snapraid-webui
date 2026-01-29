@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useGetLogsQuery, useGetLogContentQuery } from "@/store/api";
-import { FileText, Calendar, Download, Eye } from "lucide-react";
+import { FileText, Calendar, Download } from "lucide-react";
 import type { LogFile } from "@shared/types";
 
 export function Logs() {

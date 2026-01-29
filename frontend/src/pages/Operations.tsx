@@ -214,13 +214,14 @@ export function Operations() {
     } else {
       // Use REST API for quick commands
       try {
-        const result = await executeCommand({
+        await executeCommand({
           command: cmd.command,
           args,
         }).unwrap();
-        if (result.output) {
-          // Show output in console
-        }
+        toast({
+          title: "Command completed",
+          description: `${cmd.name} executed successfully`,
+        });
       } catch (error) {
         toast({
           title: "Command failed",

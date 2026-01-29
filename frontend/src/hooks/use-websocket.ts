@@ -12,7 +12,7 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
   const { onOutput, onComplete, onError, autoReconnect = true } = options;
 
   const wsRef = useRef<WebSocket | null>(null);
-  const reconnectTimeoutRef = useRef<NodeJS.Timeout>();
+  const reconnectTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
   const [isConnected, setIsConnected] = useState(false);
   const [isCommandRunning, setIsCommandRunning] = useState(false);
