@@ -9,6 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { getCommandBadgeVariant } from "@/lib/utils";
 import { useGetLogsQuery, useGetLogContentQuery } from "@/store/api";
 import { FileText, Calendar, Download } from "lucide-react";
 import type { LogFile } from "@shared/types";
@@ -28,21 +29,6 @@ export function Logs() {
     if (bytes < 1024) return `${bytes} B`;
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-  };
-
-  const getCommandColor = (command: string) => {
-    switch (command) {
-      case "sync":
-        return "default";
-      case "scrub":
-        return "secondary";
-      case "fix":
-        return "destructive";
-      case "check":
-        return "outline";
-      default:
-        return "secondary";
-    }
   };
 
   if (isLoading) {
@@ -87,7 +73,7 @@ export function Logs() {
                     >
                       <div className="flex items-center gap-2 mb-1">
                         <FileText className="h-4 w-4" />
-                        <Badge variant={getCommandColor(log.command)}>
+                        <Badge variant={getCommandBadgeVariant(log.command)}>
                           {log.command}
                         </Badge>
                       </div>
