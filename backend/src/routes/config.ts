@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Router, type IRouter } from "express";
 import fs from "fs/promises";
 import { existsSync } from "fs";
 import { SNAPRAID_CONF_FILE } from "../config.js";
@@ -9,7 +9,7 @@ import {
 } from "../services/config-parser.js";
 import type { ParsedSnapRaidConfig } from "@snapraid-webui/shared";
 
-const router = Router();
+const router: IRouter = Router();
 
 /**
  * GET /api/config

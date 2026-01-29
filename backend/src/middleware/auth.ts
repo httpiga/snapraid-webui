@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction, type RequestHandler } from "express";
 import session from "express-session";
 import bcrypt from "bcryptjs";
 import fs from "fs/promises";
@@ -109,7 +109,7 @@ export async function isAuthEnabled(): Promise<boolean> {
 /**
  * Create session middleware
  */
-export async function createSessionMiddleware() {
+export async function createSessionMiddleware(): Promise<RequestHandler> {
   const settings = await loadAuthSettings();
 
   return session({

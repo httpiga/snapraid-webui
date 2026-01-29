@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Router, type IRouter } from "express";
 import {
   getSchedules,
   getSchedule,
@@ -7,7 +7,7 @@ import {
   deleteSchedule,
 } from "../services/scheduler.js";
 
-const router = Router();
+const router: IRouter = Router();
 
 /**
  * GET /api/schedules
@@ -60,11 +60,9 @@ router.post("/", async (req, res) => {
 
     // Validate required fields
     if (!name || !command || !cronExpression) {
-      res
-        .status(400)
-        .json({
-          error: "Missing required fields: name, command, cronExpression",
-        });
+      res.status(400).json({
+        error: "Missing required fields: name, command, cronExpression",
+      });
       return;
     }
 

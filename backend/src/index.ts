@@ -1,4 +1,4 @@
-import express from "express";
+import express, { type Express } from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import path from "path";
@@ -16,7 +16,7 @@ import { initializeWebSocket } from "./websocket.js";
 import { initializeScheduler } from "./services/scheduler.js";
 import { createSessionMiddleware, authMiddleware } from "./middleware/auth.js";
 
-const app = express();
+const app: Express = express();
 const server = createServer(app);
 
 // Ensure config directory exists

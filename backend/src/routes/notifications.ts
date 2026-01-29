@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Router, type IRouter } from "express";
 import type { NotificationChannel } from "@snapraid-webui/shared";
 import {
   loadNotificationSettings,
@@ -6,7 +6,7 @@ import {
   testNotificationChannel,
 } from "../services/notifications/index.js";
 
-const router = Router();
+const router: IRouter = Router();
 
 /**
  * GET /api/notifications/settings

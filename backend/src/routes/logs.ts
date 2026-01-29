@@ -1,11 +1,11 @@
-import { Router } from "express";
+import { Router, type IRouter } from "express";
 import fs from "fs/promises";
 import { existsSync, mkdirSync } from "fs";
 import path from "path";
 import type { LogFile, SnapRaidCommand } from "@snapraid-webui/shared";
 import { LOGS_DIR } from "../config.js";
 
-const router = Router();
+const router: IRouter = Router();
 
 // Ensure logs directory exists
 if (!existsSync(LOGS_DIR)) {

@@ -1,9 +1,9 @@
-import { Router } from "express";
+import { Router, type IRouter } from "express";
 import type { SnapRaidCommand } from "@snapraid-webui/shared";
 import { SNAPRAID_CONF_FILE } from "../config.js";
 import { snapraidRunner } from "../services/snapraid-runner.js";
 
-const router = Router();
+const router: IRouter = Router();
 
 // Valid commands that can be executed
 const VALID_COMMANDS: SnapRaidCommand[] = [

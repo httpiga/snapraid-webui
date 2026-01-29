@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Router, type IRouter } from "express";
 import {
   loadAuthSettings,
   saveAuthSettings,
@@ -7,7 +7,7 @@ import {
   login,
 } from "../middleware/auth.js";
 
-const router = Router();
+const router: IRouter = Router();
 
 /**
  * GET /api/auth/status
