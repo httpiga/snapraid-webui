@@ -13,6 +13,7 @@ import type {
 export function parseStatusOutput(output: string): SnapRaidStatus {
   const status: SnapRaidStatus = {
     hasErrors: false,
+    hasWarnings: false,
     parityUpToDate: true,
     newFiles: 0,
     modifiedFiles: 0,
@@ -23,9 +24,13 @@ export function parseStatusOutput(output: string): SnapRaidStatus {
   const lines = output.split("\n");
 
   for (const line of lines) {
-    // Check for errors
-    if (line.includes("error") || line.includes("ERROR")) {
+    // Actual array errors only: "DANGER! In the array there are X errors!" (not "No error detected")
+    if (line.includes("DANGER!") && line.includes("errors")) {
       status.hasErrors = true;
+    }
+    // Warnings: "WARNING! ..." (free space, scrub dates, etc.) — separate from errors
+    if (line.includes("WARNING!")) {
+      status.hasWarnings = true;
     }
 
     // Check parity status (SnapRAID status output: "No sync is in progress" vs "NOT fully synced" / "sync in progress at X%")
@@ -40,10 +45,14 @@ export function parseStatusOutput(output: string): SnapRaidStatus {
 
     // new/modified/deleted counts come from 'snapraid diff', not status; status parser leaves them 0
 
-    // Parse scrub percentage
-    const scrubMatch = line.match(/(\d+(?:\.\d+)?)\s*%\s+scrubbed/i);
-    if (scrubMatch) {
-      status.scrubPercentage = parseFloat(scrubMatch[1]);
+    // Scrub coverage: "X% of the array is not scrubbed" -> coverage = 100 - X; "The full array was scrubbed" -> 100%
+    const notScrubbedMatch = line.match(
+      /(\d+)%\s+of\s+the\s+array\s+is\s+not\s+scrubbed/i
+    );
+    if (notScrubbedMatch) {
+      status.scrubPercentage = 100 - parseInt(notScrubbedMatch[1], 10);
+    } else if (line.includes("The full array was scrubbed")) {
+      status.scrubPercentage = 100;
     }
 
     // Parse total files

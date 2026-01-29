@@ -71,16 +71,25 @@ export function Dashboard() {
             <CardTitle className="text-sm font-medium">Array Health</CardTitle>
             {status?.hasErrors ? (
               <AlertCircle className="h-4 w-4 text-destructive" />
+            ) : status?.hasWarnings ? (
+              <AlertCircle className="h-4 w-4 text-yellow-500" />
             ) : (
               <CheckCircle className="h-4 w-4 text-green-500" />
             )}
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {status?.hasErrors ? "Errors Found" : "Healthy"}
+              {status?.hasErrors
+                ? "Errors Found"
+                : status?.hasWarnings
+                ? "Warnings"
+                : "Healthy"}
             </div>
             <p className="text-xs text-muted-foreground">
-              Scrub coverage: {status?.scrubPercentage || 0}%
+              Scrub coverage:{" "}
+              {status?.scrubPercentage !== undefined
+                ? `${status.scrubPercentage}%`
+                : "—"}
             </p>
           </CardContent>
         </Card>

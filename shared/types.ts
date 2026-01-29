@@ -111,6 +111,7 @@ export interface ScrubHistoryPoint {
 
 export interface SnapRaidStatus {
   hasErrors: boolean;
+  hasWarnings?: boolean;
   parityUpToDate: boolean;
   newFiles: number;
   modifiedFiles: number;
