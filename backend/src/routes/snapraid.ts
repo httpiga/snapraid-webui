@@ -71,6 +71,10 @@ router.get("/status", async (_req, res) => {
       status.newFiles = diff.newFiles;
       status.modifiedFiles = diff.modifiedFiles;
       status.deletedFiles = diff.deletedFiles;
+      // Pending changes mean sync is needed (status only says "No sync in progress" when parity matched at last sync)
+      if (status.newFiles + status.modifiedFiles + status.deletedFiles > 0) {
+        status.parityUpToDate = false;
+      }
     } catch (_) {
       // Keep status defaults if diff fails
     }
