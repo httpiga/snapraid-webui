@@ -1,4 +1,5 @@
 import { spawn, type ChildProcess } from "child_process";
+import path from "path";
 import type {
   SnapRaidCommand,
   RunningJob,
@@ -49,10 +50,14 @@ export class SnapRaidRunner {
     return new Promise((resolve, reject) => {
       const fullArgs = ["-c", configPath, ...args, command];
 
+      // Run with cwd = parent of config dir so relative paths in config (e.g. mock-disks/) resolve
+      const cwd = path.dirname(path.dirname(configPath));
+
       console.log(`Executing: ${SNAPRAID_BIN} ${fullArgs.join(" ")}`);
 
       const process = spawn(SNAPRAID_BIN, fullArgs, {
         stdio: ["ignore", "pipe", "pipe"],
+        cwd,
       });
 
       this.currentProcess = process;
