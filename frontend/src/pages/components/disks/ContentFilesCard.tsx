@@ -7,7 +7,9 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { FileBraces, Plus, Trash2 } from "lucide-react";
+import { FileBraces, FolderOpen, Plus, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { FileSystemDialog } from "@/components/FileSystemDialog";
 
 interface ContentFilesCardProps {
   content: string[];
@@ -22,6 +24,8 @@ export function ContentFilesCard({
   onRemove,
   onUpdate,
 }: ContentFilesCardProps) {
+  const [isBrowserOpen, setIsBrowserOpen] = useState(false);
+  const [browserTarget, setBrowserTarget] = useState<number | null>(null);
   return (
     <Card>
       <CardHeader>
@@ -48,6 +52,16 @@ export function ContentFilesCard({
                 className="flex-1"
               />
               <Button
+                variant="outline"
+                size="icon"
+                onClick={() => {
+                  setBrowserTarget(index);
+                  setIsBrowserOpen(true);
+                }}
+              >
+                <FolderOpen className="h-4 w-4" />
+              </Button>
+              <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => onRemove(index)}
@@ -67,6 +81,17 @@ export function ContentFilesCard({
           Add Content
         </Button>
       </CardContent>
+      <FileSystemDialog
+        open={isBrowserOpen}
+        onOpenChange={setIsBrowserOpen}
+        title="Select disk folder"
+        description="Choose the folder that contains the disk data."
+        onSelect={(path) => {
+          if (browserTarget) {
+            onUpdate(browserTarget, path);
+          }
+        }}
+      />
     </Card>
   );
 }

@@ -7,7 +7,9 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { HardDrive, Plus, Trash2 } from "lucide-react";
+import { FolderOpen, HardDrive, Plus, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { FileSystemDialog } from "@/components/FileSystemDialog";
 
 interface DataDisksCardProps {
   data: Record<string, string>;
@@ -23,7 +25,8 @@ export function DataDisksCard({
   onUpdate,
 }: DataDisksCardProps) {
   const entries = Object.entries(data);
-
+  const [isBrowserOpen, setIsBrowserOpen] = useState(false);
+  const [browserTarget, setBrowserTarget] = useState<string | null>(null);
   return (
     <Card>
       <CardHeader>
@@ -55,7 +58,21 @@ export function DataDisksCard({
                 placeholder="/mnt/disk1/"
                 className="flex-1"
               />
-              <Button variant="ghost" size="icon" onClick={() => onRemove(name)}>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => {
+                  setBrowserTarget(name);
+                  setIsBrowserOpen(true);
+                }}
+              >
+                <FolderOpen className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => onRemove(name)}
+              >
                 <Trash2 className="h-4 w-4 text-destructive" />
               </Button>
             </div>
@@ -71,6 +88,17 @@ export function DataDisksCard({
           Add Disk
         </Button>
       </CardContent>
+      <FileSystemDialog
+        open={isBrowserOpen}
+        onOpenChange={setIsBrowserOpen}
+        title="Select disk folder"
+        description="Choose the folder that contains the disk data."
+        onSelect={(path) => {
+          if (browserTarget !== null) {
+            onUpdate(browserTarget, browserTarget, path);
+          }
+        }}
+      />
     </Card>
   );
 }
