@@ -38,11 +38,8 @@ FROM base AS release
 USER root
 RUN apt-get update && apt-get install -y smartmontools snapraid && rm -rf /var/lib/apt/lists/*
 
-COPY --from=install-prod /temp/prod/node_modules /app/node_modules
-COPY package.json bun.lock* ./
-COPY shared/ ./shared/
-COPY backend/ ./backend/
-COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
+COPY --from=install-prod /temp/prod /app
+COPY --from=frontend-builder /app/frontend/dist /app/frontend/dist
 
 RUN mkdir -p /app/config && chown -R bun:bun /app
 USER bun
