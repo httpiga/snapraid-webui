@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { CommandBadge } from "@/components/ui/command-badge";
+import { CommandSelect } from "@/components/ui/command-select";
 import {
   Select,
   SelectContent,
@@ -193,25 +194,16 @@ export function Schedules() {
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="command">Command</Label>
-                  <Select
+                  <CommandSelect
                     value={formData.command}
                     onValueChange={(value) => {
                       const cmd = value as SnapRaidCommand;
                       setFormData({ ...formData, command: cmd });
                       setOptionValues({});
                     }}
-                  >
-                    <SelectTrigger id="command">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {schedulableCommands.map((cmd) => (
-                        <SelectItem key={cmd.command} value={cmd.command}>
-                          {cmd.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    commands={schedulableCommands}
+                    placeholder="Select command"
+                  />
                 </div>
 
                 <div className="space-y-2">

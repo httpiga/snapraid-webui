@@ -10,6 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { CommandSelect } from "@/components/ui/command-select";
 import { CommandOptions } from "@/components/CommandOptions";
 import { useWebSocket } from "@/hooks/use-websocket";
 import {
@@ -20,11 +21,11 @@ import {
 import { toast } from "sonner";
 import { Play, Square, Terminal } from "lucide-react";
 import {
-  commands,
+  getCommandConfig,
   optionsToArgs,
   type CommandConfig,
 } from "@/lib/command-config";
-import { COMMAND_ICONS } from "@/lib/commands";
+import type { SnapRaidCommand } from "@shared/types";
 
 export function Operations() {
   const dispatch = useDispatch();
@@ -120,43 +121,22 @@ export function Operations() {
             <CardDescription>Select a command to execute</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-2">
-              {commands.map((cmd) => {
-                const CommandIcon = COMMAND_ICONS[cmd.command];
-                return (
-                  <Button
-                    key={cmd.command}
-                    variant={
-                      selectedCommand?.command === cmd.command
-                        ? "default"
-                        : "outline"
-                    }
-                    className="justify-start h-auto py-3"
-                    onClick={() => {
-                      setSelectedCommand(cmd);
-                      setOptions({});
-                    }}
-                    disabled={isCommandRunning}
-                  >
-                    <div className="flex items-center gap-3">
-                      <CommandIcon className="h-4 w-4 shrink-0" />
-                      <div className="text-left">
-                        <div className="font-medium">{cmd.name}</div>
-                        <div
-                          className={
-                            selectedCommand?.command === cmd.command
-                              ? "text-xs text-primary-foreground/80"
-                              : "text-xs text-muted-foreground"
-                          }
-                        >
-                          {cmd.description}
-                        </div>
-                      </div>
-                    </div>
-                  </Button>
-                );
-              })}
-            </div>
+            <CommandSelect
+              value={selectedCommand?.command ?? ""}
+              onValueChange={(value) => {
+                if (!value) {
+                  setSelectedCommand(null);
+                  setOptions({});
+                  return;
+                }
+                const cmd = getCommandConfig(value as SnapRaidCommand);
+                setSelectedCommand(cmd ?? null);
+                setOptions({});
+              }}
+              disabled={isCommandRunning}
+              placeholder="Select command"
+              className="min-w-[280px]"
+            />
           </CardContent>
         </Card>
 
