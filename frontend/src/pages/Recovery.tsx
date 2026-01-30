@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/select";
 import { useWebSocket } from "@/hooks/use-websocket";
 import { useGetConfigQuery } from "@/store/api";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { RotateCcw, File, AlertTriangle, Play, Square } from "lucide-react";
 
 export function Recovery() {
@@ -43,18 +43,18 @@ export function Recovery() {
     clearOutput,
   } = useWebSocket({
     onComplete: (exitCode) => {
-      toast({
-        title: exitCode === 0 ? "Recovery completed" : "Recovery failed",
-        description: `Exit code: ${exitCode}`,
-        variant: exitCode === 0 ? "default" : "destructive",
-      });
+      if (exitCode === 0) {
+        toast.success("Recovery completed", {
+          description: `Exit code: ${exitCode}`,
+        });
+      } else {
+        toast.error("Recovery failed", {
+          description: `Exit code: ${exitCode}`,
+        });
+      }
     },
     onError: (error) => {
-      toast({
-        title: "Recovery error",
-        description: error,
-        variant: "destructive",
-      });
+      toast.error("Recovery error", { description: error });
     },
   });
 

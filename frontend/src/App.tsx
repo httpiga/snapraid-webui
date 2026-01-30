@@ -7,7 +7,7 @@ import { Schedules } from "./pages/Schedules";
 import { Recovery } from "./pages/Recovery";
 import { Logs } from "./pages/Logs";
 import { Settings } from "./pages/Settings";
-import { Toaster } from "./components/ui/toaster";
+import { Toaster } from "./components/ui/sonner";
 
 function App() {
   return (

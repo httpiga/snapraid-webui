@@ -19,7 +19,7 @@ import {
   useUpdateScheduleMutation,
   useDeleteScheduleMutation,
 } from "@/store/api";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { Plus, Trash2, Edit, Calendar, Clock } from "lucide-react";
 import type { Schedule, SnapRaidCommand } from "@shared/types";
 import {
@@ -114,22 +114,18 @@ export function Schedules() {
           id: editingSchedule.id,
           updates: { ...formData, args },
         }).unwrap();
-        toast({ title: "Schedule updated" });
+        toast.success("Schedule updated");
       } else {
         await createSchedule({
           ...formData,
           configPath: "",
           args,
         }).unwrap();
-        toast({ title: "Schedule created" });
+        toast.success("Schedule created");
       }
       resetForm();
     } catch (error) {
-      toast({
-        title: "Error",
-        description: String(error),
-        variant: "destructive",
-      });
+      toast.error("Error", { description: String(error) });
     }
   };
 
@@ -138,13 +134,9 @@ export function Schedules() {
 
     try {
       await deleteSchedule(id).unwrap();
-      toast({ title: "Schedule deleted" });
+      toast.success("Schedule deleted");
     } catch (error) {
-      toast({
-        title: "Error",
-        description: String(error),
-        variant: "destructive",
-      });
+      toast.error("Error", { description: String(error) });
     }
   };
 
@@ -155,11 +147,7 @@ export function Schedules() {
         updates: { enabled: !schedule.enabled },
       }).unwrap();
     } catch (error) {
-      toast({
-        title: "Error",
-        description: String(error),
-        variant: "destructive",
-      });
+      toast.error("Error", { description: String(error) });
     }
   };
 

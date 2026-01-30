@@ -17,7 +17,7 @@ import {
   useExecuteCommandMutation,
   useAbortCommandMutation,
 } from "@/store/api";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { Play, Square, Terminal } from "lucide-react";
 import {
   commands,
@@ -44,18 +44,18 @@ export function Operations() {
   } = useWebSocket({
     onComplete: (exitCode) => {
       dispatch(api.util.invalidateTags(["Status"]));
-      toast({
-        title: exitCode === 0 ? "Command completed" : "Command failed",
-        description: `Exit code: ${exitCode}`,
-        variant: exitCode === 0 ? "default" : "destructive",
-      });
+      if (exitCode === 0) {
+        toast.success("Command completed", {
+          description: `Exit code: ${exitCode}`,
+        });
+      } else {
+        toast.error("Command failed", {
+          description: `Exit code: ${exitCode}`,
+        });
+      }
     },
     onError: (error) => {
-      toast({
-        title: "Command error",
-        description: error,
-        variant: "destructive",
-      });
+      toast.error("Command error", { description: error });
     },
   });
 
@@ -78,8 +78,7 @@ export function Operations() {
         }).unwrap();
         const response = result as { output?: string };
         setOutput(response.output ?? "");
-        toast({
-          title: "Command completed",
+        toast.success("Command completed", {
           description: `${cmd.name} executed successfully`,
         });
       } catch (error) {
@@ -90,11 +89,7 @@ export function Operations() {
           typeof (error as { error: unknown }).error === "string"
             ? (error as { error: string }).error
             : String(error);
-        toast({
-          title: "Command failed",
-          description: message,
-          variant: "destructive",
-        });
+        toast.error("Command failed", { description: message });
       }
     }
   };

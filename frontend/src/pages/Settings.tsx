@@ -16,7 +16,7 @@ import {
   useUpdateNotificationSettingsMutation,
   useTestNotificationMutation,
 } from "@/store/api";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import {
   Bell,
   Shield,
@@ -47,26 +47,18 @@ export function Settings() {
 
     try {
       await updateNotificationSettings(settings).unwrap();
-      toast({ title: "Notification settings saved" });
+      toast.success("Notification settings saved");
     } catch (error) {
-      toast({
-        title: "Failed to save settings",
-        description: String(error),
-        variant: "destructive",
-      });
+      toast.error("Failed to save settings", { description: String(error) });
     }
   };
 
   const handleTestNotification = async (channel: NotificationChannel) => {
     try {
       await testNotification({ channel }).unwrap();
-      toast({ title: `Test notification sent to ${channel}` });
+      toast.success(`Test notification sent to ${channel}`);
     } catch (error) {
-      toast({
-        title: "Test failed",
-        description: String(error),
-        variant: "destructive",
-      });
+      toast.error("Test failed", { description: String(error) });
     }
   };
 

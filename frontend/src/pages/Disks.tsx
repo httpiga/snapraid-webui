@@ -17,7 +17,7 @@ import {
   useUpdateRawConfigMutation,
 } from "@/store/api";
 import { Plus, Trash2, Save, HardDrive, Database } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import type { ParsedSnapRaidConfig } from "@shared/types";
 
 export function Disks() {
@@ -125,13 +125,11 @@ export function Disks() {
 
     try {
       await updateConfig(editedConfig).unwrap();
-      toast({ title: "Configuration saved successfully" });
+      toast.success("Configuration saved successfully");
       setEditedConfig(null);
     } catch (error) {
-      toast({
-        title: "Failed to save configuration",
+      toast.error("Failed to save configuration", {
         description: String(error),
-        variant: "destructive",
       });
     }
   };
@@ -139,13 +137,11 @@ export function Disks() {
   const handleSaveRaw = async () => {
     try {
       await updateRawConfig(editedRaw).unwrap();
-      toast({ title: "Configuration saved successfully" });
+      toast.success("Configuration saved successfully");
       setEditedRaw("");
     } catch (error) {
-      toast({
-        title: "Failed to save configuration",
+      toast.error("Failed to save configuration", {
         description: String(error),
-        variant: "destructive",
       });
     }
   };
