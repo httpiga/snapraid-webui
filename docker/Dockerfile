@@ -41,8 +41,7 @@ RUN apt-get update && apt-get install -y smartmontools snapraid && rm -rf /var/l
 COPY --from=install-prod /temp/prod /app
 COPY --from=frontend-builder /app/frontend/dist /app/frontend/dist
 
-RUN mkdir -p /app/config && chown -R bun:bun /app
-USER bun
+RUN mkdir -p /app/config
 
 ENV NODE_ENV=production
 ENV PORT=3000
