@@ -186,7 +186,7 @@ export function Schedules() {
           </p>
         </div>
         <Button onClick={() => setShowForm(true)}>
-          <Plus className="h-4 w-4 mr-2" />
+          <Plus className="h-4 w-4 mr-1" />
           New Schedule
         </Button>
       </div>
@@ -362,7 +362,7 @@ export function Schedules() {
                       size="icon"
                       onClick={() => handleEdit(schedule)}
                     >
-                      <Edit className="h-4 w-4" />
+                      <Edit className="h-4 w-4 mr-1" />
                     </Button>
                     <Button
                       variant="ghost"

@@ -90,15 +90,15 @@ export function Settings() {
       <Tabs defaultValue="notifications">
         <TabsList>
           <TabsTrigger value="notifications">
-            <Bell className="h-4 w-4 mr-2" />
+            <Bell className="h-4 w-4 mr-1" />
             Notifications
           </TabsTrigger>
           <TabsTrigger value="sync">
-            <SettingsIcon className="h-4 w-4 mr-2" />
+            <SettingsIcon className="h-4 w-4 mr-1" />
             Sync Safety
           </TabsTrigger>
           <TabsTrigger value="auth">
-            <Shield className="h-4 w-4 mr-2" />
+            <Shield className="h-4 w-4 mr-1" />
             Authentication
           </TabsTrigger>
         </TabsList>
@@ -167,7 +167,7 @@ export function Settings() {
                   !settings.channels.discord.webhookUrl
                 }
               >
-                <Send className="h-4 w-4 mr-2" />
+                <Send className="h-4 w-4 mr-1" />
                 Test
               </Button>
             </CardContent>
@@ -255,7 +255,7 @@ export function Settings() {
                   !settings.channels.telegram.botToken
                 }
               >
-                <Send className="h-4 w-4 mr-2" />
+                <Send className="h-4 w-4 mr-1" />
                 Test
               </Button>
             </CardContent>
@@ -445,7 +445,7 @@ export function Settings() {
                   !settings.channels.email.smtpHost
                 }
               >
-                <Send className="h-4 w-4 mr-2" />
+                <Send className="h-4 w-4 mr-1" />
                 Test
               </Button>
             </CardContent>
@@ -508,7 +508,7 @@ export function Settings() {
                   !settings.channels.slack.webhookUrl
                 }
               >
-                <Send className="h-4 w-4 mr-2" />
+                <Send className="h-4 w-4 mr-1" />
                 Test
               </Button>
             </CardContent>

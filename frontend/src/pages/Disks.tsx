@@ -9,7 +9,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   useGetConfigQuery,
@@ -191,7 +190,7 @@ export function Disks() {
                   </CardDescription>
                 </div>
                 <Button onClick={handleAddParity} size="sm">
-                  <Plus className="h-4 w-4 mr-2" />
+                  <Plus className="h-4 w-4 mr-1" />
                   Add Parity
                 </Button>
               </div>
@@ -200,9 +199,12 @@ export function Disks() {
               <div className="space-y-3">
                 {currentConfig?.parity.map((path, index) => (
                   <div key={index} className="flex items-center gap-2">
-                    <Badge variant="outline" className="w-20 justify-center">
-                      {index === 0 ? "parity" : `${index + 1}-parity`}
-                    </Badge>
+                    <Input
+                      value={index === 0 ? "parity" : `${index + 1}-parity`}
+                      disabled={true}
+                      className="w-24"
+                    />
+
                     <Input
                       value={path}
                       onChange={(e) =>
@@ -244,7 +246,7 @@ export function Disks() {
                   </CardDescription>
                 </div>
                 <Button onClick={handleAddData} size="sm">
-                  <Plus className="h-4 w-4 mr-2" />
+                  <Plus className="h-4 w-4 mr-1" />
                   Add Disk
                 </Button>
               </div>
@@ -300,7 +302,7 @@ export function Disks() {
                   </CardDescription>
                 </div>
                 <Button onClick={handleAddContent} size="sm">
-                  <Plus className="h-4 w-4 mr-2" />
+                  <Plus className="h-4 w-4 mr-1" />
                   Add Content
                 </Button>
               </div>
@@ -340,7 +342,7 @@ export function Disks() {
           {/* Save Button */}
           <div className="flex justify-end">
             <Button onClick={handleSaveVisual} disabled={!editedConfig}>
-              <Save className="h-4 w-4 mr-2" />
+              <Save className="h-4 w-4 mr-1" />
               Save Configuration
             </Button>
           </div>
@@ -368,7 +370,7 @@ export function Disks() {
 
           <div className="flex justify-end mt-4">
             <Button onClick={handleSaveRaw} disabled={!editedRaw}>
-              <Save className="h-4 w-4 mr-2" />
+              <Save className="h-4 w-4 mr-1" />
               Save Configuration
             </Button>
           </div>

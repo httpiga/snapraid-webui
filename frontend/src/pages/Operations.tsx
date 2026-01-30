@@ -180,7 +180,7 @@ export function Operations() {
                 {isCommandRunning &&
                 currentCommand === selectedCommand.command ? (
                   <Button variant="destructive" onClick={handleAbort}>
-                    <Square className="h-4 w-4 mr-2" />
+                    <Square className="h-4 w-4 mr-1" />
                     Stop
                   </Button>
                 ) : (
@@ -188,7 +188,7 @@ export function Operations() {
                     onClick={() => handleRunCommand(selectedCommand)}
                     disabled={isCommandRunning}
                   >
-                    <Play className="h-4 w-4 mr-2" />
+                    <Play className="h-4 w-4 mr-1" />
                     Run {selectedCommand.name}
                   </Button>
                 )}

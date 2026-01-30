@@ -201,7 +201,7 @@ export function Recovery() {
                   onClick={handleAbort}
                   className="w-full"
                 >
-                  <Square className="h-4 w-4 mr-2" />
+                  <Square className="h-4 w-4 mr-1" />
                   Stop Recovery
                 </Button>
               ) : (
@@ -210,7 +210,7 @@ export function Recovery() {
                   className="w-full"
                   disabled={!isConnected}
                 >
-                  <Play className="h-4 w-4 mr-2" />
+                  <Play className="h-4 w-4 mr-1" />
                   Start Recovery
                 </Button>
               )}
@@ -235,7 +235,7 @@ export function Recovery() {
                 setFilterDisk("");
               }}
             >
-              <File className="h-4 w-4 mr-2" />
+              <File className="h-4 w-4 mr-1" />
               Recover All Deleted Files
             </Button>
             <Button
@@ -248,7 +248,7 @@ export function Recovery() {
                 setFilterDisk("");
               }}
             >
-              <AlertTriangle className="h-4 w-4 mr-2" />
+              <AlertTriangle className="h-4 w-4 mr-1" />
               Fix All Error Files
             </Button>
             <Button
@@ -261,7 +261,7 @@ export function Recovery() {
                 setFilterDisk("");
               }}
             >
-              <RotateCcw className="h-4 w-4 mr-2" />
+              <RotateCcw className="h-4 w-4 mr-1" />
               Full Recovery (Missing + Errors)
             </Button>
           </CardContent>

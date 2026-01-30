@@ -43,20 +43,20 @@ export function Layout() {
       >
         <div
           className={cn(
-            "flex h-16 shrink-0 items-center justify-between border-b transition-[padding] duration-200",
-            collapsed ? "px-2" : "px-4"
+            "flex h-16 shrink-0 items-center border-b transition-[padding] duration-200",
+            collapsed ? "px-2 justify-center" : "px-4 justify-between"
           )}
         >
-          <div className="flex items-center gap-2 min-w-0">
-            {!collapsed && (
+          {!collapsed && (
+            <div className="flex items-center gap-2 min-w-0">
               <>
                 <Database className="h-6 w-6 shrink-0" />
                 <span className="text-lg font-semibold whitespace-nowrap truncate">
                   SnapRAID
                 </span>
               </>
-            )}
-          </div>
+            </div>
+          )}
           <Button
             variant="ghost"
             size="icon"

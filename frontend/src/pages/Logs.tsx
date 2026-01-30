@@ -136,7 +136,7 @@ export function Logs() {
                       href={`/api/logs/${selectedLog.filename}`}
                       download={selectedLog.filename}
                     >
-                      <Download className="h-4 w-4 mr-2" />
+                      <Download className="h-4 w-4 mr-1" />
                       Download
                     </a>
                   </Button>
