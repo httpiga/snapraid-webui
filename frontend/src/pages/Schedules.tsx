@@ -8,7 +8,7 @@ import {
   useUpdateScheduleMutation,
   useDeleteScheduleMutation,
 } from "@/store/api";
-import type { Schedule, SnapRaidCommand } from "@shared/types";
+import type { Schedule } from "@shared/types";
 import {
   schedulableCommands,
   getCommandConfig,
@@ -53,7 +53,7 @@ export function Schedules() {
   });
   const [optionValues, setOptionValues] = useState<OptionValues>({});
 
-  const selectedCommandConfig = getCommandConfig(formData.command);
+  const selectedCommandConfig = getCommandConfig(formData.command) ?? null;
 
   const resetForm = () => {
     setFormData({

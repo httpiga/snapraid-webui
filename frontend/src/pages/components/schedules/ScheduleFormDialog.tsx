@@ -41,7 +41,7 @@ interface ScheduleFormDialogProps {
   formData: ScheduleFormData;
   cronPreset: string;
   cronPresets: CronPreset[];
-  commands: SnapRaidCommand[];
+  commands: CommandConfig[];
   optionValues: Record<string, unknown>;
   selectedCommandConfig: CommandConfig | null;
   onOpenChange: (open: boolean) => void;
