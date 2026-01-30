@@ -127,6 +127,7 @@ export function Schedules() {
       } else {
         await createSchedule({
           ...formData,
+          enabled: true,
           configPath: "",
           args,
         }).unwrap();
@@ -241,7 +242,7 @@ export function Schedules() {
                     }
                   }}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -274,17 +275,6 @@ export function Schedules() {
                   </p>
                 </div>
               )}
-
-              <div className="flex items-center space-x-2 pt-6">
-                <Switch
-                  id="enabled"
-                  checked={formData.enabled}
-                  onCheckedChange={(checked) =>
-                    setFormData({ ...formData, enabled: checked })
-                  }
-                />
-                <Label htmlFor="enabled">Enabled</Label>
-              </div>
             </div>
 
             <div className="space-y-2">
