@@ -29,9 +29,9 @@ export function CommandSelectionCard({
       <CardContent>
         <CommandSelect
           value={selectedCommand?.command ?? ""}
-  onValueChange={(value) =>
-    onSelectCommand(value as SnapRaidCommand | \"\")
-  }
+          onValueChange={(value) =>
+            onSelectCommand(value as SnapRaidCommand | "")
+          }
           disabled={isCommandRunning}
           placeholder="Select command"
           className="min-w-[280px]"
