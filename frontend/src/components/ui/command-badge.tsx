@@ -1,5 +1,6 @@
 import * as React from "react";
-import { Badge, badgeVariants } from "@/components/ui/badge";
+import { Badge } from "@/components/ui/badge";
+import { badgeVariants } from "@/components/ui/badge-variants";
 import { COMMAND_ICONS, COMMAND_LABELS } from "@/lib/commands";
 import { cn } from "@/lib/utils";
 import type { SnapRaidCommand } from "@shared/types";
