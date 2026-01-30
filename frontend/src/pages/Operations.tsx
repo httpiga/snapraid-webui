@@ -167,11 +167,6 @@ export function Operations() {
             <CardTitle>
               {selectedCommand ? selectedCommand.name : "Options"}
             </CardTitle>
-            <CardDescription>
-              {selectedCommand
-                ? "Configure command options"
-                : "Select a command to see options"}
-            </CardDescription>
           </CardHeader>
           <CardContent>
             <CommandOptions
