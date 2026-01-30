@@ -16,6 +16,8 @@ A modern, self-hosted web interface for managing [SnapRAID](https://www.snapraid
 
 ### Using Docker (Recommended)
 
+The Docker image includes SnapRAID, so you do not need to install it on the host or mount the binary.
+
 1. Create a `docker-compose.yml`:
 
 ```yaml
@@ -25,8 +27,6 @@ services:
     container_name: snapraid-webui
     restart: unless-stopped
     volumes:
-      # SnapRAID binary from host (required)
-      - /usr/bin/snapraid:/usr/bin/snapraid:ro
       # Persistent config folder (required)
       - ./config:/app/config
       # Mount your data disks (adjust to your setup)
@@ -52,14 +52,14 @@ docker compose up -d
 
 ### Environment Variables
 
-| Variable             | Description              | Default                                       |
-| -------------------- | ------------------------ | --------------------------------------------- |
-| `TZ`                 | Timezone                 | `UTC`                                         |
-| `AUTH_ENABLED`       | Enable authentication    | `false`                                       |
-| `AUTH_USERNAME`      | Username for auth        | `admin`                                       |
-| `AUTH_PASSWORD_HASH` | Bcrypt hash of password  | -                                             |
-| `CONFIG_PATH`        | Path to config directory | `/app/config`                                 |
-| `SNAPRAID_BIN`       | Path to snapraid binary  | `/usr/bin/snapraid` or `snapraid` (from PATH) |
+| Variable             | Description                                                              | Default             |
+| -------------------- | ------------------------------------------------------------------------ | ------------------- |
+| `TZ`                 | Timezone                                                                 | `UTC`               |
+| `AUTH_ENABLED`       | Enable authentication                                                    | `false`             |
+| `AUTH_USERNAME`      | Username for auth                                                        | `admin`             |
+| `AUTH_PASSWORD_HASH` | Bcrypt hash of password                                                  | -                   |
+| `CONFIG_PATH`        | Path to config directory                                                 | `/app/config`       |
+| `SNAPRAID_BIN`       | Path to snapraid binary (image includes SnapRAID at `/usr/bin/snapraid`) | `/usr/bin/snapraid` |
 
 ## Development
 

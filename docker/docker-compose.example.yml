@@ -1,5 +1,6 @@
 # SnapRAID Web UI - Docker Compose Example
 #
+# The image includes SnapRAID; you do not need to install it on the host or mount the binary.
 # Copy this file to docker-compose.yml and adjust the paths to your setup.
 # Then run: docker compose up -d
 #
@@ -12,10 +13,6 @@ services:
     restart: unless-stopped
 
     volumes:
-      # SnapRAID binary from host (required)
-      # The container needs access to the snapraid binary installed on your host
-      - /usr/bin/snapraid:/usr/bin/snapraid:ro
-
       # Persistent config folder (required)
       # This stores your snapraid.conf, schedules, and notification settings
       - ./config:/app/config
