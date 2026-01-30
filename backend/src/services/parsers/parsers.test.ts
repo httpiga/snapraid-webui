@@ -1,10 +1,11 @@
 import { describe, test, expect } from "bun:test";
+import * as parsers from "./index";
 import {
   parseStatusOutput,
   parseDiffOutput,
   parseSmartOutput,
   parseDiskStatus,
-} from "./index.js";
+} from "./index";
 
 describe("parseStatusOutput", () => {
   test("default status for empty output", () => {
@@ -128,6 +129,15 @@ describe("parseSmartOutput", () => {
     expect(report.disks[0].failureProbability).toBe(0);
     expect(report.disks[0].serial).toBe("S3YJNA0M123456");
     expect(report.disks[0].size).toBe("4TB");
+  });
+});
+
+describe("parsers index", () => {
+  test("exports all parser functions", () => {
+    expect(typeof parsers.parseStatusOutput).toBe("function");
+    expect(typeof parsers.parseDiffOutput).toBe("function");
+    expect(typeof parsers.parseSmartOutput).toBe("function");
+    expect(typeof parsers.parseDiskStatus).toBe("function");
   });
 });
 

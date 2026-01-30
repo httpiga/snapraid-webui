@@ -1,5 +1,16 @@
 import { describe, test, expect } from "bun:test";
-import { getOperationNotificationPayload } from "./index.js";
+import fs from "fs/promises";
+import { mkdtempSync, existsSync } from "fs";
+import path from "path";
+import { tmpdir } from "os";
+import * as realConfig from "../../config";
+import {
+  getOperationNotificationPayload,
+  loadNotificationSettings,
+  saveNotificationSettings,
+  sendNotification,
+  testNotificationChannel,
+} from "./index";
 
 describe("getOperationNotificationPayload", () => {
   test("returns null for check command", () => {
@@ -72,5 +83,85 @@ describe("getOperationNotificationPayload", () => {
     expect(payload).not.toBeNull();
     expect(payload!.event).toBe("scrub_error");
     expect(payload!.title).toBe("Scrub aborted");
+  });
+});
+
+describe("loadNotificationSettings", () => {
+  test("returns default settings when config file does not exist", async () => {
+    const { mock } = await import("bun:test");
+    const fakePath = path.join(
+      mkdtempSync(path.join(tmpdir(), "notif-")),
+      "app-configon"
+    );
+    mock.module("../../config", () => ({
+      CONFIG_PATH: realConfig.CONFIG_PATH,
+      PORT: realConfig.PORT,
+      APP_CONFIG_FILE: fakePath,
+      SCHEDULES_FILE: realConfig.SCHEDULES_FILE,
+      SNAPRAID_CONF_FILE: realConfig.SNAPRAID_CONF_FILE,
+      LOGS_DIR: realConfig.LOGS_DIR,
+      SNAPRAID_BIN: realConfig.SNAPRAID_BIN,
+    }));
+    const { loadNotificationSettings: load } = await import("./index");
+    const settings = await load();
+    expect(settings.channels.discord.enabled).toBe(false);
+    expect(settings.channels.telegram.enabled).toBe(false);
+    expect(settings.events.sync_complete).toContain("discord");
+  });
+});
+
+describe("saveNotificationSettings and loadNotificationSettings", () => {
+  test("save then load round-trips settings", async () => {
+    const tmp = mkdtempSync(path.join(tmpdir(), "notif-"));
+    const configPath = path.join(tmp, "app-configon");
+    const { mock } = await import("bun:test");
+    mock.module("../../config", () => ({
+      CONFIG_PATH: realConfig.CONFIG_PATH,
+      PORT: realConfig.PORT,
+      APP_CONFIG_FILE: configPath,
+      SCHEDULES_FILE: realConfig.SCHEDULES_FILE,
+      SNAPRAID_CONF_FILE: realConfig.SNAPRAID_CONF_FILE,
+      LOGS_DIR: realConfig.LOGS_DIR,
+      SNAPRAID_BIN: realConfig.SNAPRAID_BIN,
+    }));
+
+    const { loadNotificationSettings, saveNotificationSettings } = await import(
+      "./index"
+    );
+    const settings = await loadNotificationSettings();
+    expect(settings.channels.discord.enabled).toBe(false);
+    settings.channels.discord.enabled = true;
+    settings.channels.discord.webhookUrl = "https://discord.com/webhook";
+    await saveNotificationSettings(settings);
+    expect(existsSync(configPath)).toBe(true);
+    const content = await fs.readFile(configPath, "utf-8");
+    const parsed = JSON.parse(content);
+    expect(parsed.notifications.channels.discord.enabled).toBe(true);
+    expect(parsed.notifications.channels.discord.webhookUrl).toBe(
+      "https://discord.com/webhook"
+    );
+  });
+});
+
+describe("sendNotification", () => {
+  test("returns success false and all results false when no channels enabled", async () => {
+    const result = await sendNotification("sync_complete", "Title", "Message");
+    expect(result.success).toBe(false);
+    expect(result.results.discord).toBe(false);
+    expect(result.results.telegram).toBe(false);
+    expect(result.results.email).toBe(false);
+    expect(result.results.slack).toBe(false);
+  });
+});
+
+describe("testNotificationChannel", () => {
+  test("returns false when channel not configured (e.g. discord)", async () => {
+    const result = await testNotificationChannel("discord");
+    expect(result).toBe(false);
+  });
+
+  test("returns false for telegram when not configured", async () => {
+    const result = await testNotificationChannel("telegram");
+    expect(result).toBe(false);
   });
 });

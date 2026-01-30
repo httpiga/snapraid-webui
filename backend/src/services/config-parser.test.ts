@@ -1,9 +1,14 @@
 import { describe, test, expect } from "bun:test";
+import fs from "fs/promises";
+import { mkdtempSync } from "fs";
+import path from "path";
+import { tmpdir } from "os";
 import {
   parseConfigFromContent,
+  parseSnapRaidConfig,
   serializeSnapRaidConfig,
   validateSnapRaidConfig,
-} from "./config-parser.js";
+} from "./config-parser";
 
 describe("parseConfigFromContent", () => {
   test("returns empty config for empty content", () => {
@@ -216,5 +221,27 @@ describe("validateSnapRaidConfig", () => {
     const { valid, errors } = validateSnapRaidConfig(config);
     expect(errors.some((e) => e.startsWith("Warning"))).toBe(true);
     expect(valid).toBe(true);
+  });
+});
+
+describe("parseSnapRaidConfig", () => {
+  test("returns empty config when file does not exist", async () => {
+    const tmp = mkdtempSync(path.join(tmpdir(), "config-test-"));
+    const configPath = path.join(tmp, "nonexistent.conf");
+    const config = await parseSnapRaidConfig(configPath);
+    expect(config.parity).toEqual([]);
+    expect(config.content).toEqual([]);
+    expect(config.data).toEqual({});
+  });
+
+  test("reads and parses file when it exists", async () => {
+    const tmp = mkdtempSync(path.join(tmpdir(), "config-test-"));
+    const configPath = path.join(tmp, "snapraid.conf");
+    const content = "parity /p/parity\ncontent /c/content\ndata d1 /mnt/d1/";
+    await fs.writeFile(configPath, content, "utf-8");
+    const config = await parseSnapRaidConfig(configPath);
+    expect(config.parity).toEqual(["/p/parity"]);
+    expect(config.content).toEqual(["/c/content"]);
+    expect(config.data).toEqual({ d1: "/mnt/d1/" });
   });
 });
