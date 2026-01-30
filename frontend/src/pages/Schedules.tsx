@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,6 +14,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { CommandOptions } from "@/components/CommandOptions";
 import {
   useGetSchedulesQuery,
@@ -181,126 +188,129 @@ export function Schedules() {
         </Button>
       </div>
 
-      {/* Schedule Form */}
-      {showForm && (
-        <Card>
-          <CardHeader>
-            <CardTitle>
+      {/* Schedule Form Dialog */}
+      <Dialog
+        open={showForm}
+        onOpenChange={(open) => {
+          if (!open) resetForm();
+        }}
+      >
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>
               {editingSchedule ? "Edit Schedule" : "New Schedule"}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="command">Command</Label>
-                  <CommandSelect
-                    value={formData.command}
-                    onValueChange={(value) => {
-                      const cmd = value as SnapRaidCommand;
-                      setFormData({ ...formData, command: cmd });
-                      setOptionValues({});
-                    }}
-                    commands={schedulableCommands}
-                    placeholder="Select command"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="name">Name</Label>
-                  <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) =>
-                      setFormData({ ...formData, name: e.target.value })
-                    }
-                    placeholder="Daily Sync"
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="schedule">Schedule</Label>
-                  <Select
-                    value={cronPreset}
-                    onValueChange={(value) => {
-                      setCronPreset(value);
-                      if (value !== "custom") {
-                        setFormData({ ...formData, cronExpression: value });
-                      }
-                    }}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {CRON_PRESETS.map((preset) => (
-                        <SelectItem key={preset.value} value={preset.value}>
-                          {preset.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {cronPreset === "custom" && (
-                  <div className="space-y-2">
-                    <Label htmlFor="cron">Cron Expression</Label>
-                    <Input
-                      id="cron"
-                      value={formData.cronExpression}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          cronExpression: e.target.value,
-                        })
-                      }
-                      placeholder="0 2 * * *"
-                      required
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Format: minute hour day month weekday
-                    </p>
-                  </div>
-                )}
-
-                <div className="flex items-center space-x-2 pt-6">
-                  <Switch
-                    id="enabled"
-                    checked={formData.enabled}
-                    onCheckedChange={(checked) =>
-                      setFormData({ ...formData, enabled: checked })
-                    }
-                  />
-                  <Label htmlFor="enabled">Enabled</Label>
-                </div>
+            </DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="command">Command</Label>
+                <CommandSelect
+                  value={formData.command}
+                  onValueChange={(value) => {
+                    const cmd = value as SnapRaidCommand;
+                    setFormData({ ...formData, command: cmd });
+                    setOptionValues({});
+                  }}
+                  commands={schedulableCommands}
+                  placeholder="Select command"
+                />
               </div>
 
               <div className="space-y-2">
-                <Label>Options</Label>
-                <Card>
-                  <CardContent className="pt-4">
-                    <CommandOptions
-                      commandConfig={selectedCommandConfig ?? null}
-                      value={optionValues}
-                      onChange={setOptionValues}
-                    />
-                  </CardContent>
-                </Card>
+                <Label htmlFor="name">Name</Label>
+                <Input
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
+                  placeholder="Daily Sync"
+                  required
+                />
               </div>
 
-              <div className="flex gap-2 justify-end">
-                <Button type="button" variant="outline" onClick={resetForm}>
-                  Cancel
-                </Button>
-                <Button type="submit">
-                  {editingSchedule ? "Update" : "Create"}
-                </Button>
+              <div className="space-y-2">
+                <Label htmlFor="schedule">Schedule</Label>
+                <Select
+                  value={cronPreset}
+                  onValueChange={(value) => {
+                    setCronPreset(value);
+                    if (value !== "custom") {
+                      setFormData({ ...formData, cronExpression: value });
+                    }
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CRON_PRESETS.map((preset) => (
+                      <SelectItem key={preset.value} value={preset.value}>
+                        {preset.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-            </form>
-          </CardContent>
-        </Card>
-      )}
+
+              {cronPreset === "custom" && (
+                <div className="space-y-2">
+                  <Label htmlFor="cron">Cron Expression</Label>
+                  <Input
+                    id="cron"
+                    value={formData.cronExpression}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        cronExpression: e.target.value,
+                      })
+                    }
+                    placeholder="0 2 * * *"
+                    required
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Format: minute hour day month weekday
+                  </p>
+                </div>
+              )}
+
+              <div className="flex items-center space-x-2 pt-6">
+                <Switch
+                  id="enabled"
+                  checked={formData.enabled}
+                  onCheckedChange={(checked) =>
+                    setFormData({ ...formData, enabled: checked })
+                  }
+                />
+                <Label htmlFor="enabled">Enabled</Label>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Options</Label>
+              <Card>
+                <CardContent>
+                  <CommandOptions
+                    commandConfig={selectedCommandConfig ?? null}
+                    value={optionValues}
+                    onChange={setOptionValues}
+                  />
+                </CardContent>
+              </Card>
+            </div>
+
+            <DialogFooter showCloseButton={false}>
+              <Button type="button" variant="outline" onClick={resetForm}>
+                Cancel
+              </Button>
+              <Button type="submit">
+                {editingSchedule ? "Update" : "Create"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       {/* Schedules List */}
       <div className="grid gap-4">
