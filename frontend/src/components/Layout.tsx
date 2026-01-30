@@ -5,12 +5,12 @@ import {
   HardDrive,
   Play,
   Calendar,
-  RotateCcw,
   FileText,
   Settings,
   Database,
   PanelLeftClose,
   PanelLeftOpen,
+  Cross,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -20,7 +20,7 @@ const navigation = [
   { name: "Disks", href: "/disks", icon: HardDrive },
   { name: "Operations", href: "/operations", icon: Play },
   { name: "Schedules", href: "/schedules", icon: Calendar },
-  { name: "Recovery", href: "/recovery", icon: RotateCcw },
+  { name: "Recovery", href: "/recovery", icon: Cross },
   { name: "Logs", href: "/logs", icon: FileText },
   { name: "Settings", href: "/settings", icon: Settings },
 ];
