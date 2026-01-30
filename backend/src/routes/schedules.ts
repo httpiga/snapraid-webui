@@ -8,6 +8,26 @@ import {
 } from "../services/scheduler.js";
 
 const router: IRouter = Router();
+type ExpressResponse = import("express").Response;
+
+function handleScheduleMutationError(
+  res: ExpressResponse,
+  error: unknown,
+  logMessage: string,
+  defaultStatus: number,
+  fallbackMessage: string
+) {
+  const message =
+    error instanceof Error ? error.message : fallbackMessage;
+  console.error(logMessage, error);
+
+  if (message.includes("not found")) {
+    res.status(404).json({ error: message });
+    return;
+  }
+
+  res.status(defaultStatus).json({ error: message });
+}
 
 /**
  * GET /api/schedules
@@ -93,15 +113,13 @@ router.put("/:id", async (req, res) => {
     const schedule = await updateSchedule(req.params.id, req.body);
     res.json(schedule);
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Failed to update schedule";
-    console.error("Error updating schedule:", error);
-
-    if (message.includes("not found")) {
-      res.status(404).json({ error: message });
-    } else {
-      res.status(400).json({ error: message });
-    }
+    handleScheduleMutationError(
+      res,
+      error,
+      "Error updating schedule:",
+      400,
+      "Failed to update schedule"
+    );
   }
 });
 
@@ -114,15 +132,13 @@ router.delete("/:id", async (req, res) => {
     await deleteSchedule(req.params.id);
     res.json({ success: true });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Failed to delete schedule";
-    console.error("Error deleting schedule:", error);
-
-    if (message.includes("not found")) {
-      res.status(404).json({ error: message });
-    } else {
-      res.status(500).json({ error: message });
-    }
+    handleScheduleMutationError(
+      res,
+      error,
+      "Error deleting schedule:",
+      500,
+      "Failed to delete schedule"
+    );
   }
 });
 
