@@ -337,7 +337,7 @@ function EmailForm({
         <Switch
           id="edit-smtp-secure"
           checked={config.smtpSecure}
-          onCheckedChange={(checked) =>
+          onCheckedChange={(checked: boolean) =>
             onChange({ ...config, smtpSecure: checked })
           }
         />

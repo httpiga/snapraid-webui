@@ -48,7 +48,7 @@ export function CommandOptions({
               </div>
               <Switch
                 checked={!!value[opt.key]}
-                onCheckedChange={(checked) =>
+                onCheckedChange={(checked: boolean) =>
                   onChange({ ...value, [opt.key]: checked })
                 }
               />
