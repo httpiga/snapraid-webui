@@ -111,7 +111,7 @@ export function Operations() {
           <h1 className="text-3xl font-bold tracking-tight">Operations</h1>
           <p className="text-muted-foreground">Execute SnapRAID commands</p>
         </div>
-        <Badge variant={isConnected ? "success" : "destructive"}>
+        <Badge variant={isConnected ? "default" : "destructive"}>
           {isConnected ? "Connected" : "Disconnected"}
         </Badge>
       </div>
@@ -144,7 +144,13 @@ export function Operations() {
                     {cmd.icon}
                     <div className="text-left">
                       <div className="font-medium">{cmd.name}</div>
-                      <div className="text-xs text-muted-foreground">
+                      <div
+                        className={
+                          selectedCommand?.command === cmd.command
+                            ? "text-xs text-primary-foreground/80"
+                            : "text-xs text-muted-foreground"
+                        }
+                      >
                         {cmd.description}
                       </div>
                     </div>

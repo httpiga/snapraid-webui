@@ -337,7 +337,7 @@ export function Schedules() {
                       <div className="flex items-center gap-2">
                         <h3 className="font-medium">{schedule.name}</h3>
                         <Badge
-                          variant={schedule.enabled ? "success" : "secondary"}
+                          variant={schedule.enabled ? "default" : "secondary"}
                         >
                           {schedule.enabled ? "Active" : "Disabled"}
                         </Badge>
