@@ -73,7 +73,7 @@ export function Logs() {
                       <div className="flex items-center gap-2 mb-1">
                         {log.scheduled ? (
                           <Clock
-                            className="h-4 w-4 text-muted-foreground"
+                            className="h-4 w-4 text-primary"
                             aria-label="Scheduled operation"
                           />
                         ) : (
