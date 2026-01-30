@@ -8,29 +8,30 @@ WORKDIR /app
 FROM base AS install
 RUN mkdir -p /temp/dev
 COPY package.json bun.lock* /temp/dev/
+COPY shared/package.json /temp/dev/shared/package.json
+COPY frontend/package.json /temp/dev/frontend/package.json
+COPY backend/package.json /temp/dev/backend/package.json
+RUN cd /temp/dev && bun install --frozen-lockfile
 COPY shared/ /temp/dev/shared/
 COPY frontend/ /temp/dev/frontend/
 COPY backend/ /temp/dev/backend/
-RUN cd /temp/dev && bun install --frozen-lockfile
 
 # Build frontend
 FROM base AS frontend-builder
-COPY --from=install /temp/dev/node_modules /app/node_modules
-COPY package.json bun.lock* ./
-COPY shared/ ./shared/
-COPY frontend/ ./frontend/
-COPY backend/ ./backend/
-RUN cd frontend && bun run build
+COPY --from=install /temp/dev /app
+RUN cd /app/frontend && bun run build
 
 # Install production dependencies into temp directory
 FROM base AS install-prod
 RUN mkdir -p /temp/prod
 COPY package.json bun.lock* /temp/prod/
+COPY shared/package.json /temp/prod/shared/package.json
+COPY backend/package.json /temp/prod/backend/package.json
+COPY frontend/package.json /temp/prod/frontend/package.json
+RUN cd /temp/prod && bun install --frozen-lockfile --production --ignore-scripts
 COPY shared/ /temp/prod/shared/
 COPY backend/ /temp/prod/backend/
-COPY frontend/ /temp/prod/frontend/
 COPY --from=frontend-builder /app/frontend/dist /temp/prod/frontend/dist
-RUN cd /temp/prod && bun install --frozen-lockfile --production --ignore-scripts
 
 # Final image: copy production node_modules and source (no bun install in final stage)
 FROM base AS release
