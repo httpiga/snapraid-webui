@@ -36,11 +36,11 @@ import {
   Plus,
 } from "lucide-react";
 import type { NotificationSettings, NotificationChannel } from "@shared/types";
+import { NotificationProviderEditDialog } from "@/components/NotificationProviderEditDialog";
 import {
-  NotificationProviderEditDialog,
   getEmptyChannelConfig,
   getChannelConfigSummary,
-} from "@/components/NotificationProviderEditDialog";
+} from "@/lib/notification-channel-utils";
 
 function NotificationProviderCard({
   channel,
