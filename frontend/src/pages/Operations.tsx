@@ -18,6 +18,7 @@ import { PageHeader } from "@/pages/components/PageHeader";
 import { CommandSelectionCard } from "@/pages/components/operations/CommandSelectionCard";
 import { CommandOptionsCard } from "@/pages/components/operations/CommandOptionsCard";
 import { CommandOutputCard } from "@/pages/components/operations/CommandOutputCard";
+import { getApiErrorMessage } from "@/lib/api-error";
 
 export function Operations() {
   const dispatch = useDispatch();
@@ -74,14 +75,9 @@ export function Operations() {
           description: `${cmd.name} executed successfully`,
         });
       } catch (error) {
-        const message =
-          error &&
-          typeof error === "object" &&
-          "error" in error &&
-          typeof (error as { error: unknown }).error === "string"
-            ? (error as { error: string }).error
-            : String(error);
-        toast.error("Command failed", { description: message });
+        toast.error("Command failed", {
+          description: getApiErrorMessage(error),
+        });
       }
     }
   };

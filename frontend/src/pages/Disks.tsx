@@ -16,6 +16,7 @@ import { ParityDisksCard } from "@/pages/components/disks/ParityDisksCard";
 import { DataDisksCard } from "@/pages/components/disks/DataDisksCard";
 import { ContentFilesCard } from "@/pages/components/disks/ContentFilesCard";
 import { RawConfigEditor } from "@/pages/components/disks/RawConfigEditor";
+import { getApiErrorMessage } from "@/lib/api-error";
 
 export function Disks() {
   const { data: config, isLoading } = useGetConfigQuery();
@@ -125,7 +126,7 @@ export function Disks() {
       setEditedConfig(null);
     } catch (error) {
       toast.error("Failed to save configuration", {
-        description: String(error),
+        description: getApiErrorMessage(error),
       });
     }
   };
@@ -137,7 +138,7 @@ export function Disks() {
       setEditedRaw("");
     } catch (error) {
       toast.error("Failed to save configuration", {
-        description: String(error),
+        description: getApiErrorMessage(error),
       });
     }
   };

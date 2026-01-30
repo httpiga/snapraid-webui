@@ -22,6 +22,7 @@ import {
   type ScheduleFormData,
 } from "@/pages/components/schedules/ScheduleFormDialog";
 import { ScheduleList } from "@/pages/components/schedules/ScheduleList";
+import { getApiErrorMessage } from "@/lib/api-error";
 
 const CRON_PRESETS = [
   { label: "Every day at 2 AM", value: "0 2 * * *" },
@@ -113,7 +114,7 @@ export function Schedules() {
       }
       resetForm();
     } catch (error) {
-      toast.error("Error", { description: String(error) });
+      toast.error("Error", { description: getApiErrorMessage(error) });
     }
   };
 
@@ -124,7 +125,7 @@ export function Schedules() {
       await deleteSchedule(id).unwrap();
       toast.success("Schedule deleted");
     } catch (error) {
-      toast.error("Error", { description: String(error) });
+      toast.error("Error", { description: getApiErrorMessage(error) });
     }
   };
 
@@ -135,7 +136,7 @@ export function Schedules() {
         updates: { enabled: !schedule.enabled },
       }).unwrap();
     } catch (error) {
-      toast.error("Error", { description: String(error) });
+      toast.error("Error", { description: getApiErrorMessage(error) });
     }
   };
 
