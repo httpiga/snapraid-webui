@@ -8,6 +8,7 @@ import {
 } from "../services/notifications/index.js";
 
 const router: IRouter = Router();
+type ExpressResponse = import("express").Response;
 
 const SNAPRAID_NOT_FOUND_MESSAGE = "SnapRAID binary not found";
 const SNAPRAID_NOT_FOUND_CODE = "SNAPRAID_NOT_FOUND";
@@ -20,11 +21,83 @@ function isSnapraidNotFoundError(err: unknown): boolean {
   );
 }
 
-function sendSnapraidNotFound(res: import("express").Response): void {
+function sendSnapraidNotFound(res: ExpressResponse): void {
   res.status(503).json({
     error: SNAPRAID_NOT_FOUND_MESSAGE,
     code: SNAPRAID_NOT_FOUND_CODE,
   });
+}
+
+function handleSnapraidError(
+  res: ExpressResponse,
+  error: unknown,
+  logMessage: string,
+  fallback: () => void
+): void {
+  console.error(logMessage, error);
+  if (isSnapraidNotFoundError(error)) {
+    sendSnapraidNotFound(res);
+    return;
+  }
+  fallback();
+}
+
+function respondIfCommandRunning(res: ExpressResponse): boolean {
+  if (!snapraidRunner.isRunning()) {
+    return false;
+  }
+  res.status(409).json({
+    success: false,
+    error: "Another command is already running",
+    currentJob: snapraidRunner.getCurrentJob(),
+  });
+  return true;
+}
+
+async function getStatusWithDiff() {
+  const status = await snapraidRunner.getStatus(SNAPRAID_CONF_FILE);
+  try {
+    const diff = await snapraidRunner.getDiff(SNAPRAID_CONF_FILE);
+    status.newFiles = diff.newFiles;
+    status.modifiedFiles = diff.modifiedFiles;
+    status.deletedFiles = diff.deletedFiles;
+    if (status.newFiles + status.modifiedFiles + status.deletedFiles > 0) {
+      status.parityUpToDate = false;
+    }
+  } catch (_) {
+    // Keep status defaults if diff fails
+  }
+  return status;
+}
+
+const LONG_RUNNING_COMMANDS: SnapRaidCommand[] = [
+  "sync",
+  "scrub",
+  "check",
+  "fix",
+];
+
+function queueLongRunningCommand(command: SnapRaidCommand, args: string[]) {
+  snapraidRunner
+    .executeCommand(command, SNAPRAID_CONF_FILE, undefined, args)
+    .then(async (result) => {
+      const payload = getOperationNotificationPayload(command, result.exitCode);
+      if (payload) {
+        try {
+          await sendNotification(
+            payload.event,
+            payload.title,
+            payload.message,
+            payload.details
+          );
+        } catch (err) {
+          console.error("Failed to send operation notification:", err);
+        }
+      }
+    })
+    .catch((error) => {
+      console.error(`Command ${command} failed:`, error);
+    });
 }
 
 // Valid commands that can be executed
@@ -53,7 +126,6 @@ const VALID_COMMANDS: SnapRaidCommand[] = [
  */
 router.get("/status", async (_req, res) => {
   try {
-    // Check if command is already running
     const currentJob = snapraidRunner.getCurrentJob();
     if (currentJob) {
       res.json({
@@ -68,37 +140,20 @@ router.get("/status", async (_req, res) => {
       return;
     }
 
-    const status = await snapraidRunner.getStatus(SNAPRAID_CONF_FILE);
-    // Merge new/modified/deleted from diff (status command doesn't output these)
-    try {
-      const diff = await snapraidRunner.getDiff(SNAPRAID_CONF_FILE);
-      status.newFiles = diff.newFiles;
-      status.modifiedFiles = diff.modifiedFiles;
-      status.deletedFiles = diff.deletedFiles;
-      // Pending changes mean sync is needed (status only says "No sync in progress" when parity matched at last sync)
-      if (status.newFiles + status.modifiedFiles + status.deletedFiles > 0) {
-        status.parityUpToDate = false;
-      }
-    } catch (_) {
-      // Keep status defaults if diff fails
-    }
+    const status = await getStatusWithDiff();
     res.json(status);
   } catch (error) {
-    console.error("Error getting status:", error);
-    if (isSnapraidNotFoundError(error)) {
-      sendSnapraidNotFound(res);
-      return;
-    }
-    // Return a default status for other errors
-    res.json({
-      hasErrors: false,
-      parityUpToDate: true,
-      newFiles: 0,
-      modifiedFiles: 0,
-      deletedFiles: 0,
-      rawOutput: `Error: ${
-        error instanceof Error ? error.message : "Unknown error"
-      }`,
+    handleSnapraidError(res, error, "Error getting status:", () => {
+      res.json({
+        hasErrors: false,
+        parityUpToDate: true,
+        newFiles: 0,
+        modifiedFiles: 0,
+        deletedFiles: 0,
+        rawOutput: `Error: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`,
+      });
     });
   }
 });
@@ -112,12 +167,9 @@ router.get("/diff", async (_req, res) => {
     const diff = await snapraidRunner.getDiff(SNAPRAID_CONF_FILE);
     res.json(diff);
   } catch (error) {
-    console.error("Error getting diff:", error);
-    if (isSnapraidNotFoundError(error)) {
-      sendSnapraidNotFound(res);
-      return;
-    }
-    res.status(500).json({ error: "Failed to get diff" });
+    handleSnapraidError(res, error, "Error getting diff:", () => {
+      res.status(500).json({ error: "Failed to get diff" });
+    });
   }
 });
 
@@ -130,12 +182,9 @@ router.get("/smart", async (_req, res) => {
     const smart = await snapraidRunner.getSmart(SNAPRAID_CONF_FILE);
     res.json(smart);
   } catch (error) {
-    console.error("Error getting SMART info:", error);
-    if (isSnapraidNotFoundError(error)) {
-      sendSnapraidNotFound(res);
-      return;
-    }
-    res.status(500).json({ error: "Failed to get SMART info" });
+    handleSnapraidError(res, error, "Error getting SMART info:", () => {
+      res.status(500).json({ error: "Failed to get SMART info" });
+    });
   }
 });
 
@@ -165,43 +214,13 @@ router.post("/command/:cmd", async (req, res) => {
   }
 
   // Check if a command is already running
-  if (snapraidRunner.isRunning()) {
-    res.status(409).json({
-      success: false,
-      error: "Another command is already running",
-      currentJob: snapraidRunner.getCurrentJob(),
-    });
+  if (respondIfCommandRunning(res)) {
     return;
   }
 
   try {
-    // For long-running commands, return immediately and let WebSocket handle output
-    if (["sync", "scrub", "check", "fix"].includes(command)) {
-      // Start the command but don't wait for it
-      snapraidRunner
-        .executeCommand(command, SNAPRAID_CONF_FILE, undefined, args)
-        .then(async (result) => {
-          const payload = getOperationNotificationPayload(
-            command,
-            result.exitCode
-          );
-          if (payload) {
-            try {
-              await sendNotification(
-                payload.event,
-                payload.title,
-                payload.message,
-                payload.details
-              );
-            } catch (err) {
-              console.error("Failed to send operation notification:", err);
-            }
-          }
-        })
-        .catch((error) => {
-          console.error(`Command ${command} failed:`, error);
-        });
-
+    if (LONG_RUNNING_COMMANDS.includes(command)) {
+      queueLongRunningCommand(command, args);
       res.json({
         success: true,
         message: `Command "${command}" started`,
@@ -223,15 +242,12 @@ router.post("/command/:cmd", async (req, res) => {
       output: result.output,
     });
   } catch (error) {
-    console.error(`Error executing command ${command}:`, error);
-    if (isSnapraidNotFoundError(error)) {
-      sendSnapraidNotFound(res);
-      return;
-    }
-    res.status(500).json({
-      success: false,
-      error:
-        error instanceof Error ? error.message : "Command execution failed",
+    handleSnapraidError(res, error, `Error executing command ${command}:`, () => {
+      res.status(500).json({
+        success: false,
+        error:
+          error instanceof Error ? error.message : "Command execution failed",
+      });
     });
   }
 });
@@ -264,11 +280,7 @@ router.post("/fix", async (req, res) => {
     filterDisk?: string;
   };
 
-  if (snapraidRunner.isRunning()) {
-    res.status(409).json({
-      success: false,
-      error: "Another command is already running",
-    });
+  if (respondIfCommandRunning(res)) {
     return;
   }
 
@@ -294,14 +306,11 @@ router.post("/fix", async (req, res) => {
       job: snapraidRunner.getCurrentJob(),
     });
   } catch (error) {
-    console.error("Error starting fix:", error);
-    if (isSnapraidNotFoundError(error)) {
-      sendSnapraidNotFound(res);
-      return;
-    }
-    res
-      .status(500)
-      .json({ success: false, error: "Failed to start fix command" });
+    handleSnapraidError(res, error, "Error starting fix:", () => {
+      res
+        .status(500)
+        .json({ success: false, error: "Failed to start fix command" });
+    });
   }
 });
 

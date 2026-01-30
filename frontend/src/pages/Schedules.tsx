@@ -1,35 +1,13 @@
-import { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import { useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { Badge } from "@/components/ui/badge";
-import { CommandBadge } from "@/components/ui/command-badge";
-import { CommandSelect } from "@/components/ui/command-select";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { CommandOptions } from "@/components/CommandOptions";
+import { toast } from "sonner";
+import { Plus } from "lucide-react";
 import {
   useGetSchedulesQuery,
   useCreateScheduleMutation,
   useUpdateScheduleMutation,
   useDeleteScheduleMutation,
 } from "@/store/api";
-import { toast } from "sonner";
-import { Plus, Trash2, Edit, Calendar, Clock } from "lucide-react";
 import type { Schedule, SnapRaidCommand } from "@shared/types";
 import {
   schedulableCommands,
@@ -37,6 +15,13 @@ import {
   optionsToArgs,
   argsToOptions,
 } from "@/lib/command-config";
+import { PageHeader } from "@/pages/components/PageHeader";
+import { PageLoading } from "@/pages/components/PageLoading";
+import {
+  ScheduleFormDialog,
+  type ScheduleFormData,
+} from "@/pages/components/schedules/ScheduleFormDialog";
+import { ScheduleList } from "@/pages/components/schedules/ScheduleList";
 
 const CRON_PRESETS = [
   { label: "Every day at 2 AM", value: "0 2 * * *" },
@@ -47,13 +32,6 @@ const CRON_PRESETS = [
   { label: "Every 12 hours", value: "0 */12 * * *" },
   { label: "Custom", value: "custom" },
 ];
-
-interface ScheduleFormData {
-  name: string;
-  command: SnapRaidCommand;
-  cronExpression: string;
-  enabled: boolean;
-}
 
 /** Option values for the selected command (key -> value) */
 type OptionValues = Record<string, unknown>;
@@ -104,13 +82,13 @@ export function Schedules() {
     );
 
     const preset = CRON_PRESETS.find(
-      (p) => p.value === schedule.cronExpression
+      (presetOption) => presetOption.value === schedule.cronExpression
     );
     setCronPreset(preset ? preset.value : "custom");
     setShowForm(true);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
     const args = selectedCommandConfig
@@ -167,205 +145,49 @@ export function Schedules() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-muted-foreground">Loading schedules...</div>
-      </div>
-    );
+    return <PageLoading message="Loading schedules..." />;
   }
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Schedules</h1>
-          <p className="text-muted-foreground">
-            Automate sync and scrub operations
-          </p>
-        </div>
-        <Button onClick={() => setShowForm(true)}>
-          <Plus className="h-4 w-4 mr-1" />
-          New Schedule
-        </Button>
-      </div>
+      <PageHeader
+        title="Schedules"
+        description="Automate sync and scrub operations"
+        actions={
+          <Button onClick={() => setShowForm(true)}>
+            <Plus className="h-4 w-4 mr-1" />
+            New Schedule
+          </Button>
+        }
+      />
 
-      {/* Schedule Form Dialog */}
-      <Dialog
+      <ScheduleFormDialog
         open={showForm}
+        editingLabel={editingSchedule ? "Edit Schedule" : "New Schedule"}
+        submitLabel={editingSchedule ? "Update" : "Create"}
+        formData={formData}
+        cronPreset={cronPreset}
+        cronPresets={CRON_PRESETS}
+        commands={schedulableCommands}
+        optionValues={optionValues}
+        selectedCommandConfig={selectedCommandConfig}
         onOpenChange={(open) => {
           if (!open) resetForm();
         }}
-      >
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle>
-              {editingSchedule ? "Edit Schedule" : "New Schedule"}
-            </DialogTitle>
-          </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="command">Command</Label>
-                <CommandSelect
-                  value={formData.command}
-                  onValueChange={(value) => {
-                    const cmd = value as SnapRaidCommand;
-                    setFormData({ ...formData, command: cmd });
-                    setOptionValues({});
-                  }}
-                  commands={schedulableCommands}
-                  placeholder="Select command"
-                />
-              </div>
+        onSubmit={handleSubmit}
+        onCancel={resetForm}
+        onFormDataChange={setFormData}
+        onCronPresetChange={setCronPreset}
+        onOptionValuesChange={setOptionValues}
+      />
 
-              <div className="space-y-2">
-                <Label htmlFor="name">Name</Label>
-                <Input
-                  id="name"
-                  value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
-                  placeholder="Daily Sync"
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="schedule">Schedule</Label>
-                <Select
-                  value={cronPreset}
-                  onValueChange={(value) => {
-                    setCronPreset(value);
-                    if (value !== "custom") {
-                      setFormData({ ...formData, cronExpression: value });
-                    }
-                  }}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {CRON_PRESETS.map((preset) => (
-                      <SelectItem key={preset.value} value={preset.value}>
-                        {preset.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {cronPreset === "custom" && (
-                <div className="space-y-2">
-                  <Label htmlFor="cron">Cron Expression</Label>
-                  <Input
-                    id="cron"
-                    value={formData.cronExpression}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        cronExpression: e.target.value,
-                      })
-                    }
-                    placeholder="0 2 * * *"
-                    required
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Format: minute hour day month weekday
-                  </p>
-                </div>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label>Options</Label>
-              <Card>
-                <CardContent>
-                  <CommandOptions
-                    commandConfig={selectedCommandConfig ?? null}
-                    value={optionValues}
-                    onChange={setOptionValues}
-                  />
-                </CardContent>
-              </Card>
-            </div>
-
-            <DialogFooter showCloseButton={false}>
-              <Button type="button" variant="outline" onClick={resetForm}>
-                Cancel
-              </Button>
-              <Button type="submit">
-                {editingSchedule ? "Update" : "Create"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      {/* Schedules List */}
-      <div className="grid gap-4">
-        {schedules && schedules.length > 0 ? (
-          schedules.map((schedule) => (
-            <Card key={schedule.id}>
-              <CardContent className="py-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <Switch
-                      checked={schedule.enabled}
-                      onCheckedChange={() => handleToggleEnabled(schedule)}
-                    />
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-medium">{schedule.name}</h3>
-                        <Badge
-                          variant={schedule.enabled ? "default" : "secondary"}
-                        >
-                          {schedule.enabled ? "Active" : "Disabled"}
-                        </Badge>
-                        <CommandBadge command={schedule.command} />
-                      </div>
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
-                        <div className="flex items-center gap-1">
-                          <Clock className="h-3 w-3" />
-                          {schedule.cronExpression}
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Calendar className="h-3 w-3" />
-                          Last: {formatDate(schedule.lastRun)}
-                        </div>
-                        <div>Next: {formatDate(schedule.nextRun)}</div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleEdit(schedule)}
-                    >
-                      <Edit className="h-4 w-4 mr-1" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleDelete(schedule.id)}
-                    >
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))
-        ) : (
-          <Card>
-            <CardContent className="py-8 text-center text-muted-foreground">
-              No schedules configured. Create one to automate SnapRAID
-              operations.
-            </CardContent>
-          </Card>
-        )}
-      </div>
+      <ScheduleList
+        schedules={schedules ?? []}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        onToggleEnabled={handleToggleEnabled}
+        formatDate={formatDate}
+      />
     </div>
   );
 }

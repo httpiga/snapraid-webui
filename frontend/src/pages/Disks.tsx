@@ -1,31 +1,21 @@
 import { useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   useGetConfigQuery,
   useGetRawConfigQuery,
   useUpdateConfigMutation,
   useUpdateRawConfigMutation,
 } from "@/store/api";
-import {
-  Plus,
-  Trash2,
-  Save,
-  HardDrive,
-  Shield,
-  FileBraces,
-} from "lucide-react";
+import { Save } from "lucide-react";
 import { toast } from "sonner";
 import type { ParsedSnapRaidConfig } from "@shared/types";
+import { PageHeader } from "@/pages/components/PageHeader";
+import { PageLoading } from "@/pages/components/PageLoading";
+import { ParityDisksCard } from "@/pages/components/disks/ParityDisksCard";
+import { DataDisksCard } from "@/pages/components/disks/DataDisksCard";
+import { ContentFilesCard } from "@/pages/components/disks/ContentFilesCard";
+import { RawConfigEditor } from "@/pages/components/disks/RawConfigEditor";
 
 export function Disks() {
   const { data: config, isLoading } = useGetConfigQuery();
@@ -39,7 +29,6 @@ export function Disks() {
   const [editedRaw, setEditedRaw] = useState<string>("");
   const [activeTab, setActiveTab] = useState("visual");
 
-  // Initialize edited state when config loads
   const currentConfig = editedConfig || config;
   const currentRaw = editedRaw || rawConfig || "";
 
@@ -154,23 +143,15 @@ export function Disks() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-muted-foreground">Loading configuration...</div>
-      </div>
-    );
+    return <PageLoading message="Loading configuration..." />;
   }
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">
-          Disk Configuration
-        </h1>
-        <p className="text-muted-foreground">
-          Configure data and parity disks for your SnapRAID array
-        </p>
-      </div>
+      <PageHeader
+        title="Disk Configuration"
+        description="Configure data and parity disks for your SnapRAID array"
+      />
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
@@ -179,174 +160,27 @@ export function Disks() {
         </TabsList>
 
         <TabsContent value="visual" className="space-y-6">
-          {/* Parity Disks */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="flex items-center gap-2">
-                    <Shield className="h-5 w-5" />
-                    Parity Disks
-                  </CardTitle>
-                  <CardDescription>
-                    Parity files store redundancy data for recovery
-                  </CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="space-y-3">
-                {currentConfig?.parity.map((path, index) => (
-                  <div key={index} className="flex items-center gap-2">
-                    <Input
-                      value={index === 0 ? "parity" : `${index + 1}-parity`}
-                      disabled={true}
-                      className="w-24"
-                    />
+          <ParityDisksCard
+            parity={currentConfig?.parity ?? []}
+            onAdd={handleAddParity}
+            onRemove={handleRemoveParity}
+            onUpdate={handleUpdateParity}
+          />
 
-                    <Input
-                      value={path}
-                      onChange={(e) =>
-                        handleUpdateParity(index, e.target.value)
-                      }
-                      placeholder="/mnt/parity/snapraid.parity"
-                      className="flex-1"
-                    />
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleRemoveParity(index)}
-                    >
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
-                  </div>
-                ))}
-                {(!currentConfig?.parity ||
-                  currentConfig.parity.length === 0) && (
-                  <p className="text-sm text-muted-foreground text-center py-4">
-                    No parity disks configured. Add at least one parity disk.
-                  </p>
-                )}
-              </div>
-              <Button onClick={handleAddParity} size="sm">
-                <Plus className="h-4 w-4 mr-1" />
-                Add Parity
-              </Button>
-            </CardContent>
-          </Card>
+          <DataDisksCard
+            data={currentConfig?.data ?? {}}
+            onAdd={handleAddData}
+            onRemove={handleRemoveData}
+            onUpdate={handleUpdateData}
+          />
 
-          {/* Data Disks */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="flex items-center gap-2">
-                    <HardDrive className="h-5 w-5" />
-                    Data Disks
-                  </CardTitle>
-                  <CardDescription>
-                    Data disks contain the files you want to protect
-                  </CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="space-y-3">
-                {currentConfig?.data &&
-                  Object.entries(currentConfig.data).map(([name, path]) => (
-                    <div key={name} className="flex items-center gap-2">
-                      <Input
-                        value={name}
-                        onChange={(e) =>
-                          handleUpdateData(name, e.target.value, path)
-                        }
-                        placeholder="d1"
-                        className="w-24"
-                      />
-                      <Input
-                        value={path}
-                        onChange={(e) =>
-                          handleUpdateData(name, name, e.target.value)
-                        }
-                        placeholder="/mnt/disk1/"
-                        className="flex-1"
-                      />
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleRemoveData(name)}
-                      >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    </div>
-                  ))}
-                {(!currentConfig?.data ||
-                  Object.keys(currentConfig.data).length === 0) && (
-                  <p className="text-sm text-muted-foreground text-center py-4">
-                    No data disks configured. Add at least one data disk.
-                  </p>
-                )}
-              </div>
-              <Button onClick={handleAddData} size="sm">
-                <Plus className="h-4 w-4 mr-1" />
-                Add Disk
-              </Button>
-            </CardContent>
-          </Card>
+          <ContentFilesCard
+            content={currentConfig?.content ?? []}
+            onAdd={handleAddContent}
+            onRemove={handleRemoveContent}
+            onUpdate={handleUpdateContent}
+          />
 
-          {/* Content Files */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="flex items-center gap-2">
-                    <FileBraces className="h-5 w-5" />
-                    Content Files
-                  </CardTitle>
-
-                  <CardDescription>
-                    Content files store the list of files and their checksums
-                  </CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="space-y-3">
-                {currentConfig?.content.map((path, index) => (
-                  <div key={index} className="flex items-center gap-2">
-                    <Input
-                      value={path}
-                      onChange={(e) =>
-                        handleUpdateContent(index, e.target.value)
-                      }
-                      placeholder="/mnt/disk1/snapraid.content"
-                      className="flex-1"
-                    />
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleRemoveContent(index)}
-                    >
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
-                  </div>
-                ))}
-                {(!currentConfig?.content ||
-                  currentConfig.content.length === 0) && (
-                  <p className="text-sm text-muted-foreground text-center py-4">
-                    No content files configured. Add at least two for
-                    redundancy.
-                  </p>
-                )}
-              </div>
-              <Button onClick={handleAddContent} size="sm">
-                <Plus className="h-4 w-4 mr-1" />
-                Add Content
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Save Button */}
           <div className="flex justify-end">
             <Button onClick={handleSaveVisual} disabled={!editedConfig}>
               <Save className="h-4 w-4 mr-1" />
@@ -356,24 +190,7 @@ export function Disks() {
         </TabsContent>
 
         <TabsContent value="raw">
-          <Card>
-            <CardHeader>
-              <CardTitle>Raw Configuration</CardTitle>
-              <CardDescription>
-                Edit the snapraid.conf file directly
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ScrollArea className="h-[500px] w-full rounded border">
-                <textarea
-                  value={editedRaw || currentRaw}
-                  onChange={(e) => setEditedRaw(e.target.value)}
-                  className="w-full h-full min-h-[500px] p-4 font-mono text-sm bg-background resize-none focus:outline-none"
-                  spellCheck={false}
-                />
-              </ScrollArea>
-            </CardContent>
-          </Card>
+          <RawConfigEditor value={editedRaw || currentRaw} onChange={setEditedRaw} />
 
           <div className="flex justify-end mt-4">
             <Button onClick={handleSaveRaw} disabled={!editedRaw}>
