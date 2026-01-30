@@ -16,6 +16,7 @@ import {
   getChannelConfigSummary,
 } from "@/lib/notification-channel-utils";
 import { useUpdateNotificationSettingsMutation } from "@/store/api";
+import { getApiErrorMessage } from "@/lib/api-error";
 
 interface NotificationProviderCardProps {
   channel: NotificationChannel;
@@ -56,7 +57,9 @@ export function NotificationProviderCard({
       );
     } catch (error) {
       setSettings(settings);
-      toast.error("Failed to update", { description: String(error) });
+      toast.error("Failed to update", {
+        description: getApiErrorMessage(error),
+      });
     }
   };
 

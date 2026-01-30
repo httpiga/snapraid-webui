@@ -38,6 +38,7 @@ import { getEmptyChannelConfig } from "@/lib/notification-channel-utils";
 import { PageHeader } from "@/pages/components/PageHeader";
 import { PageLoading } from "@/pages/components/PageLoading";
 import { NotificationProviderCard } from "@/pages/components/settings/NotificationProviderCard";
+import { getApiErrorMessage } from "@/lib/api-error";
 
 export function Settings() {
   const { data: notificationSettings, isLoading } =
@@ -64,7 +65,9 @@ export function Settings() {
       setSettings(updated);
       toast.success("Notification settings saved");
     } catch (error) {
-      toast.error("Failed to save settings", { description: String(error) });
+      toast.error("Failed to save settings", {
+        description: getApiErrorMessage(error),
+      });
       throw error;
     }
   };
@@ -91,7 +94,7 @@ export function Settings() {
       toast.success(`${channel} configuration removed`);
     } catch (error) {
       toast.error("Failed to remove configuration", {
-        description: String(error),
+        description: getApiErrorMessage(error),
       });
     }
   };
