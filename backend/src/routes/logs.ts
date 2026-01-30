@@ -116,6 +116,70 @@ router.get("/:filename", async (req, res) => {
 });
 
 /**
+ * DELETE /api/logs?all=1
+ * Delete all log files
+ *
+ * DELETE /api/logs?olderThan=30
+ * Delete log files older than N days
+ */
+router.delete("/", async (req, res) => {
+  try {
+    const all = req.query.all === "1" || req.query.all === "true";
+    const olderThanParam = req.query.olderThan;
+    const olderThanDays =
+      olderThanParam != null ? parseInt(String(olderThanParam), 10) : NaN;
+
+    if (!all && Number.isNaN(olderThanDays)) {
+      res.status(400).json({
+        error:
+          "Specify query 'all=1' to delete all logs or 'olderThan=N' for logs older than N days",
+      });
+      return;
+    }
+
+    if (all && !Number.isNaN(olderThanDays)) {
+      res.status(400).json({
+        error: "Use either 'all=1' or 'olderThan=N', not both",
+      });
+      return;
+    }
+
+    if (!existsSync(LOGS_DIR)) {
+      res.json({ success: true, deleted: 0 });
+      return;
+    }
+
+    const files = await fs.readdir(LOGS_DIR);
+    const cutoff =
+      !Number.isNaN(olderThanDays) && olderThanDays > 0
+        ? Date.now() - olderThanDays * 24 * 60 * 60 * 1000
+        : 0;
+    let deleted = 0;
+
+    for (const filename of files) {
+      if (!filename.endsWith(".log")) continue;
+
+      const filePath = path.join(LOGS_DIR, filename);
+      const stats = await fs.stat(filePath);
+      const mtime = stats.mtime.getTime();
+
+      if (all || mtime < cutoff) {
+        await fs.unlink(filePath);
+        deleted++;
+      }
+    }
+
+    res.json({ success: true, deleted });
+  } catch (error) {
+    console.error("Error bulk deleting logs:", error);
+    res.status(500).json({
+      success: false,
+      error: "Failed to delete log files",
+    });
+  }
+});
+
+/**
  * DELETE /api/logs/:filename
  * Delete a specific log file
  */

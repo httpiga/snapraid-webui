@@ -119,6 +119,26 @@ export const api = createApi({
     getLogContent: builder.query<string, string>({
       query: (filename) => `/logs/${filename}`,
     }),
+    deleteAllLogs: builder.mutation<
+      { success: boolean; deleted: number },
+      void
+    >({
+      query: () => ({
+        url: "/logs?all=1",
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Logs"],
+    }),
+    deleteLogsOlderThan: builder.mutation<
+      { success: boolean; deleted: number },
+      number
+    >({
+      query: (days) => ({
+        url: `/logs?olderThan=${days}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Logs"],
+    }),
 
     // Notifications
     getNotificationSettings: builder.query<NotificationSettings, void>({
@@ -167,6 +187,8 @@ export const {
   useDeleteScheduleMutation,
   useGetLogsQuery,
   useGetLogContentQuery,
+  useDeleteAllLogsMutation,
+  useDeleteLogsOlderThanMutation,
   useGetNotificationSettingsQuery,
   useUpdateNotificationSettingsMutation,
   useTestNotificationMutation,
