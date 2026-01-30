@@ -5,7 +5,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { CommandBadge } from "@/components/ui/command-badge";
 import { useGetStatusQuery, useGetSchedulesQuery } from "@/store/api";
 import {
   CheckCircle,
@@ -14,7 +14,6 @@ import {
   FileText,
   Calendar,
 } from "lucide-react";
-import { getCommandBadgeVariant } from "@/lib/utils";
 import type { Schedule } from "@shared/types";
 
 function formatNextRun(isoString: string | undefined): string {
@@ -216,9 +215,7 @@ export function Dashboard() {
                       key={schedule.id}
                       className="flex flex-wrap items-center gap-3 py-3 first:pt-0 last:pb-0"
                     >
-                      <Badge variant={getCommandBadgeVariant(schedule.command)}>
-                        {schedule.command}
-                      </Badge>
+                      <CommandBadge command={schedule.command} />
                       <span className="font-medium flex-1 min-w-0">
                         {schedule.name}
                       </span>

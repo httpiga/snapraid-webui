@@ -24,6 +24,7 @@ import {
   optionsToArgs,
   type CommandConfig,
 } from "@/lib/command-config";
+import { COMMAND_ICONS } from "@/lib/commands";
 
 export function Operations() {
   const dispatch = useDispatch();
@@ -120,38 +121,41 @@ export function Operations() {
           </CardHeader>
           <CardContent>
             <div className="grid gap-2">
-              {commands.map((cmd) => (
-                <Button
-                  key={cmd.command}
-                  variant={
-                    selectedCommand?.command === cmd.command
-                      ? "default"
-                      : "outline"
-                  }
-                  className="justify-start h-auto py-3"
-                  onClick={() => {
-                    setSelectedCommand(cmd);
-                    setOptions({});
-                  }}
-                  disabled={isCommandRunning}
-                >
-                  <div className="flex items-center gap-3">
-                    {cmd.icon}
-                    <div className="text-left">
-                      <div className="font-medium">{cmd.name}</div>
-                      <div
-                        className={
-                          selectedCommand?.command === cmd.command
-                            ? "text-xs text-primary-foreground/80"
-                            : "text-xs text-muted-foreground"
-                        }
-                      >
-                        {cmd.description}
+              {commands.map((cmd) => {
+                const CommandIcon = COMMAND_ICONS[cmd.command];
+                return (
+                  <Button
+                    key={cmd.command}
+                    variant={
+                      selectedCommand?.command === cmd.command
+                        ? "default"
+                        : "outline"
+                    }
+                    className="justify-start h-auto py-3"
+                    onClick={() => {
+                      setSelectedCommand(cmd);
+                      setOptions({});
+                    }}
+                    disabled={isCommandRunning}
+                  >
+                    <div className="flex items-center gap-3">
+                      <CommandIcon className="h-4 w-4 shrink-0" />
+                      <div className="text-left">
+                        <div className="font-medium">{cmd.name}</div>
+                        <div
+                          className={
+                            selectedCommand?.command === cmd.command
+                              ? "text-xs text-primary-foreground/80"
+                              : "text-xs text-muted-foreground"
+                          }
+                        >
+                          {cmd.description}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </Button>
-              ))}
+                  </Button>
+                );
+              })}
             </div>
           </CardContent>
         </Card>

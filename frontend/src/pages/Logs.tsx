@@ -7,9 +7,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { CommandBadge } from "@/components/ui/command-badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { getCommandBadgeVariant } from "@/lib/utils";
 import { useGetLogsQuery, useGetLogContentQuery } from "@/store/api";
 import { User, Clock, Calendar, Download } from "lucide-react";
 import type { LogFile } from "@shared/types";
@@ -83,9 +82,7 @@ export function Logs() {
                             aria-label="Manual operation"
                           />
                         )}
-                        <Badge variant={getCommandBadgeVariant(log.command)}>
-                          {log.command}
-                        </Badge>
+                        <CommandBadge command={log.command} />
                       </div>
                       <div className="text-xs text-muted-foreground flex items-center gap-2">
                         <Calendar className="h-3 w-3" />

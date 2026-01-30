@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
+import { CommandBadge } from "@/components/ui/command-badge";
 import {
   Select,
   SelectContent,
@@ -329,7 +330,7 @@ export function Schedules() {
                         >
                           {schedule.enabled ? "Active" : "Disabled"}
                         </Badge>
-                        <Badge variant="outline">{schedule.command}</Badge>
+                        <CommandBadge command={schedule.command} />
                       </div>
                       <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
                         <div className="flex items-center gap-1">
