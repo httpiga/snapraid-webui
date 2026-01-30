@@ -17,7 +17,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { FieldDescription } from "@/components/ui/field";
-import { Bug, Play, RotateCcw, Square, Trash } from "lucide-react";
+import { Bug, FolderOpen, Play, RotateCcw, Square, Trash } from "lucide-react";
+import { useState } from "react";
+import { FileSystemDialog } from "@/components/FileSystemDialog";
 
 interface RecoveryOptionsCardProps {
   filterPath: string;
@@ -56,6 +58,7 @@ export function RecoveryOptionsCard({
   onStartRecovery,
   onStopRecovery,
 }: RecoveryOptionsCardProps) {
+  const [isBrowserOpen, setIsBrowserOpen] = useState(false);
   return (
     <Card>
       <CardHeader>
@@ -107,17 +110,28 @@ export function RecoveryOptionsCard({
             <p className="text-xs text-muted-foreground">
               Limit recovery to specific paths. Supports wildcards:{" "}
               <code className="rounded bg-muted px-1">*</code> matches any
-              characters, <code className="rounded bg-muted px-1">?</code> matches
-              one character. Leave empty to recover all files matching other
-              filters.
+              characters, <code className="rounded bg-muted px-1">?</code>{" "}
+              matches one character. Leave empty to recover all files matching
+              other filters.
             </p>
           </FieldDescription>
-          <Input
-            id="filterPath"
-            value={filterPath}
-            onChange={(e) => onFilterPathChange(e.target.value)}
-            placeholder="e.g. /path/to/file or /directory/"
-          />
+          <div className="flex items-center gap-2">
+            <Input
+              id="filterPath"
+              value={filterPath}
+              onChange={(e) => onFilterPathChange(e.target.value)}
+              placeholder="e.g. /path/to/file or /directory/"
+            />
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => {
+                setIsBrowserOpen(true);
+              }}
+            >
+              <FolderOpen className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
 
         <div className="space-y-2">
@@ -127,7 +141,9 @@ export function RecoveryOptionsCard({
           </FieldDescription>
           <Select
             value={filterDisk || "all"}
-            onValueChange={(value) => onFilterDiskChange(value === "all" ? "" : value)}
+            onValueChange={(value) =>
+              onFilterDiskChange(value === "all" ? "" : value)
+            }
           >
             <SelectTrigger id="filterDisk">
               <SelectValue placeholder="All disks" />
@@ -195,6 +211,15 @@ export function RecoveryOptionsCard({
           )}
         </div>
       </CardContent>
+      <FileSystemDialog
+        open={isBrowserOpen}
+        onOpenChange={setIsBrowserOpen}
+        title="Select disk folder"
+        description="Choose the folder that contains the disk data."
+        onSelect={(path) => {
+          onFilterPathChange(path);
+        }}
+      />
     </Card>
   );
 }

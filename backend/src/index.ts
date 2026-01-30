@@ -12,6 +12,7 @@ import logsRoutes from "./routes/logs.js";
 import schedulesRoutes from "./routes/schedules.js";
 import notificationsRoutes from "./routes/notifications.js";
 import authRoutes from "./routes/auth.js";
+import filesystemRoutes from "./routes/filesystem.js";
 import { initializeWebSocket } from "./websocket.js";
 import { initializeScheduler } from "./services/scheduler.js";
 import { createSessionMiddleware, authMiddleware } from "./middleware/auth.js";
@@ -55,6 +56,7 @@ app.use("/api", snapraidRoutes);
 app.use("/api/logs", logsRoutes);
 app.use("/api/schedules", schedulesRoutes);
 app.use("/api/notifications", notificationsRoutes);
+app.use("/api", filesystemRoutes);
 
 // Health check
 app.get("/api/health", (_req, res) => {

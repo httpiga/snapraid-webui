@@ -367,6 +367,13 @@ export interface FileSystemEntry {
   size?: number;
 }
 
+export interface FileSystemResponse {
+  basePath: string;
+  path: string;
+  parentPath: string | null;
+  entries: FileSystemEntry[];
+}
+
 export interface SnapRaidFileInfo {
   size: number;
   date: string;

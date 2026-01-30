@@ -9,6 +9,7 @@ import type {
   NotificationSettings,
   AppConfig,
   ApiResponse,
+  FileSystemResponse,
 } from "@shared/types";
 
 export const api = createApi({
@@ -168,6 +169,14 @@ export const api = createApi({
     getAppConfig: builder.query<AppConfig, void>({
       query: () => "/app-config",
     }),
+
+    // File system
+    getFileSystemEntries: builder.query<FileSystemResponse, { path?: string }>({
+      query: ({ path }) => ({
+        url: "/fs",
+        params: path ? { path } : undefined,
+      }),
+    }),
   }),
 });
 
@@ -193,4 +202,5 @@ export const {
   useUpdateNotificationSettingsMutation,
   useTestNotificationMutation,
   useGetAppConfigQuery,
+  useGetFileSystemEntriesQuery,
 } = api;
