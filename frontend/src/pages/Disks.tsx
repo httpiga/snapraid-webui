@@ -16,7 +16,14 @@ import {
   useUpdateConfigMutation,
   useUpdateRawConfigMutation,
 } from "@/store/api";
-import { Plus, Trash2, Save, HardDrive, Database } from "lucide-react";
+import {
+  Plus,
+  Trash2,
+  Save,
+  HardDrive,
+  Shield,
+  FileBraces,
+} from "lucide-react";
 import { toast } from "sonner";
 import type { ParsedSnapRaidConfig } from "@shared/types";
 
@@ -178,20 +185,16 @@ export function Disks() {
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle className="flex items-center gap-2">
-                    <Database className="h-5 w-5" />
+                    <Shield className="h-5 w-5" />
                     Parity Disks
                   </CardTitle>
                   <CardDescription>
                     Parity files store redundancy data for recovery
                   </CardDescription>
                 </div>
-                <Button onClick={handleAddParity} size="sm">
-                  <Plus className="h-4 w-4 mr-1" />
-                  Add Parity
-                </Button>
               </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-3">
               <div className="space-y-3">
                 {currentConfig?.parity.map((path, index) => (
                   <div key={index} className="flex items-center gap-2">
@@ -225,6 +228,10 @@ export function Disks() {
                   </p>
                 )}
               </div>
+              <Button onClick={handleAddParity} size="sm">
+                <Plus className="h-4 w-4 mr-1" />
+                Add Parity
+              </Button>
             </CardContent>
           </Card>
 
@@ -241,13 +248,9 @@ export function Disks() {
                     Data disks contain the files you want to protect
                   </CardDescription>
                 </div>
-                <Button onClick={handleAddData} size="sm">
-                  <Plus className="h-4 w-4 mr-1" />
-                  Add Disk
-                </Button>
               </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-3">
               <div className="space-y-3">
                 {currentConfig?.data &&
                   Object.entries(currentConfig.data).map(([name, path]) => (
@@ -284,6 +287,10 @@ export function Disks() {
                   </p>
                 )}
               </div>
+              <Button onClick={handleAddData} size="sm">
+                <Plus className="h-4 w-4 mr-1" />
+                Add Disk
+              </Button>
             </CardContent>
           </Card>
 
@@ -292,18 +299,18 @@ export function Disks() {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle>Content Files</CardTitle>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileBraces className="h-5 w-5" />
+                    Content Files
+                  </CardTitle>
+
                   <CardDescription>
                     Content files store the list of files and their checksums
                   </CardDescription>
                 </div>
-                <Button onClick={handleAddContent} size="sm">
-                  <Plus className="h-4 w-4 mr-1" />
-                  Add Content
-                </Button>
               </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-3">
               <div className="space-y-3">
                 {currentConfig?.content.map((path, index) => (
                   <div key={index} className="flex items-center gap-2">
@@ -332,6 +339,10 @@ export function Disks() {
                   </p>
                 )}
               </div>
+              <Button onClick={handleAddContent} size="sm">
+                <Plus className="h-4 w-4 mr-1" />
+                Add Content
+              </Button>
             </CardContent>
           </Card>
 
