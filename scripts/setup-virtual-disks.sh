@@ -83,7 +83,7 @@ setup() {
 
   # Seed mock files (snapraid.content / snapraid.parity are created by SnapRAID on first sync)
   echo "Seeding mock files..."
-  (cd "$ROOT" && bun run seed:mock-disks)
+  (cd "$ROOT" && bun run virtual-disks:seed)
 
   echo ""
   echo "Done. Run 'snapraid status' (or use the web UI) and then 'snapraid sync' to create parity."

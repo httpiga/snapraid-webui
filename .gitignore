@@ -23,12 +23,6 @@ build/
 .DS_Store
 Thumbs.db
 
-# Logs
-*.log
-logs/
-!frontend/src/pages/components/logs/
-!frontend/src/pages/components/logs/**
-
 # Test coverage
 coverage/
 

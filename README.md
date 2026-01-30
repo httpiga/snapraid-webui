@@ -93,10 +93,10 @@ To satisfy SnapRAID locally without real disks, use three **virtual disk images*
 
 ```bash
 # Create 3 sparse disk images, mount at mock-disks/, seed sample files
-bun run setup:virtual-disks
+bun run virtual-disks:setup
 
 # When done (optional): unmount; images stay in .virtual-disk-images/
-bun run teardown:virtual-disks
+bun run virtual-disks:teardown
 ```
 
 Then run `snapraid status` and `snapraid sync` from the web UI or CLI. On Linux you can achieve the same with `losetup` + separate loop devices and mount points.

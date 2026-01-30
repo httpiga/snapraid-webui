@@ -19,10 +19,10 @@
     "typecheck": "bun run --filter @snapraid-webui/backend typecheck && bun run --filter @snapraid-webui/frontend typecheck",
     "test": "bun run --filter @snapraid-webui/backend test && bun run --filter @snapraid-webui/frontend test",
     "podman:build": "podman build -f docker/Dockerfile -t snapraid-webui .",
-    "podman:start": "podman run -d -p 5050:3000 snapraid-webui",
-    "seed:mock-disks": "bun run scripts/seed-mock-disks.ts",
-    "setup:virtual-disks": "bash scripts/setup-virtual-disks.sh setup",
-    "teardown:virtual-disks": "bash scripts/setup-virtual-disks.sh teardown",
+    "podman:start": "podman run -d -p 3000:3000 snapraid-webui",
+    "virtual-disks:setup": "bash scripts/setup-virtual-disks.sh setup",
+    "virtual-disks:seed": "bun run scripts/seed-mock-disks.ts",
+    "virtual-disks:teardown": "bash scripts/setup-virtual-disks.sh teardown",
     "prepare": "husky"
   },
   "devDependencies": {
