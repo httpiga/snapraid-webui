@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { ModeToggle } from "@/components/theme/ModeToggle";
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
@@ -96,6 +97,11 @@ export function Layout() {
             );
           })}
         </nav>
+        <div className="mt-auto border-t p-2">
+          <div className={cn("flex", collapsed ? "justify-center" : "justify-start")}>
+            <ModeToggle />
+          </div>
+        </div>
       </aside>
 
       {/* Main content */}
