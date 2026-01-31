@@ -36,7 +36,7 @@ COPY --from=frontend-builder /app/frontend/dist /temp/prod/frontend/dist
 # Final image: copy production node_modules and source (no bun install in final stage)
 FROM base AS release
 USER root
-RUN apt-get update && apt-get install -y smartmontools snapraid && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y curl smartmontools snapraid && rm -rf /var/lib/apt/lists/*
 
 COPY --from=install-prod /temp/prod /app
 COPY --from=frontend-builder /app/frontend/dist /app/frontend/dist
@@ -51,7 +51,7 @@ ENV SNAPRAID_BIN=/usr/bin/snapraid
 EXPOSE 3000
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1
+  CMD curl --fail --silent --show-error http://localhost:3000/api/health || exit 1
 
 WORKDIR /app/backend
 CMD ["bun", "run", "src/index.ts"]
