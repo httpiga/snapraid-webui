@@ -150,9 +150,6 @@ export function FileSystemDialog({
             </ScrollArea>
           </div>
 
-          <div className="text-xs text-muted-foreground">
-            Base: {data?.basePath ?? "-"}
-          </div>
         </div>
 
         <DialogFooter showCloseButton={false}>

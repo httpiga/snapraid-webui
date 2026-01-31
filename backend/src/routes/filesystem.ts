@@ -4,7 +4,7 @@ import fs from "fs/promises";
 import type { FileSystemEntry, FileSystemResponse } from "@snapraid-webui/shared";
 
 const router: IRouter = Router();
-const basePath = path.resolve(import.meta.dir, "../..");
+const basePath = path.parse(process.cwd()).root;
 
 router.get("/fs", async (req, res) => {
   try {
