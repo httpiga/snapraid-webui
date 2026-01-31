@@ -5,6 +5,7 @@ import path from "path";
 import { tmpdir } from "os";
 import { snapraidRunner } from "./snapraid-runner";
 import * as config from "../config";
+import { silenceConsole } from "../test-utils/silence-console";
 
 const { mock } = await import("bun:test");
 const tmpDir = mkdtempSync(path.join(tmpdir(), "scheduler-test-"));
@@ -211,6 +212,7 @@ describe("scheduler execution and notifications", () => {
 
   test("handles execute errors by appending error to log", async () => {
     await fs.mkdir(logsDir, { recursive: true });
+    const restore = silenceConsole();
     snapraidRunner.isRunning = () => runnerState.running;
     snapraidRunner.executeCommand = async () => {
       throw new Error("boom");
@@ -235,11 +237,13 @@ describe("scheduler execution and notifications", () => {
     await scheduler.initializeScheduler();
     cronState.scheduled[0].cb();
     await new Promise((resolve) => setTimeout(resolve, 0));
+    restore();
   });
 });
 
 describe("scheduler job lifecycle", () => {
   test("initializeScheduler skips invalid cron expressions", async () => {
+    const restore = silenceConsole();
     cronState.invalidExpressions.add("invalid-cron");
     const schedule = {
       id: "s5",
@@ -259,9 +263,11 @@ describe("scheduler job lifecycle", () => {
     );
     await scheduler.initializeScheduler();
     expect(cronState.scheduled.length).toBe(0);
+    restore();
   });
 
   test("startCronJob errors are caught during createSchedule", async () => {
+    const restore = silenceConsole();
     cronState.throwSchedule = true;
     const created = await scheduler.createSchedule({
       name: "Throw",
@@ -272,6 +278,7 @@ describe("scheduler job lifecycle", () => {
     });
     expect(created.id).toBeDefined();
     expect(cronState.scheduled.length).toBe(0);
+    restore();
   });
 
   test("updateSchedule restarts jobs when enabled changes", async () => {

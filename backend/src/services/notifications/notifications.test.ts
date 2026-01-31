@@ -3,13 +3,19 @@ import fs from "fs/promises";
 import { mkdtempSync, existsSync } from "fs";
 import path from "path";
 import { tmpdir } from "os";
+import { silenceConsole } from "../../test-utils/silence-console";
 const { mock } = await import("bun:test");
 const tmpDir = mkdtempSync(path.join(tmpdir(), "notif-"));
 const configModule = await import("../../config");
-const configPath = configModule.APP_CONFIG_FILE || path.join(tmpDir, "app-config.json");
+const configPath =
+  configModule.APP_CONFIG_FILE || path.join(tmpDir, "app-config.json");
 
 const fetchCalls: Array<{ url: string; options: RequestInit }> = [];
-let fetchResponder: (url: string) => { ok: boolean; status: number; statusText: string };
+let fetchResponder: (url: string) => {
+  ok: boolean;
+  status: number;
+  statusText: string;
+};
 const mailCalls: Array<unknown[]> = [];
 
 mock.module("nodemailer", () => ({
@@ -54,8 +60,12 @@ afterEach(async () => {
 
 describe("getOperationNotificationPayload", () => {
   test("returns null for check command", () => {
-    expect(notifications.getOperationNotificationPayload("check", 0)).toBeNull();
-    expect(notifications.getOperationNotificationPayload("check", 1)).toBeNull();
+    expect(
+      notifications.getOperationNotificationPayload("check", 0)
+    ).toBeNull();
+    expect(
+      notifications.getOperationNotificationPayload("check", 1)
+    ).toBeNull();
   });
 
   test("returns null for fix command", () => {
@@ -91,7 +101,10 @@ describe("getOperationNotificationPayload", () => {
 
   test("sync aborted by SIGTERM returns sync_aborted", () => {
     const sigterm = 128 + 15;
-    const payload = notifications.getOperationNotificationPayload("sync", sigterm);
+    const payload = notifications.getOperationNotificationPayload(
+      "sync",
+      sigterm
+    );
     expect(payload).not.toBeNull();
     expect(payload!.event).toBe("sync_aborted");
     expect(payload!.title).toBe("Sync aborted");
@@ -99,7 +112,10 @@ describe("getOperationNotificationPayload", () => {
 
   test("sync aborted by SIGINT returns sync_aborted", () => {
     const sigint = 128 + 2;
-    const payload = notifications.getOperationNotificationPayload("sync", sigint);
+    const payload = notifications.getOperationNotificationPayload(
+      "sync",
+      sigint
+    );
     expect(payload).not.toBeNull();
     expect(payload!.event).toBe("sync_aborted");
   });
@@ -119,7 +135,10 @@ describe("getOperationNotificationPayload", () => {
   });
 
   test("scrub SIGTERM returns scrub_error with aborted message", () => {
-    const payload = notifications.getOperationNotificationPayload("scrub", 128 + 15);
+    const payload = notifications.getOperationNotificationPayload(
+      "scrub",
+      128 + 15
+    );
     expect(payload).not.toBeNull();
     expect(payload!.event).toBe("scrub_error");
     expect(payload!.title).toBe("Scrub aborted");
@@ -218,6 +237,7 @@ describe("sendNotification", () => {
   });
 
   test("sends to enabled channels and records results", async () => {
+    const restore = silenceConsole();
     fetchResponder = (url) => {
       if (url.includes("discord")) {
         return { ok: true, status: 204, statusText: "No Content" };
@@ -267,6 +287,7 @@ describe("sendNotification", () => {
     expect(result.results.discord).toBe(true);
     expect(result.results.slack).toBe(false);
     expect(fetchCalls.length).toBe(2);
+    restore();
   });
 });
 

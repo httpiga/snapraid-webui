@@ -1,5 +1,6 @@
 import { describe, test, expect, mock, beforeAll, afterAll } from "bun:test";
 import { sendTelegramNotification } from "./telegram";
+import { silenceConsole } from "../../test-utils/silence-console";
 
 const originalFetch = globalThis.fetch;
 
@@ -86,12 +87,14 @@ describe("sendTelegramNotification", () => {
         )
       )
     );
+    const restore = silenceConsole();
     const result = await sendTelegramNotification(
       { enabled: true, botToken: "token", chatId: "123" },
       "sync_error",
       "Title",
       "Message"
     );
+    restore();
     expect(result).toBe(false);
   });
 });

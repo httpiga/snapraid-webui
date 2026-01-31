@@ -4,6 +4,7 @@ import fs from "fs/promises";
 import { existsSync } from "fs";
 import { tmpdir } from "os";
 import * as realConfig from "../config";
+import { silenceConsole } from "../test-utils/silence-console";
 
 const tmpDir = path.join(
   tmpdir(),
@@ -166,7 +167,9 @@ describe("GET /api/logs", () => {
   test("returns 500 when reading directory fails", async () => {
     await fs.rm(tmpDir, { recursive: true, force: true });
     await fs.writeFile(tmpDir, "not a dir", "utf-8");
+    const restore = silenceConsole();
     const res = await handle(logsRouter, "GET", "/");
+    restore();
     expect(res.status).toBe(500);
     expect((res.data as { error: string }).error).toContain("Failed");
   });
@@ -200,7 +203,9 @@ describe("GET /api/logs/:filename", () => {
     const filePath = path.join(tmpDir, filename);
     await fs.rm(filePath, { force: true });
     await fs.mkdir(filePath, { recursive: true });
+    const restore = silenceConsole();
     const res = await handle(logsRouter, "GET", `/${filename}`, { filename });
+    restore();
     expect(res.status).toBe(500);
     expect((res.data as { error: string }).error).toContain("Failed");
   });
@@ -272,6 +277,7 @@ describe("DELETE /api/logs (bulk)", () => {
   test("returns 500 when bulk delete fails", async () => {
     const badDir = path.join(tmpDir, "bad.log");
     await fs.mkdir(badDir, { recursive: true });
+    const restore = silenceConsole();
     const res = await new Promise<{ status: number; data: unknown }>(
       (resolve, reject) => {
         const req = createMockReq("DELETE", "/", {});
@@ -282,6 +288,7 @@ describe("DELETE /api/logs (bulk)", () => {
         });
       }
     );
+    restore();
     expect(res.status).toBe(500);
     expect((res.data as { error: string }).error).toContain("Failed");
   });
@@ -322,9 +329,11 @@ describe("DELETE /api/logs/:filename", () => {
     const filePath = path.join(tmpDir, filename);
     await fs.rm(filePath, { force: true });
     await fs.mkdir(filePath, { recursive: true });
+    const restore = silenceConsole();
     const res = await handle(logsRouter, "DELETE", `/${filename}`, {
       filename,
     });
+    restore();
     expect(res.status).toBe(500);
     expect((res.data as { error: string }).error).toContain("Failed");
   });
