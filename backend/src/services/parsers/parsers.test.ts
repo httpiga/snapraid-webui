@@ -108,6 +108,15 @@ describe("parseDiffOutput", () => {
     expect(report.deletedFiles).toBe(1);
     expect(report.modifiedFiles).toBe(0);
   });
+
+  test("parses moved, copied, restored and totals from summary", () => {
+    const output = " 1 moved, 2 copied, 3 restored";
+    const report = parseDiffOutput(output);
+    expect(report.movedFiles).toBe(1);
+    expect(report.copiedFiles).toBe(2);
+    expect(report.restoredFiles).toBe(3);
+    expect(report.totalFiles).toBe(6);
+  });
 });
 
 describe("parseSmartOutput", () => {
@@ -129,6 +138,18 @@ describe("parseSmartOutput", () => {
     expect(report.disks[0].failureProbability).toBe(0);
     expect(report.disks[0].serial).toBe("S3YJNA0M123456");
     expect(report.disks[0].size).toBe("4TB");
+  });
+
+  test("marks disk as PREFAIL or FAIL when status lines present", () => {
+    const output = [
+      "  30C   5000       -   1%   2TB     ABC123  /dev/sdb  d2",
+      "d2 PREFAIL",
+      "d2 FAIL",
+    ].join("\n");
+    const report = parseSmartOutput(output);
+    expect(report.disks).toHaveLength(1);
+    expect(report.disks[0].name).toBe("d2");
+    expect(report.disks[0].status).toBe("FAIL");
   });
 });
 

@@ -43,10 +43,16 @@ describe("parseConfigFromContent", () => {
       "2-parity /p/2p",
       "3-parity /p/3p",
       "2-parity /p/2p2",
+      "4-parity /p/4p",
+      "5-parity /p/5p",
+      "6-parity /p/6p",
     ].join("\n");
     const config = parseConfigFromContent(content);
     expect(config["2-parity"]).toEqual(["/p/2p", "/p/2p2"]);
     expect(config["3-parity"]).toEqual(["/p/3p"]);
+    expect(config["4-parity"]).toEqual(["/p/4p"]);
+    expect(config["5-parity"]).toEqual(["/p/5p"]);
+    expect(config["6-parity"]).toEqual(["/p/6p"]);
   });
 
   test("parses data diskname path", () => {
@@ -137,6 +143,25 @@ describe("serializeSnapRaidConfig", () => {
     expect(out).toContain("2-parity /p/2p");
     expect(out).toContain("blocksize 256");
     expect(out).toContain("nohidden");
+  });
+
+  test("serializes hashsize, autosave, pool, and includes", () => {
+    const config = {
+      parity: ["/p/parity"],
+      content: ["/p/content"],
+      data: { d1: "/mnt/d1/" },
+      exclude: [],
+      include: ["*.important", "/keep/"],
+      hashsize: 16,
+      autosave: 500,
+      pool: "/pool/",
+    };
+    const out = serializeSnapRaidConfig(config);
+    expect(out).toContain("hashsize 16");
+    expect(out).toContain("autosave 500");
+    expect(out).toContain("pool /pool/");
+    expect(out).toContain("include *.important");
+    expect(out).toContain("include /keep/");
   });
 
   test("round-trip: parse then serialize preserves key content", () => {
