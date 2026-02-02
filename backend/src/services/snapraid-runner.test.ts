@@ -186,6 +186,33 @@ describe("command helpers", () => {
     expect(status.totalUsedGB).toBe(500.5);
   });
 
+  test("getStatus returns disks and storage from fixed-width status output", async () => {
+    const fixedWidthOutput = [
+      "SnapRAID status report:",
+      "",
+      " Files Fragmented Excess Wasted Used Free Use Name",
+      " Files Fragments GB GB GB",
+      "   12345       0       0     0.0     500       100  50% d1",
+      "    1000       0       0     0.0     100        50  66% d2",
+      " --------------------------------------------------------------------------",
+      "   13345       0       0     0.0     600       150  80%",
+    ].join("\n");
+    spawnState.stdoutChunks = [fixedWidthOutput];
+    const runner = new SnapRaidRunner();
+    const status = await runner.getStatus("/a/b.conf");
+    expect(status.disks).toBeDefined();
+    expect(status.disks!.length).toBe(2);
+    expect(status.disks![0].name).toBe("d1");
+    expect(status.disks![0].usedGB).toBe(500);
+    expect(status.disks![0].freeGB).toBe(100);
+    expect(status.disks![0].usePercent).toBe(83); // 500/600
+    expect(status.disks![1].name).toBe("d2");
+    expect(status.disks![1].usedGB).toBe(100);
+    expect(status.disks![1].freeGB).toBe(50);
+    expect(status.totalUsedGB).toBe(600);
+    expect(status.totalFreeGB).toBe(150);
+  });
+
   test("getDiff returns parsed diff report", async () => {
     spawnState.stdoutChunks = ["1 added, 2 removed"];
     const runner = new SnapRaidRunner();

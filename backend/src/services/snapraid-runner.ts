@@ -13,6 +13,7 @@ import {
   parseStatusOutput,
   parseDiffOutput,
   parseSmartOutput,
+  parseDiskStatus,
 } from "./parsers/index.js";
 
 type OutputCallback = (chunk: string) => void;
@@ -136,7 +137,14 @@ export class SnapRaidRunner {
    */
   async getStatus(configPath: string): Promise<SnapRaidStatus> {
     const { output } = await this.executeCommand("status", configPath);
-    return parseStatusOutput(output);
+    const status = parseStatusOutput(output);
+    const disks = parseDiskStatus(output);
+    status.disks = disks;
+    if (disks.length > 0) {
+      status.totalUsedGB = disks.reduce((sum, d) => sum + d.usedGB, 0);
+      status.totalFreeGB = disks.reduce((sum, d) => sum + d.freeGB, 0);
+    }
+    return status;
   }
 
   /**
