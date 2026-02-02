@@ -8,12 +8,20 @@ import { Recovery } from "./pages/Recovery";
 import { Logs } from "./pages/Logs";
 import { Settings } from "./pages/Settings";
 import { Toaster } from "./components/ui/sonner";
+import { AuthGate } from "./components/AuthGate";
 
 function App() {
   return (
     <>
       <Routes>
-        <Route path="/" element={<Layout />}>
+        <Route
+          path="/"
+          element={
+            <AuthGate>
+              <Layout />
+            </AuthGate>
+          }
+        >
           <Route index element={<Dashboard />} />
           <Route path="disks" element={<Disks />} />
           <Route path="operations" element={<Operations />} />

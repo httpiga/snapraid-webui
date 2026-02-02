@@ -130,24 +130,28 @@ export async function createSessionMiddleware(): Promise<RequestHandler> {
  */
 export function authMiddleware() {
   return async (req: Request, res: Response, next: NextFunction) => {
-    // Skip auth for login/logout endpoints
-    if (
-      req.path === "/api/auth/login" ||
-      req.path === "/api/auth/logout" ||
-      req.path === "/api/auth/status"
-    ) {
+    // Skip auth for login/logout/status endpoints
+    if (req.path.startsWith("/auth/") || req.path === "/auth") {
       return next();
     }
 
-    // Check if auth is enabled
-    const enabled = await isAuthEnabled();
+    const settings = await loadAuthSettings();
+    const enabled = settings.enabled && settings.passwordHash !== "";
     if (!enabled) {
       return next();
     }
 
-    // Check if authenticated
-    if (req.session?.authenticated) {
+    if (
+      req.session?.authenticated &&
+      req.session.username &&
+      req.session.username === settings.username
+    ) {
       return next();
+    }
+
+    if (req.session) {
+      req.session.authenticated = false;
+      req.session.username = "";
     }
 
     res.status(401).json({ error: "Authentication required" });

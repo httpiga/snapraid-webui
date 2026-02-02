@@ -10,13 +10,57 @@ import type {
   AppConfig,
   ApiResponse,
   FileSystemResponse,
+  AuthStatus,
+  AuthSettingsResponse,
+  AuthSettingsUpdate,
 } from "@shared/types";
 
 export const api = createApi({
   reducerPath: "api",
-  baseQuery: fetchBaseQuery({ baseUrl: "/api" }),
-  tagTypes: ["Status", "Config", "Schedules", "Logs", "Smart", "Notifications"],
+  baseQuery: fetchBaseQuery({ baseUrl: "/api", credentials: "include" }),
+  tagTypes: [
+    "Status",
+    "Config",
+    "Schedules",
+    "Logs",
+    "Smart",
+    "Notifications",
+    "Auth",
+  ],
   endpoints: (builder) => ({
+    // Auth
+    getAuthStatus: builder.query<AuthStatus, void>({
+      query: () => "/auth/status",
+      providesTags: ["Auth"],
+    }),
+    login: builder.mutation<{ success: boolean }, { username: string; password: string }>({
+      query: ({ username, password }) => ({
+        url: "/auth/login",
+        method: "POST",
+        body: { username, password },
+      }),
+      invalidatesTags: ["Auth"],
+    }),
+    logout: builder.mutation<{ success: boolean }, void>({
+      query: () => ({
+        url: "/auth/logout",
+        method: "POST",
+      }),
+      invalidatesTags: ["Auth"],
+    }),
+    getAuthSettings: builder.query<AuthSettingsResponse, void>({
+      query: () => "/auth/settings",
+      providesTags: ["Auth"],
+    }),
+    updateAuthSettings: builder.mutation<ApiResponse, AuthSettingsUpdate>({
+      query: (updates) => ({
+        url: "/auth/settings",
+        method: "PUT",
+        body: updates,
+      }),
+      invalidatesTags: ["Auth"],
+    }),
+
     // Status
     getStatus: builder.query<SnapRaidStatus, void>({
       query: () => "/status",
@@ -182,6 +226,11 @@ export const api = createApi({
 
 export const {
   useGetStatusQuery,
+  useGetAuthStatusQuery,
+  useLoginMutation,
+  useLogoutMutation,
+  useGetAuthSettingsQuery,
+  useUpdateAuthSettingsMutation,
   useGetConfigQuery,
   useGetRawConfigQuery,
   useUpdateConfigMutation,
