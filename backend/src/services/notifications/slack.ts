@@ -14,6 +14,7 @@ interface SlackBlock {
 }
 
 interface SlackMessage {
+  text?: string;
   blocks?: SlackBlock[];
   attachments?: Array<{
     color: string;
@@ -75,7 +76,7 @@ export async function sendSlackNotification(
     },
   ];
 
-  if (details) {
+  if (details && Object.keys(details).length > 0) {
     const fields = Object.entries(details).map(([key, value]) => ({
       type: "mrkdwn" as const,
       text: `*${key}:*\n${value}`,
@@ -88,6 +89,7 @@ export async function sendSlackNotification(
   }
 
   const payload: SlackMessage = {
+    text: `${title}\n${message}`,
     attachments: [
       {
         color: colors[event] || "#0099ff",
