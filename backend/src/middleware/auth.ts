@@ -139,15 +139,23 @@ export function authMiddleware() {
       return next();
     }
 
-    // Check if auth is enabled
-    const enabled = await isAuthEnabled();
+    const settings = await loadAuthSettings();
+    const enabled = settings.enabled && settings.passwordHash !== "";
     if (!enabled) {
       return next();
     }
 
-    // Check if authenticated
-    if (req.session?.authenticated) {
+    if (
+      req.session?.authenticated &&
+      req.session.username &&
+      req.session.username === settings.username
+    ) {
       return next();
+    }
+
+    if (req.session) {
+      req.session.authenticated = false;
+      req.session.username = "";
     }
 
     res.status(401).json({ error: "Authentication required" });

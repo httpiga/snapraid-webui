@@ -1,10 +1,6 @@
 import { describe, test, expect } from "bun:test";
 import * as parsers from "./index";
-import {
-  parseStatusOutput,
-  parseDiffOutput,
-  parseDiskStatus,
-} from "./index";
+import { parseStatusOutput, parseDiffOutput, parseDiskStatus } from "./index";
 
 describe("parseStatusOutput", () => {
   test("default status for empty output", () => {

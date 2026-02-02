@@ -8,6 +8,7 @@ import { Recovery } from "./pages/Recovery";
 import { Logs } from "./pages/Logs";
 import { Settings } from "./pages/Settings";
 import { Toaster } from "./components/ui/sonner";
+import { AuthGate } from "./components/AuthGate";
 import { ThemeProvider } from "./components/theme/ThemeProvider";
 
 function App() {
@@ -15,7 +16,14 @@ function App() {
     <>
       <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
         <Routes>
-          <Route path="/" element={<Layout />}>
+          <Route
+            path="/"
+            element={
+              <AuthGate>
+                <Layout />
+              </AuthGate>
+            }
+          >
             <Route index element={<Dashboard />} />
             <Route path="disks" element={<Disks />} />
             <Route path="operations" element={<Operations />} />

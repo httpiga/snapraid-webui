@@ -111,7 +111,9 @@ describe("executeCommand behavior", () => {
       "/tmp/config/snapraid.conf"
     );
     expect(result.exitCode).toBe(0);
-    expect(result.output).toContain("$ snapraid -c /tmp/config/snapraid.conf status");
+    expect(result.output).toContain(
+      "$ snapraid -c /tmp/config/snapraid.conf status"
+    );
     expect(result.output).toContain("status line 1");
     expect(result.output).toContain("No sync is in progress");
     expect(spawnState.spawnCalls.length).toBe(1);

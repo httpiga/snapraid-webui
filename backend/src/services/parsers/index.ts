@@ -229,8 +229,7 @@ export function parseDiskStatus(output: string): DiskStatusInfo[] {
         wastedGB: 0,
         usedGB: used,
         freeGB,
-        usePercent:
-          totalGB > 0 ? Math.round((used / totalGB) * 100) : 0,
+        usePercent: totalGB > 0 ? Math.round((used / totalGB) * 100) : 0,
       });
       continue;
     }

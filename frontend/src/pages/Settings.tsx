@@ -29,6 +29,7 @@ import { AuthSettingsTab } from "@/pages/components/settings/AuthSettingsTab";
 export function Settings() {
   const { data: notificationSettings, isLoading: isLoadingNotifications } =
     useGetNotificationSettingsQuery();
+
   const { data: syncSafetySettings, isLoading: isLoadingSyncSafety } =
     useGetSyncSafetySettingsQuery();
   const { data: advancedSettings, isLoading: isLoadingAdvanced } =
@@ -171,7 +172,11 @@ export function Settings() {
         <TabsContent value="notifications" className="space-y-6">
           <NotificationsSettingsTab
             settings={settings}
-            setSettings={setSettings as React.Dispatch<React.SetStateAction<NotificationSettings>>}
+            setSettings={
+              setSettings as React.Dispatch<
+                React.SetStateAction<NotificationSettings>
+              >
+            }
             editChannel={editChannel}
             setEditChannel={setEditChannel}
             removeChannel={removeChannel}
@@ -185,7 +190,11 @@ export function Settings() {
         <TabsContent value="sync" className="space-y-6">
           <SyncSafetySettingsTab
             safetySettings={safetySettings}
-            setSafetySettings={setSafetySettings as React.Dispatch<React.SetStateAction<SyncSafetySettings>>}
+            setSafetySettings={
+              setSafetySettings as React.Dispatch<
+                React.SetStateAction<SyncSafetySettings>
+              >
+            }
             onSave={handleSaveSyncSafety}
           />
         </TabsContent>
@@ -193,7 +202,11 @@ export function Settings() {
         <TabsContent value="advanced" className="space-y-6">
           <AdvancedSettingsTab
             advanced={advanced}
-            setAdvanced={setAdvanced as React.Dispatch<React.SetStateAction<AdvancedSettings>>}
+            setAdvanced={
+              setAdvanced as React.Dispatch<
+                React.SetStateAction<AdvancedSettings>
+              >
+            }
             onSave={handleSaveAdvanced}
           />
         </TabsContent>
