@@ -261,13 +261,18 @@ router.post("/command/:cmd", async (req, res) => {
       output: result.output,
     });
   } catch (error) {
-    handleSnapraidError(res, error, `Error executing command ${command}:`, () => {
-      res.status(500).json({
-        success: false,
-        error:
-          error instanceof Error ? error.message : "Command execution failed",
-      });
-    });
+    handleSnapraidError(
+      res,
+      error,
+      `Error executing command ${command}:`,
+      () => {
+        res.status(500).json({
+          success: false,
+          error:
+            error instanceof Error ? error.message : "Command execution failed",
+        });
+      }
+    );
   }
 });
 

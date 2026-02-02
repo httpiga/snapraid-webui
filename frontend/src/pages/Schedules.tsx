@@ -122,7 +122,7 @@ export function Schedules() {
     e.preventDefault();
 
     let args: string[];
-    
+
     // For sync commands, use sync safety settings
     if (formData.command === "sync") {
       args = syncSafetyToArgs(

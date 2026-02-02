@@ -15,7 +15,6 @@ function mockCommandConfig(options: CommandOption[]): CommandConfig {
     name: "Test",
     command: "sync",
     description: "Test command",
-    icon: undefined as unknown as CommandConfig["icon"],
     longRunning: true,
     options,
   };

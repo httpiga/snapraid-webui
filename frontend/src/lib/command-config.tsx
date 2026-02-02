@@ -1,11 +1,3 @@
-import {
-  RefreshCw,
-  Search,
-  Shield,
-  Wrench,
-  Thermometer,
-  Terminal,
-} from "lucide-react";
 import type { SnapRaidCommand } from "@shared/types";
 
 export interface CommandOption {
@@ -20,7 +12,6 @@ export interface CommandConfig {
   name: string;
   command: SnapRaidCommand;
   description: string;
-  icon: React.ReactNode;
   longRunning: boolean;
   options?: CommandOption[];
 }
@@ -30,7 +21,6 @@ export const commands: CommandConfig[] = [
     name: "Sync",
     command: "sync",
     description: "Update parity information for changed files",
-    icon: <RefreshCw className="h-4 w-4 mr-1" />,
     longRunning: true,
     // Sync safety options are handled by SyncSafetySettings component
     options: [],
@@ -39,7 +29,6 @@ export const commands: CommandConfig[] = [
     name: "Scrub",
     command: "scrub",
     description: "Check data integrity and find silent errors",
-    icon: <Search className="h-4 w-4 mr-1" />,
     longRunning: true,
     options: [
       {
@@ -62,7 +51,6 @@ export const commands: CommandConfig[] = [
     name: "Check",
     command: "check",
     description: "Verify data and parity without making changes",
-    icon: <Shield className="h-4 w-4 mr-1" />,
     longRunning: true,
     options: [
       {
@@ -77,28 +65,24 @@ export const commands: CommandConfig[] = [
     name: "Status",
     command: "status",
     description: "Show current array status",
-    icon: <Terminal className="h-4 w-4 mr-1" />,
     longRunning: false,
   },
   {
     name: "Diff",
     command: "diff",
     description: "Show changes since last sync",
-    icon: <Terminal className="h-4 w-4 mr-1" />,
     longRunning: false,
   },
   {
     name: "SMART",
     command: "smart",
     description: "Show disk health information",
-    icon: <Thermometer className="h-4 w-4 mr-1" />,
     longRunning: false,
   },
   {
     name: "Fix",
     command: "fix",
     description: "Recover damaged files using parity",
-    icon: <Wrench className="h-4 w-4 mr-1" />,
     longRunning: true,
     options: [
       {

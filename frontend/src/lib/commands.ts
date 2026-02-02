@@ -1,8 +1,6 @@
 import type { LucideIcon } from "lucide-react";
 import {
-  Terminal,
   RefreshCw,
-  Search,
   GitCompare,
   Cross,
   Shield,
@@ -16,6 +14,8 @@ import {
   Copy,
   Hand,
   Hash,
+  Activity,
+  SearchCheck,
 } from "lucide-react";
 import type { SnapRaidCommand } from "@shared/types";
 
@@ -53,9 +53,9 @@ export const COMMAND_VALUES: readonly SnapRaidCommand[] = Object.values(
  * Use with: const Icon = COMMAND_ICONS[command]; <Icon className="h-4 w-4" />
  */
 export const COMMAND_ICONS: Record<SnapRaidCommand, LucideIcon> = {
-  [Command.STATUS]: Terminal,
+  [Command.STATUS]: Activity,
   [Command.SYNC]: RefreshCw,
-  [Command.SCRUB]: Search,
+  [Command.SCRUB]: SearchCheck,
   [Command.DIFF]: GitCompare,
   [Command.FIX]: Cross,
   [Command.CHECK]: Shield,
