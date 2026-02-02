@@ -129,13 +129,9 @@ export async function createSessionMiddleware(): Promise<RequestHandler> {
  * Skips auth check if auth is disabled
  */
 export function authMiddleware() {
-  return async (req: Request, res: Response, next: NextFunction) => {
-    // Skip auth for login/logout endpoints
-    if (
-      req.path === "/api/auth/login" ||
-      req.path === "/api/auth/logout" ||
-      req.path === "/api/auth/status"
-    ) {
+ return async (req: Request, res: Response, next: NextFunction) => {
+    // Skip auth for auth endpoints (router handles its own checks)
+    if (req.path.startsWith("/auth/")) {
       return next();
     }
 

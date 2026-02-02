@@ -9,22 +9,25 @@ import { Logs } from "./pages/Logs";
 import { Settings } from "./pages/Settings";
 import { Toaster } from "./components/ui/sonner";
 import { ThemeProvider } from "./components/theme/ThemeProvider";
+import { AuthGate } from "./components/auth/AuthGate";
 
 function App() {
   return (
     <>
       <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
-        <Routes>
-          <Route path="/" element={<Layout />}>
-            <Route index element={<Dashboard />} />
-            <Route path="disks" element={<Disks />} />
-            <Route path="operations" element={<Operations />} />
-            <Route path="schedules" element={<Schedules />} />
-            <Route path="recovery" element={<Recovery />} />
-            <Route path="logs" element={<Logs />} />
-            <Route path="settings" element={<Settings />} />
-          </Route>
-        </Routes>
+        <AuthGate>
+          <Routes>
+            <Route path="/" element={<Layout />}>
+              <Route index element={<Dashboard />} />
+              <Route path="disks" element={<Disks />} />
+              <Route path="operations" element={<Operations />} />
+              <Route path="schedules" element={<Schedules />} />
+              <Route path="recovery" element={<Recovery />} />
+              <Route path="logs" element={<Logs />} />
+              <Route path="settings" element={<Settings />} />
+            </Route>
+          </Routes>
+        </AuthGate>
         <Toaster />
       </ThemeProvider>
     </>

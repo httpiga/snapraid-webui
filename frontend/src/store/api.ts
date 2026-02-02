@@ -11,11 +11,14 @@ import type {
   AppConfig,
   ApiResponse,
   FileSystemResponse,
+  AuthStatus,
+  AuthSettingsResponse,
+  AuthSettingsUpdate,
 } from "@shared/types";
 
 export const api = createApi({
   reducerPath: "api",
-  baseQuery: fetchBaseQuery({ baseUrl: "/api" }),
+  baseQuery: fetchBaseQuery({ baseUrl: "/api", credentials: "include" }),
   tagTypes: [
     "Status",
     "Config",
@@ -24,6 +27,7 @@ export const api = createApi({
     "Notifications",
     "SyncSafety",
     "Advanced",
+    "Auth",
   ],
   endpoints: (builder) => ({
     // Status
@@ -211,6 +215,41 @@ export const api = createApi({
         params: path ? { path } : undefined,
       }),
     }),
+
+    // Auth
+    getAuthStatus: builder.query<AuthStatus, void>({
+      query: () => "/auth/status",
+      providesTags: ["Auth"],
+    }),
+    login: builder.mutation<ApiResponse, { username: string; password: string }>(
+      {
+        query: (body) => ({
+          url: "/auth/login",
+          method: "POST",
+          body,
+        }),
+        invalidatesTags: ["Auth"],
+      }
+    ),
+    logout: builder.mutation<ApiResponse, void>({
+      query: () => ({
+        url: "/auth/logout",
+        method: "POST",
+      }),
+      invalidatesTags: ["Auth"],
+    }),
+    getAuthSettings: builder.query<AuthSettingsResponse, void>({
+      query: () => "/auth/settings",
+      providesTags: ["Auth"],
+    }),
+    updateAuthSettings: builder.mutation<ApiResponse, AuthSettingsUpdate>({
+      query: (body) => ({
+        url: "/auth/settings",
+        method: "PUT",
+        body,
+      }),
+      invalidatesTags: ["Auth"],
+    }),
   }),
 });
 
@@ -240,4 +279,9 @@ export const {
   useUpdateAdvancedSettingsMutation,
   useGetAppConfigQuery,
   useGetFileSystemEntriesQuery,
+  useGetAuthStatusQuery,
+  useLoginMutation,
+  useLogoutMutation,
+  useGetAuthSettingsQuery,
+  useUpdateAuthSettingsMutation,
 } = api;

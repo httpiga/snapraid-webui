@@ -320,6 +320,24 @@ export interface AuthSettings {
   sessionSecret: string;
 }
 
+export interface AuthStatus {
+  enabled: boolean;
+  authenticated: boolean;
+  username: string | null;
+}
+
+export interface AuthSettingsResponse {
+  enabled: boolean;
+  username: string;
+  hasPassword: boolean;
+}
+
+export interface AuthSettingsUpdate {
+  enabled?: boolean;
+  username?: string;
+  password?: string;
+}
+
 // ============================================================================
 // Log Types
 // ============================================================================

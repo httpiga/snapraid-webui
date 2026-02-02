@@ -78,6 +78,7 @@ router.get("/settings", async (req, res) => {
   res.json({
     enabled: settings.enabled,
     username: settings.username,
+    hasPassword: settings.passwordHash !== "",
     // Don't send password hash
   });
 });
@@ -97,6 +98,19 @@ router.put("/settings", async (req, res) => {
   const { enabled: newEnabled, username, password } = req.body;
 
   try {
+    const currentSettings = await loadAuthSettings();
+    const enabling =
+      newEnabled === true || (newEnabled === undefined && currentSettings.enabled);
+    const hasPassword = currentSettings.passwordHash !== "";
+
+    if (enabling && !hasPassword && !password) {
+      res.status(400).json({
+        success: false,
+        error: "Password required when enabling authentication",
+      });
+      return;
+    }
+
     const updates: Record<string, unknown> = {};
 
     if (newEnabled !== undefined) {
