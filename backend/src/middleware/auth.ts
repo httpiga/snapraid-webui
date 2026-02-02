@@ -130,11 +130,12 @@ export async function createSessionMiddleware(): Promise<RequestHandler> {
  */
 export function authMiddleware() {
   return async (req: Request, res: Response, next: NextFunction) => {
-    // Skip auth for login/logout endpoints
+    // Skip auth for login/logout/status and health check
     if (
       req.path === "/api/auth/login" ||
       req.path === "/api/auth/logout" ||
-      req.path === "/api/auth/status"
+      req.path === "/api/auth/status" ||
+      req.path === "/api/health"
     ) {
       return next();
     }

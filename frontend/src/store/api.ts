@@ -16,9 +16,26 @@ import type {
   AuthSettingsUpdate,
 } from "@shared/types";
 
+const baseQueryWithAuth = async (
+  args: Parameters<ReturnType<typeof fetchBaseQuery>>[0],
+  api: Parameters<Parameters<typeof createApi>[0]["baseQuery"]>[1],
+  extraOptions: Parameters<ReturnType<typeof fetchBaseQuery>>[2]
+) => {
+  const result = await fetchBaseQuery({
+    baseUrl: "/api",
+    credentials: "include",
+  })(args, api, extraOptions);
+  if (result.error?.status === 401) {
+    const apiWithUtil = api as { dispatch: (action: unknown) => void; util?: { invalidateTags: (tags: string[]) => unknown } };
+    const action = apiWithUtil.util?.invalidateTags?.(["Auth"]);
+    if (action) apiWithUtil.dispatch(action);
+  }
+  return result;
+};
+
 export const api = createApi({
   reducerPath: "api",
-  baseQuery: fetchBaseQuery({ baseUrl: "/api" }),
+  baseQuery: baseQueryWithAuth,
   tagTypes: [
     "Status",
     "Config",
