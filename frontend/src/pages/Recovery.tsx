@@ -95,27 +95,29 @@ export function Recovery() {
         description="Restore deleted or corrupted files using parity data"
       />
 
-      <RecoveryWarning />
-
       <div className="grid gap-6 md:grid-cols-2">
-        <RecoveryOptionsCard
-          filterPath={filterPath}
-          filterMissing={filterMissing}
-          filterError={filterError}
-          filterDisk={filterDisk}
-          diskNames={diskNames}
-          isRecovering={isRecovering}
-          isConnected={isConnected}
-          onFilterPathChange={setFilterPath}
-          onFilterMissingChange={setFilterMissing}
-          onFilterErrorChange={setFilterError}
-          onFilterDiskChange={setFilterDisk}
-          onRecoverDeleted={handleRecoverDeleted}
-          onFixErrors={handleFixErrors}
-          onFullRecovery={handleFullRecovery}
-          onStartRecovery={handleStartRecovery}
-          onStopRecovery={handleAbort}
-        />
+        <div className="space-y-6">
+          <RecoveryWarning />
+
+          <RecoveryOptionsCard
+            filterPath={filterPath}
+            filterMissing={filterMissing}
+            filterError={filterError}
+            filterDisk={filterDisk}
+            diskNames={diskNames}
+            isRecovering={isRecovering}
+            isConnected={isConnected}
+            onFilterPathChange={setFilterPath}
+            onFilterMissingChange={setFilterMissing}
+            onFilterErrorChange={setFilterError}
+            onFilterDiskChange={setFilterDisk}
+            onRecoverDeleted={handleRecoverDeleted}
+            onFixErrors={handleFixErrors}
+            onFullRecovery={handleFullRecovery}
+            onStartRecovery={handleStartRecovery}
+            onStopRecovery={handleAbort}
+          />
+        </div>
 
         <RecoveryOutputCard
           isRecovering={isRecovering}

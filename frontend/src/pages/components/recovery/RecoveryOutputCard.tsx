@@ -45,7 +45,7 @@ export function RecoveryOutputCard({
         </div>
       </CardHeader>
       <CardContent>
-        <ScrollArea className="h-[300px] w-full rounded border bg-black">
+        <ScrollArea className="h-[500px] w-full rounded border bg-black">
           <pre className="p-4 text-sm font-mono text-green-400 whitespace-pre-wrap">
             {output || "No output yet. Start a recovery to see progress."}
           </pre>

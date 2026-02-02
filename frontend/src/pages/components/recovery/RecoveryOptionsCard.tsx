@@ -108,11 +108,12 @@ export function RecoveryOptionsCard({
           <Label htmlFor="filterPath">File or Directory Filter</Label>
           <FieldDescription>
             <p className="text-xs text-muted-foreground">
-              Limit recovery to specific paths. Supports wildcards:{" "}
+              Limit recovery to specific paths. <br />
+              Supports wildcards:{" "}
               <code className="rounded bg-muted px-1">*</code> matches any
               characters, <code className="rounded bg-muted px-1">?</code>{" "}
-              matches one character. Leave empty to recover all files matching
-              other filters.
+              matches one character. <br /> Leave empty to recover all files
+              matching other filters.
             </p>
           </FieldDescription>
           <div className="flex items-center gap-2">
