@@ -2,6 +2,7 @@
 
 [![Build](https://github.com/httpiga/snapraid-webui/actions/workflows/docker-build.yml/badge.svg?branch=master)](https://github.com/httpiga/snapraid-webui/actions/workflows/docker-build.yml)
 [![License](https://img.shields.io/github/license/httpiga/snapraid-webui)](https://github.com/httpiga/snapraid-webui/blob/master/LICENSE.md)
+[![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
 
 A modern, self-hosted web interface for managing [SnapRAID](https://www.snapraid.it/) installations. SnapRAID is a backup program for disk arrays that stores parity information and allows recovery from disk failures. Execute commands, manage configurations, schedule operations, and receive notifications—all through your browser.
 
