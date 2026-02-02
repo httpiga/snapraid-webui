@@ -54,7 +54,8 @@ async function handleOutput(chunk: string): Promise<void> {
  */
 export async function executeCommandWithStreaming(
   command: SnapRaidCommand,
-  args: string[] = []
+  args: string[] = [],
+  options?: { diffOutput?: string }
 ): Promise<{ exitCode: number; output: string }> {
   // Create log file if not already created (e.g., by sync safety validation)
   if (!currentLogFile) {
@@ -98,7 +99,9 @@ export async function executeCommandWithStreaming(
     });
 
     // Send notification for sync/scrub (manual run via WebSocket)
-    const payload = getOperationNotificationPayload(command, result.exitCode);
+    const payload = getOperationNotificationPayload(command, result.exitCode, {
+      diffOutput: options?.diffOutput,
+    });
     if (payload) {
       try {
         await sendNotification(
@@ -195,6 +198,7 @@ export function initializeWebSocket(server: Server): WebSocketServer {
           const advancedArgs = getAdvancedArgsForCommand(advancedSettings, command);
           const finalArgs = [...advancedArgs, ...args];
 
+          let diffOutput = "";
           // Check sync safety before running sync command
           if (command === "sync") {
             // Create log file before validation so diff output is captured
@@ -210,12 +214,16 @@ export function initializeWebSocket(server: Server): WebSocketServer {
               timestamp: new Date().toISOString(),
             });
 
-            // Validate sync safety with output streaming
+            // Validate sync safety with output streaming; capture diff output for notification
             // If explicit settings provided (from Operations page), use them
             // Otherwise load from config (for scheduled syncs)
+            const outputWithCapture = (chunk: string) => {
+              handleOutput(chunk);
+              diffOutput += chunk;
+            };
             const validation = await validateSyncSafetyWithNotification(
               SNAPRAID_CONF_FILE,
-              handleOutput,
+              outputWithCapture,
               syncSafetySettings
             );
 
@@ -240,8 +248,14 @@ export function initializeWebSocket(server: Server): WebSocketServer {
             }
           }
 
-          // Execute command in background
-          executeCommandWithStreaming(command, finalArgs).catch(console.error);
+          // Execute command in background (include diff output for sync notification)
+          const streamOptions =
+            command === "sync" ? { diffOutput } : undefined;
+          executeCommandWithStreaming(
+            command,
+            finalArgs,
+            streamOptions
+          ).catch(console.error);
         }
 
         // Handle abort request

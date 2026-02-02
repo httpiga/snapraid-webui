@@ -173,7 +173,7 @@ const EXIT_SIGINT = 128 + 2;
 export function getOperationNotificationPayload(
   command: SnapRaidCommand,
   exitCode: number,
-  context?: { scheduleName?: string }
+  context?: { scheduleName?: string; diffOutput?: string }
 ): {
   event: NotificationEvent;
   title: string;
@@ -185,13 +185,19 @@ export function getOperationNotificationPayload(
     ? `Scheduled: ${context.scheduleName}`
     : "Manual";
   const details: Record<string, string> = {
-    Command: command,
-    "Exit code": String(exitCode),
     Source: source,
     Time: new Date().toISOString(),
   };
 
+  // Include exit code only on failure or abort
+  if (exitCode !== 0) {
+    details["Exit code"] = String(exitCode);
+  }
+
   if (command === "sync") {
+    if (context?.diffOutput?.trim()) {
+      details["Pre-sync diff"] = context.diffOutput.trim();
+    }
     if (exitCode === 0) {
       return {
         event: "sync_complete",

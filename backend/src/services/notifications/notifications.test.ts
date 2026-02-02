@@ -78,8 +78,8 @@ describe("getOperationNotificationPayload", () => {
     expect(payload!.event).toBe("sync_complete");
     expect(payload!.title).toBe("Sync completed");
     expect(payload!.message).toContain("successfully");
-    expect(payload!.details.Command).toBe("sync");
-    expect(payload!.details["Exit code"]).toBe("0");
+    expect(payload!.details).not.toHaveProperty("Command");
+    expect(payload!.details).not.toHaveProperty("Exit code");
     expect(payload!.details.Source).toBe("Manual");
   });
 
@@ -91,15 +91,16 @@ describe("getOperationNotificationPayload", () => {
     expect(payload!.details.Source).toBe("Scheduled: Nightly Sync");
   });
 
-  test("sync non-zero exit returns sync_error", () => {
+  test("sync non-zero exit returns sync_error with exit code in details", () => {
     const payload = notifications.getOperationNotificationPayload("sync", 1);
     expect(payload).not.toBeNull();
     expect(payload!.event).toBe("sync_error");
     expect(payload!.title).toBe("Sync failed");
     expect(payload!.message).toContain("exit code 1");
+    expect(payload!.details["Exit code"]).toBe("1");
   });
 
-  test("sync aborted by SIGTERM returns sync_aborted", () => {
+  test("sync aborted by SIGTERM returns sync_aborted with exit code in details", () => {
     const sigterm = 128 + 15;
     const payload = notifications.getOperationNotificationPayload(
       "sync",
@@ -108,9 +109,10 @@ describe("getOperationNotificationPayload", () => {
     expect(payload).not.toBeNull();
     expect(payload!.event).toBe("sync_aborted");
     expect(payload!.title).toBe("Sync aborted");
+    expect(payload!.details["Exit code"]).toBe(String(sigterm));
   });
 
-  test("sync aborted by SIGINT returns sync_aborted", () => {
+  test("sync aborted by SIGINT returns sync_aborted with exit code in details", () => {
     const sigint = 128 + 2;
     const payload = notifications.getOperationNotificationPayload(
       "sync",
@@ -118,30 +120,52 @@ describe("getOperationNotificationPayload", () => {
     );
     expect(payload).not.toBeNull();
     expect(payload!.event).toBe("sync_aborted");
+    expect(payload!.details["Exit code"]).toBe(String(sigint));
   });
 
-  test("scrub exit 0 returns scrub_complete", () => {
+  test("sync exit 0 with diffOutput includes pre-sync diff in details", () => {
+    const diffOutput = "=== Checking Sync Safety ===\nRunning diff...\n\n 1 removed";
+    const payload = notifications.getOperationNotificationPayload("sync", 0, {
+      diffOutput,
+    });
+    expect(payload).not.toBeNull();
+    expect(payload!.details["Pre-sync diff"]).toBe(diffOutput);
+  });
+
+  test("sync with empty diffOutput does not add Pre-sync diff to details", () => {
+    const payload = notifications.getOperationNotificationPayload("sync", 0, {
+      diffOutput: "   \n  ",
+    });
+    expect(payload).not.toBeNull();
+    expect(payload!.details).not.toHaveProperty("Pre-sync diff");
+  });
+
+  test("scrub exit 0 returns scrub_complete without exit code in details", () => {
     const payload = notifications.getOperationNotificationPayload("scrub", 0);
     expect(payload).not.toBeNull();
     expect(payload!.event).toBe("scrub_complete");
     expect(payload!.title).toBe("Scrub completed");
+    expect(payload!.details).not.toHaveProperty("Exit code");
   });
 
-  test("scrub non-zero returns scrub_error", () => {
+  test("scrub non-zero returns scrub_error with exit code in details", () => {
     const payload = notifications.getOperationNotificationPayload("scrub", 2);
     expect(payload).not.toBeNull();
     expect(payload!.event).toBe("scrub_error");
     expect(payload!.title).toBe("Scrub failed");
+    expect(payload!.details["Exit code"]).toBe("2");
   });
 
-  test("scrub SIGTERM returns scrub_error with aborted message", () => {
+  test("scrub SIGTERM returns scrub_error with aborted message and exit code in details", () => {
+    const sigterm = 128 + 15;
     const payload = notifications.getOperationNotificationPayload(
       "scrub",
-      128 + 15
+      sigterm
     );
     expect(payload).not.toBeNull();
     expect(payload!.event).toBe("scrub_error");
     expect(payload!.title).toBe("Scrub aborted");
+    expect(payload!.details["Exit code"]).toBe(String(sigterm));
   });
 });
 
