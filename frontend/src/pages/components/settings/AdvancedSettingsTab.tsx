@@ -10,18 +10,42 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import type { AdvancedSettings } from "@shared/types";
+import { useEffect, useState } from "react";
+import {
+  useGetAdvancedSettingsQuery,
+  useUpdateAdvancedSettingsMutation,
+} from "@/store/api";
+import { toast } from "sonner";
+import { getApiErrorMessage } from "@/lib/api-error";
+import { PageLoading } from "@/pages/components/PageLoading";
 
-interface AdvancedSettingsTabProps {
-  advanced: AdvancedSettings;
-  setAdvanced: React.Dispatch<React.SetStateAction<AdvancedSettings>>;
-  onSave: () => Promise<void>;
-}
+export function AdvancedSettingsTab() {
+  const { data: advancedSettings, isLoading } = useGetAdvancedSettingsQuery();
+  const [updateAdvancedSettings] = useUpdateAdvancedSettingsMutation();
+  const [advanced, setAdvanced] = useState<AdvancedSettings | null>(null);
 
-export function AdvancedSettingsTab({
-  advanced,
-  setAdvanced,
-  onSave,
-}: AdvancedSettingsTabProps) {
+  useEffect(() => {
+    if (advancedSettings) {
+      setAdvanced(advancedSettings);
+    }
+  }, [advancedSettings]);
+
+  const handleSave = async () => {
+    if (!advanced) return;
+    try {
+      await updateAdvancedSettings(advanced).unwrap();
+      toast.success("Advanced settings saved");
+    } catch (error) {
+      toast.error("Failed to save advanced settings", {
+        description: getApiErrorMessage(error),
+      });
+    }
+  };
+
+  if (isLoading || !advanced) {
+    return <PageLoading message="Loading advanced settings..." />;
+  }
+
   return (
     <div className="space-y-6">
       <Card>
@@ -102,7 +126,7 @@ export function AdvancedSettingsTab({
             </p>
           </div>
 
-          <Button onClick={onSave}>Save</Button>
+          <Button onClick={handleSave}>Save</Button>
         </CardContent>
       </Card>
     </div>

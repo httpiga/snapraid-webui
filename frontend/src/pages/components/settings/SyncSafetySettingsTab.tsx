@@ -10,20 +10,44 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import type { SyncSafetySettings } from "@shared/types";
+import { useEffect, useState } from "react";
+import {
+  useGetSyncSafetySettingsQuery,
+  useUpdateSyncSafetySettingsMutation,
+} from "@/store/api";
+import { toast } from "sonner";
+import { getApiErrorMessage } from "@/lib/api-error";
+import { PageLoading } from "@/pages/components/PageLoading";
 
-interface SyncSafetySettingsTabProps {
-  safetySettings: SyncSafetySettings;
-  setSafetySettings: React.Dispatch<
-    React.SetStateAction<SyncSafetySettings>
-  >;
-  onSave: () => Promise<void>;
-}
+export function SyncSafetySettingsTab() {
+  const { data: syncSafetySettings, isLoading } =
+    useGetSyncSafetySettingsQuery();
+  const [updateSyncSafetySettings] = useUpdateSyncSafetySettingsMutation();
+  const [safetySettings, setSafetySettings] =
+    useState<SyncSafetySettings | null>(null);
 
-export function SyncSafetySettingsTab({
-  safetySettings,
-  setSafetySettings,
-  onSave,
-}: SyncSafetySettingsTabProps) {
+  useEffect(() => {
+    if (syncSafetySettings) {
+      setSafetySettings(syncSafetySettings);
+    }
+  }, [syncSafetySettings]);
+
+  const handleSave = async () => {
+    if (!safetySettings) return;
+    try {
+      await updateSyncSafetySettings(safetySettings).unwrap();
+      toast.success("Sync safety settings saved");
+    } catch (error) {
+      toast.error("Failed to save sync safety settings", {
+        description: getApiErrorMessage(error),
+      });
+    }
+  };
+
+  if (isLoading || !safetySettings) {
+    return <PageLoading message="Loading sync safety settings..." />;
+  }
+
   return (
     <div className="space-y-6">
       <Card>
@@ -139,7 +163,7 @@ export function SyncSafetySettingsTab({
             />
           </div>
 
-          <Button onClick={onSave}>Save</Button>
+          <Button onClick={handleSave}>Save</Button>
         </CardContent>
       </Card>
     </div>
