@@ -88,7 +88,20 @@ export function Operations() {
     clearOutput();
 
     if (cmd.longRunning) {
-      sendCommand(cmd.command, args);
+      // For sync commands, pass the actual safety settings to backend
+      if (cmd.command === "sync") {
+        const safetySettings = {
+          enabled: true, // Always enabled for manual sync from Operations
+          maxDeletedFiles: syncSafetyOptions.maxDeletedFiles ?? 100,
+          maxUpdatedFiles: syncSafetyOptions.maxUpdatedFiles ?? 500,
+          maxAddedFiles: syncSafetyOptions.maxAddedFiles ?? 10000,
+          preHash: syncSafetyOptions.preHash,
+          forceEmpty: syncSafetyOptions.forceEmpty,
+        };
+        sendCommand(cmd.command, args, safetySettings);
+      } else {
+        sendCommand(cmd.command, args);
+      }
     } else {
       try {
         const result = await executeCommand({

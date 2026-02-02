@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import type { WSMessage, SnapRaidCommand } from "@shared/types";
+import type { WSMessage, SnapRaidCommand, SyncSafetySettings } from "@shared/types";
 
 interface UseWebSocketOptions {
   onOutput?: (chunk: string) => void;
@@ -130,14 +130,20 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
   disconnectRef.current = disconnect;
 
   const sendCommand = useCallback(
-    (command: SnapRaidCommand, args: string[] = []) => {
+    (
+      command: SnapRaidCommand,
+      args: string[] = [],
+      syncSafetySettings?: SyncSafetySettings
+    ) => {
       if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
         console.error("WebSocket is not connected");
         return false;
       }
 
       setOutput("");
-      wsRef.current.send(JSON.stringify({ type: "command", command, args }));
+      wsRef.current.send(
+        JSON.stringify({ type: "command", command, args, syncSafetySettings })
+      );
       return true;
     },
     []

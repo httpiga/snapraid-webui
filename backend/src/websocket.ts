@@ -52,18 +52,20 @@ export async function executeCommandWithStreaming(
   command: SnapRaidCommand,
   args: string[] = []
 ): Promise<{ exitCode: number; output: string }> {
-  // Create log file
-  currentLogFile = await createLogFile(
-    command,
-    `=== SnapRAID ${command} started at ${new Date().toISOString()} ===\n`
-  );
+  // Create log file if not already created (e.g., by sync safety validation)
+  if (!currentLogFile) {
+    currentLogFile = await createLogFile(
+      command,
+      `=== SnapRAID ${command} started at ${new Date().toISOString()} ===\n`
+    );
 
-  // Notify clients that command started
-  broadcast({
-    type: "status",
-    command,
-    timestamp: new Date().toISOString(),
-  });
+    // Notify clients that command started
+    broadcast({
+      type: "status",
+      command,
+      timestamp: new Date().toISOString(),
+    });
+  }
 
   try {
     const result = await snapraidRunner.executeCommand(
@@ -171,7 +173,7 @@ export function initializeWebSocket(server: Server): WebSocketServer {
 
         // Handle incoming commands from clients
         if (message.type === "command") {
-          const { command, args = [] } = message;
+          const { command, args = [], syncSafetySettings } = message;
 
           if (snapraidRunner.isRunning()) {
             ws.send(
@@ -186,20 +188,45 @@ export function initializeWebSocket(server: Server): WebSocketServer {
 
           // Check sync safety before running sync command
           if (command === "sync") {
-            // Validate sync safety before executing
+            // Create log file before validation so diff output is captured
+            currentLogFile = await createLogFile(
+              command,
+              `=== SnapRAID ${command} started at ${new Date().toISOString()} ===\n`
+            );
+
+            // Notify clients that command started
+            broadcast({
+              type: "status",
+              command,
+              timestamp: new Date().toISOString(),
+            });
+
+            // Validate sync safety with output streaming
+            // If explicit settings provided (from Operations page), use them
+            // Otherwise load from config (for scheduled syncs)
             const validation = await validateSyncSafetyWithNotification(
-              SNAPRAID_CONF_FILE
+              SNAPRAID_CONF_FILE,
+              handleOutput,
+              syncSafetySettings
             );
 
             if (!validation.safe) {
-              // Send error to client
-              ws.send(
-                JSON.stringify({
-                  type: "error",
-                  error: `Sync halted: ${validation.violations.join("; ")}`,
-                  timestamp: new Date().toISOString(),
-                } satisfies WSMessage)
-              );
+              // Append failure to log
+              if (currentLogFile) {
+                await appendToLogFile(
+                  currentLogFile,
+                  `\n=== Sync halted by safety checks at ${new Date().toISOString()} ===\n`
+                );
+              }
+
+              // Notify clients that command completed with error
+              broadcast({
+                type: "error",
+                error: `Sync halted: ${validation.violations.join("; ")}`,
+                timestamp: new Date().toISOString(),
+              });
+
+              currentLogFile = null;
               return;
             }
           }

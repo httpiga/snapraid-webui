@@ -239,11 +239,13 @@ export type WSMessageType =
 export interface WSMessage {
   type: WSMessageType;
   command?: string;
+  args?: string[];
   chunk?: string;
   exitCode?: number;
   timestamp?: string;
   error?: string;
   status?: SnapRaidStatus;
+  syncSafetySettings?: SyncSafetySettings;
 }
 
 // ============================================================================

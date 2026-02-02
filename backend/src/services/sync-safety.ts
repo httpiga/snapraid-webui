@@ -53,9 +53,15 @@ export async function saveSyncSafetySettings(
  * Validates sync safety before executing a sync command.
  * If safety checks are enabled and validation fails, sends a notification.
  * Returns the validation result for the caller to handle the response.
+ * 
+ * @param configPath Path to SnapRAID config file
+ * @param onOutput Optional callback to stream diff command output to the client
+ * @param explicitSettings Optional explicit settings (overrides config file, always runs validation)
  */
 export async function validateSyncSafetyWithNotification(
-  configPath: string
+  configPath: string,
+  onOutput?: (chunk: string) => void,
+  explicitSettings?: SyncSafetySettings
 ): Promise<
   | { safe: true }
   | {
@@ -68,21 +74,46 @@ export async function validateSyncSafetyWithNotification(
       };
     }
 > {
-  const safetySettings = await loadSyncSafetySettings();
+  // Use explicit settings if provided, otherwise load from config
+  const safetySettings = explicitSettings || (await loadSyncSafetySettings());
 
-  // If safety checks are disabled, allow sync to proceed
-  if (!safetySettings.enabled) {
+  // If no explicit settings provided and safety checks are disabled in config, skip validation
+  if (!explicitSettings && !safetySettings.enabled) {
     return { safe: true };
   }
 
-  // Validate sync safety
+  // Send header message if output callback provided
+  if (onOutput) {
+    onOutput(
+      "\n=== Checking Sync Safety Limits ===\nRunning diff to detect changes...\n\n"
+    );
+  }
+
+  // Validate sync safety (with output streaming)
   const validation = await snapraidRunner.validateSyncSafety(
     configPath,
-    safetySettings
+    safetySettings,
+    onOutput
   );
 
-  // If validation fails, send notification
+  // Send validation result message
+  if (onOutput) {
+    onOutput("\n=== Safety Check Results ===\n");
+    onOutput(`Deleted files: ${validation.diff.deletedFiles}\n`);
+    onOutput(`Updated files: ${validation.diff.modifiedFiles}\n`);
+    onOutput(`Added files: ${validation.diff.newFiles}\n\n`);
+  }
+
+  // If validation fails, send notification and result message
   if (!validation.safe) {
+    if (onOutput) {
+      onOutput("❌ SYNC HALTED - Safety limits exceeded:\n");
+      validation.violations.forEach((v) => {
+        onOutput(`   - ${v}\n`);
+      });
+      onOutput("\n");
+    }
+
     try {
       await sendNotification(
         "sync_safety_halt",
@@ -108,6 +139,11 @@ export async function validateSyncSafetyWithNotification(
         newFiles: validation.diff.newFiles,
       },
     };
+  }
+
+  // Validation passed
+  if (onOutput) {
+    onOutput("✓ Safety checks passed - proceeding with sync\n\n");
   }
 
   return { safe: true };

@@ -155,14 +155,16 @@ export class SnapRaidRunner {
    */
   async validateSyncSafety(
     configPath: string,
-    settings: SyncSafetySettings
+    settings: SyncSafetySettings,
+    onOutput?: OutputCallback
   ): Promise<{
     safe: boolean;
     violations: string[];
     diff: DiffReport;
   }> {
-    // Run diff command to get current changes
-    const diff = await this.getDiff(configPath);
+    // Run diff command to get current changes (with optional output streaming)
+    const { output } = await this.executeCommand("diff", configPath, onOutput);
+    const diff = parseDiffOutput(output);
 
     const violations: string[] = [];
 
