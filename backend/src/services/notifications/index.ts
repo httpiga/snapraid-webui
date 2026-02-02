@@ -36,8 +36,6 @@ const defaultSettings: NotificationSettings = {
     sync_safety_halt: ["discord", "telegram", "email", "slack"],
     scrub_complete: ["discord", "telegram", "email", "slack"],
     scrub_error: ["discord", "telegram", "email", "slack"],
-    smart_warning: ["discord", "telegram", "email", "slack"],
-    smart_failure: ["discord", "telegram", "email", "slack"],
   },
 };
 

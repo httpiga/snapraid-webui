@@ -25,8 +25,6 @@ export async function sendTelegramNotification(
     sync_safety_halt: "⚠️",
     scrub_complete: "✅",
     scrub_error: "❌",
-    smart_warning: "⚠️",
-    smart_failure: "🔴",
   };
 
   const emoji = emojis[event] || "📢";

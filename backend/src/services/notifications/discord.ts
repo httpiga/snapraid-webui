@@ -42,8 +42,6 @@ export async function sendDiscordNotification(
     sync_safety_halt: 0xffa500, // Orange
     scrub_complete: 0x00ff00, // Green
     scrub_error: 0xff0000, // Red
-    smart_warning: 0xffa500, // Orange
-    smart_failure: 0xff0000, // Red
   };
 
   const embed: DiscordEmbed = {

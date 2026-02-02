@@ -221,16 +221,6 @@ describe("command helpers", () => {
     expect(diff.deletedFiles).toBe(2);
   });
 
-  test("getSmart returns parsed smart report", async () => {
-    spawnState.stdoutChunks = [
-      "  32C   7601       -   0%   4TB     S3YJNA0M123456  /dev/sda  d1",
-    ];
-    const runner = new SnapRaidRunner();
-    const smart = await runner.getSmart("/a/b.conf");
-    expect(smart.disks.length).toBe(1);
-    expect(smart.disks[0].name).toBe("d1");
-  });
-
   test("runSync passes preHash/forceEmpty/forceZero args only", async () => {
     const runner = new SnapRaidRunner();
     await runner.runSync("/a/b.conf", undefined, {

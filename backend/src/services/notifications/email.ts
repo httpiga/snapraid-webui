@@ -39,8 +39,6 @@ export async function sendEmailNotification(
     sync_safety_halt: "[WARNING]",
     scrub_complete: "[OK]",
     scrub_error: "[ERROR]",
-    smart_warning: "[WARNING]",
-    smart_failure: "[CRITICAL]",
   };
 
   const prefix = prefixes[event] || "[INFO]";

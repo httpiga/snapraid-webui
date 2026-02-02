@@ -3,7 +3,6 @@ import * as parsers from "./index";
 import {
   parseStatusOutput,
   parseDiffOutput,
-  parseSmartOutput,
   parseDiskStatus,
 } from "./index";
 
@@ -119,45 +118,10 @@ describe("parseDiffOutput", () => {
   });
 });
 
-describe("parseSmartOutput", () => {
-  test("returns empty disks for empty output", () => {
-    const report = parseSmartOutput("");
-    expect(report.disks).toEqual([]);
-    expect(report.rawOutput).toBe("");
-  });
-
-  test("parses disk line", () => {
-    const output =
-      "  32C   7601       -   0%   4TB     S3YJNA0M123456  /dev/sda  d1";
-    const report = parseSmartOutput(output);
-    expect(report.disks).toHaveLength(1);
-    expect(report.disks[0].name).toBe("d1");
-    expect(report.disks[0].device).toBe("/dev/sda");
-    expect(report.disks[0].temperature).toBe(32);
-    expect(report.disks[0].powerOnHours).toBe(7601);
-    expect(report.disks[0].failureProbability).toBe(0);
-    expect(report.disks[0].serial).toBe("S3YJNA0M123456");
-    expect(report.disks[0].size).toBe("4TB");
-  });
-
-  test("marks disk as PREFAIL or FAIL when status lines present", () => {
-    const output = [
-      "  30C   5000       -   1%   2TB     ABC123  /dev/sdb  d2",
-      "d2 PREFAIL",
-      "d2 FAIL",
-    ].join("\n");
-    const report = parseSmartOutput(output);
-    expect(report.disks).toHaveLength(1);
-    expect(report.disks[0].name).toBe("d2");
-    expect(report.disks[0].status).toBe("FAIL");
-  });
-});
-
 describe("parsers index", () => {
   test("exports all parser functions", () => {
     expect(typeof parsers.parseStatusOutput).toBe("function");
     expect(typeof parsers.parseDiffOutput).toBe("function");
-    expect(typeof parsers.parseSmartOutput).toBe("function");
     expect(typeof parsers.parseDiskStatus).toBe("function");
   });
 });

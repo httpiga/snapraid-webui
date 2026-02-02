@@ -54,21 +54,3 @@ services:
 
       # Optional: Session secret (auto-generated if not set)
       # - SESSION_SECRET=your-random-secret-string
-
-    # Required for:
-    # - Executing snapraid commands
-    # - Reading SMART data from disks
-    # - Accessing disk devices
-    privileged: true
-
-    # Alternative to privileged mode (more restrictive):
-    # cap_add:
-    #   - SYS_RAWIO  # For SMART access
-    # devices:
-    #   - /dev/sda
-    #   - /dev/sdb
-    #   # ... add all your disk devices
-# Optional: Create a network for additional services
-# networks:
-#   default:
-#     name: snapraid-net

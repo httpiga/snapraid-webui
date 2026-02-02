@@ -176,7 +176,6 @@ describe("getAdvancedArgsForCommand", () => {
 
     expect(getAdvancedArgsForCommand(settings, "status")).toEqual([]);
     expect(getAdvancedArgsForCommand(settings, "diff")).toEqual([]);
-    expect(getAdvancedArgsForCommand(settings, "smart")).toEqual([]);
   });
 
   test("returns all applicable flags for sync command", () => {

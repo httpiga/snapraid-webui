@@ -114,7 +114,6 @@ const VALID_COMMANDS: SnapRaidCommand[] = [
   "fix",
   "check",
   "pool",
-  "smart",
   "probe",
   "up",
   "down",
@@ -174,21 +173,6 @@ router.get("/diff", async (_req, res) => {
   } catch (error) {
     handleSnapraidError(res, error, "Error getting diff:", () => {
       res.status(500).json({ error: "Failed to get diff" });
-    });
-  }
-});
-
-/**
- * GET /api/smart
- * Get SMART disk information
- */
-router.get("/smart", async (_req, res) => {
-  try {
-    const smart = await snapraidRunner.getSmart(SNAPRAID_CONF_FILE);
-    res.json(smart);
-  } catch (error) {
-    handleSnapraidError(res, error, "Error getting SMART info:", () => {
-      res.status(500).json({ error: "Failed to get SMART info" });
     });
   }
 });

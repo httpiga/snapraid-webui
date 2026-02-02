@@ -4,7 +4,6 @@ import type {
   ParsedSnapRaidConfig,
   Schedule,
   LogFile,
-  SmartReport,
   DiffReport,
   NotificationSettings,
   SyncSafetySettings,
@@ -22,7 +21,6 @@ export const api = createApi({
     "Config",
     "Schedules",
     "Logs",
-    "Smart",
     "Notifications",
     "SyncSafety",
     "Advanced",
@@ -80,12 +78,6 @@ export const api = createApi({
     }),
     getDiff: builder.query<DiffReport, void>({
       query: () => "/diff",
-    }),
-
-    // SMART
-    getSmart: builder.query<SmartReport, void>({
-      query: () => "/smart",
-      providesTags: ["Smart"],
     }),
 
     // Schedules
@@ -231,7 +223,6 @@ export const {
   useExecuteCommandMutation,
   useAbortCommandMutation,
   useGetDiffQuery,
-  useGetSmartQuery,
   useGetSchedulesQuery,
   useCreateScheduleMutation,
   useUpdateScheduleMutation,

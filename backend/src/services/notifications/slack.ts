@@ -43,8 +43,6 @@ export async function sendSlackNotification(
     sync_safety_halt: "#ff9800", // Orange
     scrub_complete: "#36a64f", // Green
     scrub_error: "#ff0000", // Red
-    smart_warning: "#ff9800", // Orange
-    smart_failure: "#ff0000", // Red
   };
 
   // Emoji based on event type
@@ -55,8 +53,6 @@ export async function sendSlackNotification(
     sync_safety_halt: ":warning:",
     scrub_complete: ":white_check_mark:",
     scrub_error: ":x:",
-    smart_warning: ":warning:",
-    smart_failure: ":rotating_light:",
   };
 
   const emoji = emojis[event] || ":bell:";

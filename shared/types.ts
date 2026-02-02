@@ -65,36 +65,6 @@ export interface DiskStatusInfo {
   usePercent: number;
 }
 
-export interface SmartDiskInfo {
-  name: string;
-  device: string;
-  status:
-    | "OK"
-    | "FAIL"
-    | "PREFAIL"
-    | "LOGFAIL"
-    | "LOGERR"
-    | "SELFERR"
-    | "UNKNOWN";
-  temperature?: number;
-  powerOnHours?: number;
-  failureProbability?: number;
-  model?: string;
-  serial?: string;
-  size?: string;
-  attributes?: SmartAttribute[];
-}
-
-export interface SmartAttribute {
-  id: number;
-  name: string;
-  value: number;
-  worst: number;
-  threshold: number;
-  raw: string;
-  flag: string;
-}
-
 export interface DiskPowerStatus {
   name: string;
   device: string;
@@ -134,12 +104,6 @@ export interface SnapRaidStatus {
   totalFreeGB?: number;
   disks?: DiskStatusInfo[];
   scrubHistory?: ScrubHistoryPoint[];
-  rawOutput: string;
-}
-
-export interface SmartReport {
-  disks: SmartDiskInfo[];
-  timestamp: string;
   rawOutput: string;
 }
 
@@ -202,7 +166,6 @@ export type SnapRaidCommand =
   | "fix"
   | "check"
   | "pool"
-  | "smart"
   | "probe"
   | "up"
   | "down"
@@ -283,9 +246,7 @@ export type NotificationEvent =
   | "sync_aborted"
   | "sync_safety_halt"
   | "scrub_complete"
-  | "scrub_error"
-  | "smart_warning"
-  | "smart_failure";
+  | "scrub_error";
 
 export interface DiscordSettings {
   enabled: boolean;

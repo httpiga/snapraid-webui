@@ -4,7 +4,7 @@ A modern, self-hosted web interface for managing [SnapRAID](https://www.snapraid
 
 ## Features
 
-- **Dashboard** - Real-time status overview, disk health, and recent activity
+- **Dashboard** - Real-time status overview, array status, and disk usage
 - **Disk Management** - Configure data and parity disks through visual or raw editor
 - **Command Execution** - Run sync, scrub, check, fix, and more with live output streaming
 - **Scheduling** - Automate sync and scrub operations with cron-based scheduling
@@ -49,6 +49,10 @@ docker compose up -d
 ```
 
 3. Open http://localhost:3000 in your browser
+
+**SMART unavailable in Docker.** When running in Docker, SnapRAID’s SMART command and device listing are not available; the web UI does not offer the SMART command in this setup.
+
+> SMART and SnapRAID’s devices/smart features require mapping filesystem mountpoints to real block devices via /sys (major:minor → /dev/sdX). In Docker containers the root filesystem is typically an overlay mount (e.g., 0:70), which cannot be dereferenced to a physical block device, so SnapRAID reports “Device listing/SMART unsupported” and the SMART commands cannot be relied on in this environment.
 
 ### Environment Variables
 

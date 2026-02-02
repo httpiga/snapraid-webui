@@ -36,7 +36,7 @@ COPY --from=frontend-builder /app/frontend/dist /temp/prod/frontend/dist
 # Final image: copy production node_modules and source (no bun install in final stage)
 FROM base AS release
 USER root
-RUN apt-get update && apt-get install -y curl smartmontools snapraid && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y curl snapraid && rm -rf /var/lib/apt/lists/*
 
 COPY --from=install-prod /temp/prod /app
 COPY --from=frontend-builder /app/frontend/dist /app/frontend/dist

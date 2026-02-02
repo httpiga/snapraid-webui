@@ -5,14 +5,12 @@ import type {
   RunningJob,
   SnapRaidStatus,
   DiffReport,
-  SmartReport,
   SyncSafetySettings,
 } from "@snapraid-webui/shared";
 import { SNAPRAID_BIN } from "../config.js";
 import {
   parseStatusOutput,
   parseDiffOutput,
-  parseSmartOutput,
   parseDiskStatus,
 } from "./parsers/index.js";
 
@@ -153,14 +151,6 @@ export class SnapRaidRunner {
   async getDiff(configPath: string): Promise<DiffReport> {
     const { output } = await this.executeCommand("diff", configPath);
     return parseDiffOutput(output);
-  }
-
-  /**
-   * Get SMART disk information
-   */
-  async getSmart(configPath: string): Promise<SmartReport> {
-    const { output } = await this.executeCommand("smart", configPath);
-    return parseSmartOutput(output);
   }
 
   /**

@@ -1,9 +1,7 @@
 import type {
   SnapRaidStatus,
   DiffReport,
-  SmartReport,
   DiskStatusInfo,
-  SmartDiskInfo,
   DiffFileInfo,
 } from "@snapraid-webui/shared";
 
@@ -183,59 +181,6 @@ export function parseDiffOutput(output: string): DiffReport {
       report.movedFiles +
       report.copiedFiles +
       report.restoredFiles;
-
-  return report;
-}
-
-/**
- * Parse the output of `snapraid smart` command
- */
-export function parseSmartOutput(output: string): SmartReport {
-  const report: SmartReport = {
-    disks: [],
-    timestamp: new Date().toISOString(),
-    rawOutput: output,
-  };
-
-  const lines = output.split("\n");
-  let currentDisk: SmartDiskInfo | null = null;
-
-  for (const line of lines) {
-    // Parse disk header line
-    // Format: "Temp  Power   Error   FP Size       Serial          Device    Disk"
-    // Or device lines like: "  32C   7601       -   0%   4TB     S3YJNA0M123456  /dev/sda  d1"
-    const diskMatch = line.match(
-      /^\s*(\d+)C?\s+(\d+)\s+(\S+)\s+(\d+)%?\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s*$/
-    );
-    if (diskMatch) {
-      const [, temp, power, _error, failProb, size, serial, device, name] =
-        diskMatch;
-
-      report.disks.push({
-        name,
-        device,
-        status: "OK",
-        temperature: parseInt(temp, 10),
-        powerOnHours: parseInt(power, 10),
-        failureProbability: parseInt(failProb, 10),
-        serial,
-        size,
-      });
-    }
-
-    // Check for FAIL/PREFAIL status
-    if (line.includes("FAIL") || line.includes("PREFAIL")) {
-      const status = line.includes("PREFAIL") ? "PREFAIL" : "FAIL";
-      // Try to find which disk this applies to
-      const nameMatch = line.match(/\b([a-zA-Z][a-zA-Z0-9]*)\b/);
-      if (nameMatch && report.disks.length > 0) {
-        const disk = report.disks.find((d) => d.name === nameMatch[1]);
-        if (disk) {
-          disk.status = status;
-        }
-      }
-    }
-  }
 
   return report;
 }

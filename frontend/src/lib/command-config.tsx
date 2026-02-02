@@ -98,12 +98,6 @@ export const commands: CommandConfig[] = [
     longRunning: false,
   },
   {
-    name: "SMART",
-    command: "smart",
-    description: "Show disk health information",
-    longRunning: false,
-  },
-  {
     name: "Fix",
     command: "fix",
     description: "Recover damaged files using parity",
