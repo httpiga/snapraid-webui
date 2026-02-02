@@ -6,12 +6,18 @@ import type {
   EmailSettings,
   SlackSettings,
 } from "@shared/types";
+import { NOTIFICATION_EVENTS } from "@shared/types";
 
-const EMPTY_DISCORD: DiscordSettings = { enabled: false, webhookUrl: "" };
+const EMPTY_DISCORD: DiscordSettings = {
+  enabled: false,
+  webhookUrl: "",
+  events: [...NOTIFICATION_EVENTS],
+};
 const EMPTY_TELEGRAM: TelegramSettings = {
   enabled: false,
   botToken: "",
   chatId: "",
+  events: [...NOTIFICATION_EVENTS],
 };
 const EMPTY_EMAIL: EmailSettings = {
   enabled: false,
@@ -22,8 +28,13 @@ const EMPTY_EMAIL: EmailSettings = {
   smtpPass: "",
   fromAddress: "",
   toAddresses: [],
+  events: [...NOTIFICATION_EVENTS],
 };
-const EMPTY_SLACK: SlackSettings = { enabled: false, webhookUrl: "" };
+const EMPTY_SLACK: SlackSettings = {
+  enabled: false,
+  webhookUrl: "",
+  events: [...NOTIFICATION_EVENTS],
+};
 
 export type ChannelConfig =
   | DiscordSettings

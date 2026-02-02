@@ -14,6 +14,7 @@ import { Switch } from "@/components/ui/switch";
 import { Send } from "lucide-react";
 import type {
   NotificationChannel,
+  NotificationEvent,
   NotificationSettings,
   DiscordSettings,
   TelegramSettings,
@@ -21,6 +22,7 @@ import type {
   SlackSettings,
 } from "@shared/types";
 import type { ChannelConfig } from "@/lib/notification-channel-utils";
+import { NOTIFICATION_EVENTS } from "@shared/types";
 
 interface NotificationProviderEditDialogProps {
   channel: NotificationChannel;
@@ -64,10 +66,25 @@ export function NotificationProviderEditDialog({
   const [draft, setDraft] = useState<ChannelConfig>(current);
   const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
+  const eventLabels: Record<NotificationEvent, string> = {
+    sync_complete: "Sync complete",
+    sync_error: "Sync error",
+    sync_aborted: "Sync aborted",
+    sync_safety_halt: "Sync safety halt",
+    scrub_complete: "Scrub complete",
+    scrub_error: "Scrub error",
+  };
 
   useEffect(() => {
     if (open) {
-      setDraft(getChannelConfig(settings, channel));
+      const currentConfig = getChannelConfig(settings, channel);
+      setDraft({
+        ...currentConfig,
+        events:
+          currentConfig.events?.length > 0
+            ? currentConfig.events
+            : [...NOTIFICATION_EVENTS],
+      });
     }
   }, [open, settings, channel]);
 
@@ -108,6 +125,14 @@ export function NotificationProviderEditDialog({
       ? "Email"
       : "Slack";
 
+  const toggleEvent = (event: NotificationEvent) => {
+    const currentEvents = draft.events ?? [];
+    const nextEvents = currentEvents.includes(event)
+      ? currentEvents.filter((value) => value !== event)
+      : [...currentEvents, event];
+    setDraft({ ...draft, events: nextEvents });
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md" showCloseButton>
@@ -144,6 +169,28 @@ export function NotificationProviderEditDialog({
               onChange={setDraft as (c: SlackSettings) => void}
             />
           )}
+          <div className="space-y-3">
+            <div>
+              <Label>Notification events</Label>
+              <p className="text-sm text-muted-foreground">
+                Select which events trigger notifications for this channel.
+              </p>
+            </div>
+            <div className="space-y-2">
+              {NOTIFICATION_EVENTS.map((event) => (
+                <div key={event} className="flex items-center gap-2">
+                  <Switch
+                    id={`event-${channel}-${event}`}
+                    checked={draft.events?.includes(event) ?? false}
+                    onCheckedChange={() => toggleEvent(event)}
+                  />
+                  <Label htmlFor={`event-${channel}-${event}`}>
+                    {eventLabels[event]}
+                  </Label>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
 
         <DialogFooter showCloseButton={false}>

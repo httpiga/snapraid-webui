@@ -1,6 +1,7 @@
 import { describe, test, expect, mock, beforeAll, afterAll } from "bun:test";
 import { sendTelegramNotification } from "./telegram";
 import { silenceConsole } from "../../test-utils/silence-console";
+import { NOTIFICATION_EVENTS } from "@snapraid-webui/shared";
 
 const originalFetch = globalThis.fetch;
 
@@ -29,7 +30,12 @@ afterAll(() => {
 describe("sendTelegramNotification", () => {
   test("returns false when not enabled", async () => {
     const result = await sendTelegramNotification(
-      { enabled: false, botToken: "token", chatId: "123" },
+      {
+        enabled: false,
+        botToken: "token",
+        chatId: "123",
+        events: [...NOTIFICATION_EVENTS],
+      },
       "sync_complete",
       "Title",
       "Message"
@@ -39,7 +45,7 @@ describe("sendTelegramNotification", () => {
 
   test("returns false when botToken is empty", async () => {
     const result = await sendTelegramNotification(
-      { enabled: true, botToken: "", chatId: "123" },
+      { enabled: true, botToken: "", chatId: "123", events: [...NOTIFICATION_EVENTS] },
       "sync_complete",
       "Title",
       "Message"
@@ -49,7 +55,7 @@ describe("sendTelegramNotification", () => {
 
   test("returns false when chatId is empty", async () => {
     const result = await sendTelegramNotification(
-      { enabled: true, botToken: "token", chatId: "" },
+      { enabled: true, botToken: "token", chatId: "", events: [...NOTIFICATION_EVENTS] },
       "sync_complete",
       "Title",
       "Message"
@@ -59,7 +65,12 @@ describe("sendTelegramNotification", () => {
 
   test("sends message and returns true when API succeeds", async () => {
     const result = await sendTelegramNotification(
-      { enabled: true, botToken: "test-token", chatId: "123" },
+      {
+        enabled: true,
+        botToken: "test-token",
+        chatId: "123",
+        events: [...NOTIFICATION_EVENTS],
+      },
       "sync_complete",
       "Sync completed",
       "Message body",
@@ -89,7 +100,12 @@ describe("sendTelegramNotification", () => {
     );
     const restore = silenceConsole();
     const result = await sendTelegramNotification(
-      { enabled: true, botToken: "token", chatId: "123" },
+      {
+        enabled: true,
+        botToken: "token",
+        chatId: "123",
+        events: [...NOTIFICATION_EVENTS],
+      },
       "sync_error",
       "Title",
       "Message"

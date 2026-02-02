@@ -6,6 +6,7 @@ import type {
   NotificationChannel,
   SnapRaidCommand,
 } from "@snapraid-webui/shared";
+import { NOTIFICATION_EVENTS } from "@snapraid-webui/shared";
 import { APP_CONFIG_FILE } from "../../config.js";
 import { sendDiscordNotification } from "./discord.js";
 import { sendTelegramNotification } from "./telegram.js";
@@ -15,8 +16,17 @@ import { sendSlackNotification } from "./slack.js";
 // Default notification settings
 const defaultSettings: NotificationSettings = {
   channels: {
-    discord: { enabled: false, webhookUrl: "" },
-    telegram: { enabled: false, botToken: "", chatId: "" },
+    discord: {
+      enabled: false,
+      webhookUrl: "",
+      events: [...NOTIFICATION_EVENTS],
+    },
+    telegram: {
+      enabled: false,
+      botToken: "",
+      chatId: "",
+      events: [...NOTIFICATION_EVENTS],
+    },
     email: {
       enabled: false,
       smtpHost: "",
@@ -26,18 +36,74 @@ const defaultSettings: NotificationSettings = {
       smtpPass: "",
       fromAddress: "",
       toAddresses: [],
+      events: [...NOTIFICATION_EVENTS],
     },
-    slack: { enabled: false, webhookUrl: "" },
-  },
-  events: {
-    sync_complete: ["discord", "telegram", "email", "slack"],
-    sync_error: ["discord", "telegram", "email", "slack"],
-    sync_aborted: ["discord", "telegram", "email", "slack"],
-    sync_safety_halt: ["discord", "telegram", "email", "slack"],
-    scrub_complete: ["discord", "telegram", "email", "slack"],
-    scrub_error: ["discord", "telegram", "email", "slack"],
+    slack: { enabled: false, webhookUrl: "", events: [...NOTIFICATION_EVENTS] },
   },
 };
+
+type LegacyNotificationSettings = Partial<NotificationSettings> & {
+  events?: Partial<Record<NotificationEvent, NotificationChannel[]>>;
+};
+
+function normalizeNotificationSettings(
+  settings: LegacyNotificationSettings | undefined
+): NotificationSettings {
+  if (!settings) {
+    return defaultSettings;
+  }
+
+  const legacyEvents = settings.events;
+  const getLegacyEventsForChannel = (channel: NotificationChannel) =>
+    NOTIFICATION_EVENTS.filter((event) =>
+      legacyEvents?.[event]?.includes(channel)
+    );
+
+  return {
+    channels: {
+      discord: {
+        ...defaultSettings.channels.discord,
+        ...settings.channels?.discord,
+        events:
+          settings.channels?.discord?.events?.length
+            ? settings.channels.discord.events
+            : getLegacyEventsForChannel("discord").length
+            ? getLegacyEventsForChannel("discord")
+            : defaultSettings.channels.discord.events,
+      },
+      telegram: {
+        ...defaultSettings.channels.telegram,
+        ...settings.channels?.telegram,
+        events:
+          settings.channels?.telegram?.events?.length
+            ? settings.channels.telegram.events
+            : getLegacyEventsForChannel("telegram").length
+            ? getLegacyEventsForChannel("telegram")
+            : defaultSettings.channels.telegram.events,
+      },
+      email: {
+        ...defaultSettings.channels.email,
+        ...settings.channels?.email,
+        events:
+          settings.channels?.email?.events?.length
+            ? settings.channels.email.events
+            : getLegacyEventsForChannel("email").length
+            ? getLegacyEventsForChannel("email")
+            : defaultSettings.channels.email.events,
+      },
+      slack: {
+        ...defaultSettings.channels.slack,
+        ...settings.channels?.slack,
+        events:
+          settings.channels?.slack?.events?.length
+            ? settings.channels.slack.events
+            : getLegacyEventsForChannel("slack").length
+            ? getLegacyEventsForChannel("slack")
+            : defaultSettings.channels.slack.events,
+      },
+    },
+  };
+}
 
 /**
  * Load notification settings from app config
@@ -50,7 +116,7 @@ export async function loadNotificationSettings(): Promise<NotificationSettings> 
   try {
     const content = await fs.readFile(APP_CONFIG_FILE, "utf-8");
     const config = JSON.parse(content);
-    return config.notifications || defaultSettings;
+    return normalizeNotificationSettings(config.notifications);
   } catch {
     return defaultSettings;
   }
@@ -86,8 +152,6 @@ export async function sendNotification(
   results: Record<NotificationChannel, boolean>;
 }> {
   const settings = await loadNotificationSettings();
-  const channels = settings.events[event] || [];
-
   const results: Record<NotificationChannel, boolean> = {
     discord: false,
     telegram: false,
@@ -97,7 +161,10 @@ export async function sendNotification(
 
   const promises: Promise<void>[] = [];
 
-  if (channels.includes("discord") && settings.channels.discord.enabled) {
+  if (
+    settings.channels.discord.events.includes(event) &&
+    settings.channels.discord.enabled
+  ) {
     promises.push(
       sendDiscordNotification(
         settings.channels.discord,
@@ -111,7 +178,10 @@ export async function sendNotification(
     );
   }
 
-  if (channels.includes("telegram") && settings.channels.telegram.enabled) {
+  if (
+    settings.channels.telegram.events.includes(event) &&
+    settings.channels.telegram.enabled
+  ) {
     promises.push(
       sendTelegramNotification(
         settings.channels.telegram,
@@ -125,7 +195,10 @@ export async function sendNotification(
     );
   }
 
-  if (channels.includes("email") && settings.channels.email.enabled) {
+  if (
+    settings.channels.email.events.includes(event) &&
+    settings.channels.email.enabled
+  ) {
     promises.push(
       sendEmailNotification(
         settings.channels.email,
@@ -139,7 +212,10 @@ export async function sendNotification(
     );
   }
 
-  if (channels.includes("slack") && settings.channels.slack.enabled) {
+  if (
+    settings.channels.slack.events.includes(event) &&
+    settings.channels.slack.enabled
+  ) {
     promises.push(
       sendSlackNotification(
         settings.channels.slack,
