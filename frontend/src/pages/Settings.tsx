@@ -356,9 +356,7 @@ export function Settings() {
                 />
               </div>
 
-              <Button onClick={handleSaveSyncSafety}>
-                Save Sync Safety Settings
-              </Button>
+              <Button onClick={handleSaveSyncSafety}>Save</Button>
             </CardContent>
           </Card>
         </TabsContent>
@@ -442,9 +440,7 @@ export function Settings() {
                 </p>
               </div>
 
-              <Button onClick={handleSaveAdvanced}>
-                Save Advanced Settings
-              </Button>
+              <Button onClick={handleSaveAdvanced}>Save</Button>
             </CardContent>
           </Card>
         </TabsContent>
@@ -487,7 +483,7 @@ export function Settings() {
                 <Input id="auth-confirm" type="password" />
               </div>
 
-              <Button>Save Authentication Settings</Button>
+              <Button>Save</Button>
             </CardContent>
           </Card>
         </TabsContent>
