@@ -17,6 +17,7 @@ import { DataDisksCard } from "@/pages/components/disks/DataDisksCard";
 import { ContentFilesCard } from "@/pages/components/disks/ContentFilesCard";
 import { RawConfigEditor } from "@/pages/components/disks/RawConfigEditor";
 import { getApiErrorMessage } from "@/lib/api-error";
+import { getNextDataDiskName } from "@/lib/disk-config-utils";
 
 export function Disks() {
   const { data: config, isLoading } = useGetConfigQuery();
@@ -61,7 +62,7 @@ export function Disks() {
 
   const handleAddData = () => {
     if (!currentConfig) return;
-    const newName = `d${Object.keys(currentConfig.data).length + 1}`;
+    const newName = getNextDataDiskName(currentConfig.data);
     setEditedConfig({
       ...currentConfig,
       data: { ...currentConfig.data, [newName]: "" },
