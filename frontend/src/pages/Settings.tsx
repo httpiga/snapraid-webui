@@ -29,11 +29,7 @@ import {
   useUpdateSyncSafetySettingsMutation,
 } from "@/store/api";
 import { toast } from "sonner";
-import {
-  Bell,
-  Shield,
-  Settings as SettingsIcon,
-} from "lucide-react";
+import { Bell, Shield, KeyRound } from "lucide-react";
 import type {
   NotificationSettings,
   NotificationChannel,
@@ -151,11 +147,11 @@ export function Settings() {
             Notifications
           </TabsTrigger>
           <TabsTrigger value="sync">
-            <SettingsIcon className="h-4 w-4 mr-1" />
+            <Shield className="h-4 w-4 mr-1" />
             Sync Safety
           </TabsTrigger>
           <TabsTrigger value="auth">
-            <Shield className="h-4 w-4 mr-1" />
+            <KeyRound className="h-4 w-4 mr-1" />
             Authentication
           </TabsTrigger>
         </TabsList>
@@ -195,15 +191,17 @@ export function Settings() {
               <AlertDialogHeader>
                 <AlertDialogTitle>Remove configuration?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  This will clear the {removeChannel} notification configuration.
-                  You can add it again later.
+                  This will clear the {removeChannel} notification
+                  configuration. You can add it again later.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                 <AlertDialogAction
                   variant="destructive"
-                  onClick={() => removeChannel && handleRemoveConfig(removeChannel)}
+                  onClick={() =>
+                    removeChannel && handleRemoveConfig(removeChannel)
+                  }
                 >
                   Remove
                 </AlertDialogAction>
@@ -276,7 +274,8 @@ export function Settings() {
                 <div>
                   <Label>Pre-hash</Label>
                   <p className="text-sm text-muted-foreground">
-                    Verify data before syncing (reads data twice for extra safety)
+                    Verify data before syncing (reads data twice for extra
+                    safety)
                   </p>
                 </div>
                 <Switch
@@ -294,7 +293,8 @@ export function Settings() {
                 <div>
                   <Label>Force Empty</Label>
                   <p className="text-sm text-muted-foreground">
-                    Allow sync with all files missing (bypasses missing disk detection)
+                    Allow sync with all files missing (bypasses missing disk
+                    detection)
                   </p>
                 </div>
                 <Switch
