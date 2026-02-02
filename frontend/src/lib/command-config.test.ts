@@ -51,17 +51,56 @@ describe("optionsToArgs", () => {
     expect(optionsToArgs(config, { "pre-hash": true })).toEqual(["--pre-hash"]);
   });
 
-  test("adds short flag and value for number option", () => {
+  test("adds short flag and value for string option (plan as percentage)", () => {
     const config = mockCommandConfig([
       {
         name: "Plan",
         key: "plan",
-        type: "number",
-        description: "Plan %",
-        default: 8,
+        type: "string",
+        description: "Plan",
+        default: "8",
       },
     ]);
-    expect(optionsToArgs(config, { plan: 10 })).toEqual(["-p", "10"]);
+    expect(optionsToArgs(config, { plan: "10" })).toEqual(["-p", "10"]);
+  });
+
+  test("adds short flag and value for string option (plan as bad)", () => {
+    const config = mockCommandConfig([
+      {
+        name: "Plan",
+        key: "plan",
+        type: "string",
+        description: "Plan",
+        default: "8",
+      },
+    ]);
+    expect(optionsToArgs(config, { plan: "bad" })).toEqual(["-p", "bad"]);
+  });
+
+  test("adds short flag and value for string option (plan as new)", () => {
+    const config = mockCommandConfig([
+      {
+        name: "Plan",
+        key: "plan",
+        type: "string",
+        description: "Plan",
+        default: "8",
+      },
+    ]);
+    expect(optionsToArgs(config, { plan: "new" })).toEqual(["-p", "new"]);
+  });
+
+  test("adds short flag and value for string option (plan as full)", () => {
+    const config = mockCommandConfig([
+      {
+        name: "Plan",
+        key: "plan",
+        type: "string",
+        description: "Plan",
+        default: "8",
+      },
+    ]);
+    expect(optionsToArgs(config, { plan: "full" })).toEqual(["-p", "full"]);
   });
 
   test("skips empty string", () => {
@@ -122,30 +161,43 @@ describe("argsToOptions", () => {
     expect(argsToOptions(config, [])).toEqual({ "pre-hash": false });
   });
 
-  test("number: parses value after short flag", () => {
+  test("string: parses value after short flag (plan as percentage)", () => {
     const config = mockCommandConfig([
       {
         name: "Plan",
         key: "plan",
-        type: "number",
-        description: "Plan %",
-        default: 8,
+        type: "string",
+        description: "Plan",
+        default: "8",
       },
     ]);
-    expect(argsToOptions(config, ["-p", "15"])).toEqual({ plan: 15 });
+    expect(argsToOptions(config, ["-p", "15"])).toEqual({ plan: "15" });
   });
 
-  test("number: uses default when flag absent", () => {
+  test("string: parses value after short flag (plan as bad)", () => {
     const config = mockCommandConfig([
       {
         name: "Plan",
         key: "plan",
-        type: "number",
-        description: "Plan %",
-        default: 8,
+        type: "string",
+        description: "Plan",
+        default: "8",
       },
     ]);
-    expect(argsToOptions(config, [])).toEqual({ plan: 8 });
+    expect(argsToOptions(config, ["-p", "bad"])).toEqual({ plan: "bad" });
+  });
+
+  test("string: uses default when flag absent", () => {
+    const config = mockCommandConfig([
+      {
+        name: "Plan",
+        key: "plan",
+        type: "string",
+        description: "Plan",
+        default: "8",
+      },
+    ]);
+    expect(argsToOptions(config, [])).toEqual({ plan: "8" });
   });
 
   test("string: uses value after short flag", () => {
@@ -168,16 +220,111 @@ describe("argsToOptions", () => {
       {
         name: "Plan",
         key: "plan",
-        type: "number",
-        description: "Plan %",
-        default: 8,
+        type: "string",
+        description: "Plan",
+        default: "8",
       },
     ]);
-    const options = { "pre-hash": true, plan: 20 };
+    const options = { "pre-hash": true, plan: "20" };
     const args = optionsToArgs(config, options);
     const back = argsToOptions(config, args);
     expect(back["pre-hash"]).toBe(true);
-    expect(back.plan).toBe(20);
+    expect(back.plan).toBe("20");
+  });
+
+  test("filter-disk option for Fix: optionsToArgs", () => {
+    const config = mockCommandConfig([
+      {
+        name: "Filter Disk",
+        key: "filter-disk",
+        type: "string",
+        description: "Filter disk",
+      },
+    ]);
+    expect(optionsToArgs(config, { "filter-disk": "d1" })).toEqual(["-d", "d1"]);
+  });
+
+  test("filter-disk option for Fix: argsToOptions", () => {
+    const config = mockCommandConfig([
+      {
+        name: "Filter Disk",
+        key: "filter-disk",
+        type: "string",
+        description: "Filter disk",
+      },
+    ]);
+    expect(argsToOptions(config, ["-d", "d1"])).toEqual({ "filter-disk": "d1" });
+  });
+
+  test("Check with all filter options: optionsToArgs", () => {
+    const config = mockCommandConfig([
+      { name: "Filter", key: "filter", type: "string", description: "Filter" },
+      {
+        name: "Filter Disk",
+        key: "filter-disk",
+        type: "string",
+        description: "Filter disk",
+      },
+      {
+        name: "Missing Only",
+        key: "filter-missing",
+        type: "boolean",
+        description: "Missing only",
+      },
+      {
+        name: "Errors Only",
+        key: "filter-error",
+        type: "boolean",
+        description: "Errors only",
+      },
+    ]);
+    expect(
+      optionsToArgs(config, {
+        filter: "/path",
+        "filter-disk": "d1",
+        "filter-missing": true,
+        "filter-error": true,
+      })
+    ).toEqual(["-f", "/path", "-d", "d1", "--filter-missing", "--filter-error"]);
+  });
+
+  test("Check with all filter options: argsToOptions", () => {
+    const config = mockCommandConfig([
+      { name: "Filter", key: "filter", type: "string", description: "Filter" },
+      {
+        name: "Filter Disk",
+        key: "filter-disk",
+        type: "string",
+        description: "Filter disk",
+      },
+      {
+        name: "Missing Only",
+        key: "filter-missing",
+        type: "boolean",
+        description: "Missing only",
+      },
+      {
+        name: "Errors Only",
+        key: "filter-error",
+        type: "boolean",
+        description: "Errors only",
+      },
+    ]);
+    expect(
+      argsToOptions(config, [
+        "-f",
+        "/path",
+        "-d",
+        "d1",
+        "--filter-missing",
+        "--filter-error",
+      ])
+    ).toEqual({
+      filter: "/path",
+      "filter-disk": "d1",
+      "filter-missing": true,
+      "filter-error": true,
+    });
   });
 });
 

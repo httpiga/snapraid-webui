@@ -31,6 +31,13 @@ interface SyncSafetySettingsProps {
  * Reusable sync safety settings component for both Operations and Schedules.
  * Includes mode selection (disabled/default/custom), pre-hash, force-empty,
  * and conditional max deleted/updated/added files fields.
+ *
+ * Note: Some advanced SnapRAID sync flags are intentionally not exposed:
+ * - --force-zero: Allows syncing files that were truncated to zero size after
+ *   a crash. This is risky as it could hide data corruption, so it's not
+ *   exposed in the UI for safety.
+ * - Other advanced flags (-U, -N, -F, -R, -s, -w, -l, -L, -S, -B): These are
+ *   expert-level options that users can add via CLI if needed.
  */
 export function SyncSafetySettings({
   value,

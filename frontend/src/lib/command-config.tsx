@@ -32,11 +32,11 @@ export const commands: CommandConfig[] = [
     longRunning: true,
     options: [
       {
-        name: "Plan (%)",
+        name: "Plan",
         key: "plan",
-        type: "number",
-        description: "Percentage of data to scrub",
-        default: 8,
+        type: "string",
+        description: "Percentage (0-100) or special value (bad/new/full)",
+        default: "8",
       },
       {
         name: "Older Than (days)",
@@ -58,6 +58,30 @@ export const commands: CommandConfig[] = [
         key: "audit-only",
         type: "boolean",
         description: "Only check file hashes, skip parity",
+      },
+      {
+        name: "Filter",
+        key: "filter",
+        type: "string",
+        description: "Filter files to check (path or pattern)",
+      },
+      {
+        name: "Filter Disk",
+        key: "filter-disk",
+        type: "string",
+        description: "Limit check to specific disk",
+      },
+      {
+        name: "Missing Only",
+        key: "filter-missing",
+        type: "boolean",
+        description: "Only check missing files",
+      },
+      {
+        name: "Errors Only",
+        key: "filter-error",
+        type: "boolean",
+        description: "Only check files with errors",
       },
     ],
   },
@@ -92,6 +116,12 @@ export const commands: CommandConfig[] = [
         description: "Filter files to fix (path or pattern)",
       },
       {
+        name: "Filter Disk",
+        key: "filter-disk",
+        type: "string",
+        description: "Limit fix to specific disk",
+      },
+      {
         name: "Missing Only",
         key: "filter-missing",
         type: "boolean",
@@ -114,11 +144,10 @@ export const schedulableCommands = commands.filter((c) =>
 
 // Map option keys to their CLI argument flags
 const optionKeyToCliFlag: Record<string, string> = {
-  "max-deleted-files": "-d",
-  "max-deleted-percent": "-p",
   "older-than": "-o",
   plan: "-p",
   filter: "-f",
+  "filter-disk": "-d",
 };
 
 /**

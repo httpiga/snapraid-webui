@@ -291,6 +291,10 @@ export class SnapRaidRunner {
     options: {
       auditOnly?: boolean;
       filter?: string;
+      filterDisk?: string;
+      filterMissing?: boolean;
+      filterError?: boolean;
+      importDir?: string;
     } = {}
   ): Promise<{ exitCode: number; output: string }> {
     const args: string[] = [];
@@ -300,6 +304,18 @@ export class SnapRaidRunner {
     }
     if (options.filter) {
       args.push("-f", options.filter);
+    }
+    if (options.filterDisk) {
+      args.push("-d", options.filterDisk);
+    }
+    if (options.filterMissing) {
+      args.push("-m");
+    }
+    if (options.filterError) {
+      args.push("-e");
+    }
+    if (options.importDir) {
+      args.push("-i", options.importDir);
     }
 
     return this.executeCommand("check", configPath, onOutput, args);

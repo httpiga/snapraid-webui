@@ -248,6 +248,54 @@ describe("command helpers", () => {
       expect.arrayContaining(["-a", "-f", "bar", "check"])
     );
   });
+
+  test("runCheck passes all filter options", async () => {
+    const runner = new SnapRaidRunner();
+    await runner.runCheck("/a/b.conf", undefined, {
+      filter: "foo",
+      filterDisk: "d1",
+      filterMissing: true,
+      filterError: true,
+      importDir: "/import/path",
+    });
+    expect(spawnState.spawnCalls[0].args).toEqual(
+      expect.arrayContaining([
+        "-f",
+        "foo",
+        "-d",
+        "d1",
+        "-m",
+        "-e",
+        "-i",
+        "/import/path",
+        "check",
+      ])
+    );
+  });
+
+  test("runScrub passes plan as bad", async () => {
+    const runner = new SnapRaidRunner();
+    await runner.runScrub("/a/b.conf", undefined, { plan: "bad" });
+    expect(spawnState.spawnCalls[0].args).toEqual(
+      expect.arrayContaining(["-p", "bad", "scrub"])
+    );
+  });
+
+  test("runScrub passes plan as new", async () => {
+    const runner = new SnapRaidRunner();
+    await runner.runScrub("/a/b.conf", undefined, { plan: "new" });
+    expect(spawnState.spawnCalls[0].args).toEqual(
+      expect.arrayContaining(["-p", "new", "scrub"])
+    );
+  });
+
+  test("runScrub passes plan as full", async () => {
+    const runner = new SnapRaidRunner();
+    await runner.runScrub("/a/b.conf", undefined, { plan: "full" });
+    expect(spawnState.spawnCalls[0].args).toEqual(
+      expect.arrayContaining(["-p", "full", "scrub"])
+    );
+  });
 });
 
 describe("validateSyncSafety", () => {
