@@ -248,19 +248,30 @@ export type NotificationEvent =
   | "scrub_complete"
   | "scrub_error";
 
-export interface DiscordSettings {
+export const NOTIFICATION_EVENTS: NotificationEvent[] = [
+  "sync_complete",
+  "sync_error",
+  "sync_aborted",
+  "sync_safety_halt",
+  "scrub_complete",
+  "scrub_error",
+];
+
+interface NotificationChannelSettingsBase {
   enabled: boolean;
+  events: NotificationEvent[];
+}
+
+export interface DiscordSettings extends NotificationChannelSettingsBase {
   webhookUrl: string;
 }
 
-export interface TelegramSettings {
-  enabled: boolean;
+export interface TelegramSettings extends NotificationChannelSettingsBase {
   botToken: string;
   chatId: string;
 }
 
-export interface EmailSettings {
-  enabled: boolean;
+export interface EmailSettings extends NotificationChannelSettingsBase {
   smtpHost: string;
   smtpPort: number;
   smtpSecure: boolean;
@@ -270,8 +281,7 @@ export interface EmailSettings {
   toAddresses: string[];
 }
 
-export interface SlackSettings {
-  enabled: boolean;
+export interface SlackSettings extends NotificationChannelSettingsBase {
   webhookUrl: string;
 }
 
@@ -282,7 +292,6 @@ export interface NotificationSettings {
     email: EmailSettings;
     slack: SlackSettings;
   };
-  events: Record<NotificationEvent, NotificationChannel[]>;
 }
 
 // ============================================================================

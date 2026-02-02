@@ -4,8 +4,10 @@ import { mkdtempSync, existsSync } from "fs";
 import path from "path";
 import { tmpdir } from "os";
 import { silenceConsole } from "../../test-utils/silence-console";
+import { NOTIFICATION_EVENTS } from "@snapraid-webui/shared";
 const { mock } = await import("bun:test");
 const tmpDir = mkdtempSync(path.join(tmpdir(), "notif-"));
+process.env.CONFIG_PATH = tmpDir;
 const configModule = await import("../../config");
 const configPath =
   configModule.APP_CONFIG_FILE || path.join(tmpDir, "app-config.json");
@@ -174,14 +176,54 @@ describe("loadNotificationSettings", () => {
     const settings = await notifications.loadNotificationSettings();
     expect(settings.channels.discord.enabled).toBe(false);
     expect(settings.channels.telegram.enabled).toBe(false);
-    expect(settings.events.sync_complete).toContain("discord");
+    expect(settings.channels.discord.events).toEqual(NOTIFICATION_EVENTS);
   });
 
   test("returns default settings when config is invalid JSON", async () => {
     await fs.writeFile(configPath, "{bad json", "utf-8");
     const settings = await notifications.loadNotificationSettings();
     expect(settings.channels.email.enabled).toBe(false);
-    expect(settings.events.scrub_error).toContain("slack");
+    expect(settings.channels.slack.events).toEqual(NOTIFICATION_EVENTS);
+  });
+
+  test("migrates legacy events map into per-channel selections", async () => {
+    await fs.writeFile(
+      configPath,
+      JSON.stringify(
+        {
+          notifications: {
+            channels: {
+              discord: { enabled: true, webhookUrl: "http://discord" },
+              telegram: { enabled: false, botToken: "", chatId: "" },
+              email: {
+                enabled: false,
+                smtpHost: "",
+                smtpPort: 587,
+                smtpSecure: false,
+                smtpUser: "",
+                smtpPass: "",
+                fromAddress: "",
+                toAddresses: [],
+              },
+              slack: { enabled: true, webhookUrl: "http://slack" },
+            },
+            events: {
+              sync_complete: ["discord", "slack"],
+              scrub_error: ["slack"],
+            },
+          },
+        },
+        null,
+        2
+      ),
+      "utf-8"
+    );
+    const settings = await notifications.loadNotificationSettings();
+    expect(settings.channels.discord.events).toEqual(["sync_complete"]);
+    expect(settings.channels.slack.events).toEqual([
+      "sync_complete",
+      "scrub_error",
+    ]);
   });
 });
 
@@ -224,8 +266,17 @@ describe("sendNotification", () => {
         {
           notifications: {
             channels: {
-              discord: { enabled: false, webhookUrl: "" },
-              telegram: { enabled: false, botToken: "", chatId: "" },
+              discord: {
+                enabled: false,
+                webhookUrl: "",
+                events: [...NOTIFICATION_EVENTS],
+              },
+              telegram: {
+                enabled: false,
+                botToken: "",
+                chatId: "",
+                events: [...NOTIFICATION_EVENTS],
+              },
               email: {
                 enabled: false,
                 smtpHost: "",
@@ -235,11 +286,13 @@ describe("sendNotification", () => {
                 smtpPass: "",
                 fromAddress: "",
                 toAddresses: [],
+                events: [...NOTIFICATION_EVENTS],
               },
-              slack: { enabled: false, webhookUrl: "" },
-            },
-            events: {
-              sync_complete: ["discord", "telegram", "email", "slack"],
+              slack: {
+                enabled: false,
+                webhookUrl: "",
+                events: [...NOTIFICATION_EVENTS],
+              },
             },
           },
         },
@@ -277,8 +330,17 @@ describe("sendNotification", () => {
         {
           notifications: {
             channels: {
-              discord: { enabled: true, webhookUrl: "http://discord" },
-              telegram: { enabled: false, botToken: "", chatId: "" },
+              discord: {
+                enabled: true,
+                webhookUrl: "http://discord",
+                events: ["sync_complete"],
+              },
+              telegram: {
+                enabled: false,
+                botToken: "",
+                chatId: "",
+                events: [...NOTIFICATION_EVENTS],
+              },
               email: {
                 enabled: false,
                 smtpHost: "",
@@ -288,11 +350,13 @@ describe("sendNotification", () => {
                 smtpPass: "",
                 fromAddress: "",
                 toAddresses: [],
+                events: [...NOTIFICATION_EVENTS],
               },
-              slack: { enabled: true, webhookUrl: "http://slack" },
-            },
-            events: {
-              sync_complete: ["discord", "slack"],
+              slack: {
+                enabled: true,
+                webhookUrl: "http://slack",
+                events: ["sync_complete"],
+              },
             },
           },
         },
@@ -313,6 +377,58 @@ describe("sendNotification", () => {
     expect(fetchCalls.length).toBe(2);
     restore();
   });
+
+  test("skips enabled channels when event is not selected", async () => {
+    await fs.writeFile(
+      configPath,
+      JSON.stringify(
+        {
+          notifications: {
+            channels: {
+              discord: {
+                enabled: true,
+                webhookUrl: "http://discord",
+                events: ["sync_complete"],
+              },
+              telegram: {
+                enabled: false,
+                botToken: "",
+                chatId: "",
+                events: [...NOTIFICATION_EVENTS],
+              },
+              email: {
+                enabled: false,
+                smtpHost: "",
+                smtpPort: 587,
+                smtpSecure: false,
+                smtpUser: "",
+                smtpPass: "",
+                fromAddress: "",
+                toAddresses: [],
+                events: [...NOTIFICATION_EVENTS],
+              },
+              slack: {
+                enabled: true,
+                webhookUrl: "http://slack",
+                events: ["scrub_error"],
+              },
+            },
+          },
+        },
+        null,
+        2
+      ),
+      "utf-8"
+    );
+    const result = await notifications.sendNotification(
+      "sync_complete",
+      "Title",
+      "Message"
+    );
+    expect(result.results.discord).toBe(true);
+    expect(result.results.slack).toBe(false);
+    expect(fetchCalls.length).toBe(1);
+  });
 });
 
 describe("testNotificationChannel", () => {
@@ -323,8 +439,17 @@ describe("testNotificationChannel", () => {
         {
           notifications: {
             channels: {
-              discord: { enabled: false, webhookUrl: "" },
-              telegram: { enabled: false, botToken: "", chatId: "" },
+              discord: {
+                enabled: false,
+                webhookUrl: "",
+                events: [...NOTIFICATION_EVENTS],
+              },
+              telegram: {
+                enabled: false,
+                botToken: "",
+                chatId: "",
+                events: [...NOTIFICATION_EVENTS],
+              },
               email: {
                 enabled: false,
                 smtpHost: "",
@@ -334,11 +459,13 @@ describe("testNotificationChannel", () => {
                 smtpPass: "",
                 fromAddress: "",
                 toAddresses: [],
+                events: [...NOTIFICATION_EVENTS],
               },
-              slack: { enabled: false, webhookUrl: "" },
-            },
-            events: {
-              sync_complete: ["discord"],
+              slack: {
+                enabled: false,
+                webhookUrl: "",
+                events: [...NOTIFICATION_EVENTS],
+              },
             },
           },
         },
@@ -363,8 +490,17 @@ describe("testNotificationChannel", () => {
         {
           notifications: {
             channels: {
-              discord: { enabled: false, webhookUrl: "" },
-              telegram: { enabled: false, botToken: "", chatId: "" },
+              discord: {
+                enabled: false,
+                webhookUrl: "",
+                events: [...NOTIFICATION_EVENTS],
+              },
+              telegram: {
+                enabled: false,
+                botToken: "",
+                chatId: "",
+                events: [...NOTIFICATION_EVENTS],
+              },
               email: {
                 enabled: true,
                 smtpHost: "smtp.test",
@@ -374,11 +510,13 @@ describe("testNotificationChannel", () => {
                 smtpPass: "",
                 fromAddress: "from@test",
                 toAddresses: ["to@test"],
+                events: [...NOTIFICATION_EVENTS],
               },
-              slack: { enabled: false, webhookUrl: "" },
-            },
-            events: {
-              sync_complete: ["email"],
+              slack: {
+                enabled: false,
+                webhookUrl: "",
+                events: [...NOTIFICATION_EVENTS],
+              },
             },
           },
         },
@@ -399,8 +537,17 @@ describe("testNotificationChannel", () => {
         {
           notifications: {
             channels: {
-              discord: { enabled: false, webhookUrl: "" },
-              telegram: { enabled: false, botToken: "", chatId: "" },
+              discord: {
+                enabled: false,
+                webhookUrl: "",
+                events: [...NOTIFICATION_EVENTS],
+              },
+              telegram: {
+                enabled: false,
+                botToken: "",
+                chatId: "",
+                events: [...NOTIFICATION_EVENTS],
+              },
               email: {
                 enabled: false,
                 smtpHost: "",
@@ -410,11 +557,13 @@ describe("testNotificationChannel", () => {
                 smtpPass: "",
                 fromAddress: "",
                 toAddresses: [],
+                events: [...NOTIFICATION_EVENTS],
               },
-              slack: { enabled: true, webhookUrl: "http://slack" },
-            },
-            events: {
-              sync_complete: ["slack"],
+              slack: {
+                enabled: true,
+                webhookUrl: "http://slack",
+                events: [...NOTIFICATION_EVENTS],
+              },
             },
           },
         },
