@@ -32,34 +32,8 @@ export const commands: CommandConfig[] = [
     description: "Update parity information for changed files",
     icon: <RefreshCw className="h-4 w-4 mr-1" />,
     longRunning: true,
-    options: [
-      {
-        name: "Pre-hash",
-        key: "pre-hash",
-        type: "boolean",
-        description: "Verify data before syncing",
-      },
-      {
-        name: "Max Deleted Files",
-        key: "max-deleted-files",
-        type: "number",
-        description: "Maximum number of files that can be deleted",
-        default: 0,
-      },
-      {
-        name: "Max Deleted Percent",
-        key: "max-deleted-percent",
-        type: "number",
-        description: "Maximum percentage of files that can be deleted",
-        default: 0,
-      },
-      {
-        name: "Force Empty",
-        key: "force-empty",
-        type: "boolean",
-        description: "Allow sync with many deleted files",
-      },
-    ],
+    // Sync safety options are handled by SyncSafetySettings component
+    options: [],
   },
   {
     name: "Scrub",
@@ -221,4 +195,114 @@ export function getCommandConfig(
   command: SnapRaidCommand
 ): CommandConfig | undefined {
   return commands.find((c) => c.command === command);
+}
+
+/**
+ * Convert sync safety options to CLI args.
+ * This is separate from optionsToArgs since sync safety is handled
+ * by the SyncSafetySettings component.
+ */
+export function syncSafetyToArgs(
+  mode: "disabled" | "default" | "custom",
+  options: {
+    preHash?: boolean;
+    forceEmpty?: boolean;
+    maxDeletedFiles?: number;
+    maxDeletedPercent?: number;
+  },
+  defaultSettings?: {
+    maxDeletedFiles: number;
+    maxDeletedPercent: number;
+    preHash?: boolean;
+    forceEmpty?: boolean;
+  } | null
+): string[] {
+  const args: string[] = [];
+
+  // Use options for custom/disabled modes, or default settings for default mode
+  const usePreHash = mode === "default" && defaultSettings 
+    ? defaultSettings.preHash 
+    : options.preHash;
+  const useForceEmpty = mode === "default" && defaultSettings
+    ? defaultSettings.forceEmpty
+    : options.forceEmpty;
+
+  // Pre-hash
+  if (usePreHash) {
+    args.push("--pre-hash");
+  }
+
+  // Force empty
+  if (useForceEmpty) {
+    args.push("--force-empty");
+  }
+
+  // Safety thresholds based on mode
+  if (mode === "default" && defaultSettings) {
+    if (defaultSettings.maxDeletedFiles > 0) {
+      args.push("-d", String(defaultSettings.maxDeletedFiles));
+    }
+    if (defaultSettings.maxDeletedPercent > 0) {
+      args.push("-p", String(defaultSettings.maxDeletedPercent));
+    }
+  } else if (mode === "custom") {
+    if (options.maxDeletedFiles !== undefined && options.maxDeletedFiles > 0) {
+      args.push("-d", String(options.maxDeletedFiles));
+    }
+    if (
+      options.maxDeletedPercent !== undefined &&
+      options.maxDeletedPercent > 0
+    ) {
+      args.push("-p", String(options.maxDeletedPercent));
+    }
+  }
+  // mode === "disabled" adds no safety args
+
+  return args;
+}
+
+/**
+ * Parse CLI args back into sync safety options.
+ * This is the inverse of syncSafetyToArgs.
+ */
+export function argsToSyncSafety(args: string[] = []): {
+  mode: "disabled" | "default" | "custom";
+  preHash: boolean;
+  forceEmpty: boolean;
+  maxDeletedFiles?: number;
+  maxDeletedPercent?: number;
+} {
+  const preHash = args.includes("--pre-hash");
+  const forceEmpty = args.includes("--force-empty");
+
+  const dIdx = args.indexOf("-d");
+  const maxDeletedFiles =
+    dIdx !== -1 && dIdx + 1 < args.length
+      ? parseInt(args[dIdx + 1], 10)
+      : undefined;
+
+  const pIdx = args.indexOf("-p");
+  const maxDeletedPercent =
+    pIdx !== -1 && pIdx + 1 < args.length
+      ? parseInt(args[pIdx + 1], 10)
+      : undefined;
+
+  // Determine mode: if we have custom thresholds, it's custom; 
+  // if no thresholds at all, it's disabled; otherwise default
+  let mode: "disabled" | "default" | "custom";
+  if (maxDeletedFiles !== undefined || maxDeletedPercent !== undefined) {
+    mode = "custom";
+  } else if (!preHash && !forceEmpty) {
+    mode = "disabled";
+  } else {
+    mode = "default";
+  }
+
+  return {
+    mode,
+    preHash,
+    forceEmpty,
+    maxDeletedFiles: maxDeletedFiles ?? 100,
+    maxDeletedPercent: maxDeletedPercent ?? 10,
+  };
 }

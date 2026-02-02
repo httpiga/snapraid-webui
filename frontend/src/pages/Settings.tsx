@@ -274,17 +274,35 @@ export function Settings() {
 
               <div className="flex items-center justify-between">
                 <div>
-                  <Label>Run Diff Before Sync</Label>
+                  <Label>Pre-hash</Label>
                   <p className="text-sm text-muted-foreground">
-                    Always check changes before syncing
+                    Verify data before syncing (reads data twice for extra safety)
                   </p>
                 </div>
                 <Switch
-                  checked={safetySettings.runDiffBeforeSync}
+                  checked={safetySettings.preHash}
                   onCheckedChange={(checked) =>
                     setSafetySettings({
                       ...safetySettings,
-                      runDiffBeforeSync: checked,
+                      preHash: checked,
+                    })
+                  }
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label>Force Empty</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Allow sync with all files missing (bypasses missing disk detection)
+                  </p>
+                </div>
+                <Switch
+                  checked={safetySettings.forceEmpty}
+                  onCheckedChange={(checked) =>
+                    setSafetySettings({
+                      ...safetySettings,
+                      forceEmpty: checked,
                     })
                   }
                 />

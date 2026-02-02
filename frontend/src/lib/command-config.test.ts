@@ -3,6 +3,8 @@ import {
   optionsToArgs,
   argsToOptions,
   getCommandConfig,
+  syncSafetyToArgs,
+  argsToSyncSafety,
   type CommandConfig,
   type CommandOption,
 } from "./command-config";
@@ -333,13 +335,114 @@ describe("Sync safety options", () => {
     expect(options["max-deleted-percent"]).toBe(10);
   });
 
-  test("sync command config includes safety options", () => {
+  test("sync command config has no options (handled by SyncSafetySettings)", () => {
     const config = getCommandConfig("sync");
     expect(config).toBeDefined();
-    const optionKeys = config!.options?.map((o) => o.key) || [];
-    expect(optionKeys).toContain("pre-hash");
-    expect(optionKeys).toContain("max-deleted-files");
-    expect(optionKeys).toContain("max-deleted-percent");
-    expect(optionKeys).toContain("force-empty");
+    expect(config!.options).toEqual([]);
+  });
+});
+
+describe("syncSafetyToArgs and argsToSyncSafety", () => {
+  test("syncSafetyToArgs with mode disabled returns only pre-hash and force-empty", () => {
+    const args = syncSafetyToArgs(
+      "disabled",
+      {
+        preHash: true,
+        forceEmpty: true,
+      },
+      null
+    );
+    expect(args).toContain("--pre-hash");
+    expect(args).toContain("--force-empty");
+    expect(args).not.toContain("-d");
+    expect(args).not.toContain("-p");
+  });
+
+  test("syncSafetyToArgs with mode default uses default settings", () => {
+    const args = syncSafetyToArgs(
+      "default",
+      {
+        preHash: false, // Will be overridden by default settings
+        forceEmpty: true, // Will be overridden by default settings
+      },
+      {
+        maxDeletedFiles: 150,
+        maxDeletedPercent: 15,
+        preHash: true,
+        forceEmpty: false,
+      }
+    );
+    expect(args).toContain("--pre-hash");
+    expect(args).toContain("-d");
+    expect(args).toContain("150");
+    expect(args).toContain("-p");
+    expect(args).toContain("15");
+    expect(args).not.toContain("--force-empty");
+  });
+
+  test("syncSafetyToArgs with mode custom uses custom values", () => {
+    const args = syncSafetyToArgs(
+      "custom",
+      {
+        preHash: false,
+        forceEmpty: true,
+        maxDeletedFiles: 200,
+        maxDeletedPercent: 20,
+      },
+      null
+    );
+    expect(args).not.toContain("--pre-hash");
+    expect(args).toContain("--force-empty");
+    expect(args).toContain("-d");
+    expect(args).toContain("200");
+    expect(args).toContain("-p");
+    expect(args).toContain("20");
+  });
+
+  test("argsToSyncSafety parses args with custom thresholds", () => {
+    const result = argsToSyncSafety([
+      "--pre-hash",
+      "-d",
+      "100",
+      "-p",
+      "10",
+      "--force-empty",
+    ]);
+    expect(result.mode).toBe("custom");
+    expect(result.preHash).toBe(true);
+    expect(result.forceEmpty).toBe(true);
+    expect(result.maxDeletedFiles).toBe(100);
+    expect(result.maxDeletedPercent).toBe(10);
+  });
+
+  test("argsToSyncSafety with no thresholds returns disabled mode", () => {
+    const result = argsToSyncSafety([]);
+    expect(result.mode).toBe("disabled");
+    expect(result.preHash).toBe(false);
+    expect(result.forceEmpty).toBe(false);
+  });
+
+  test("argsToSyncSafety with only pre-hash returns default mode", () => {
+    const result = argsToSyncSafety(["--pre-hash"]);
+    expect(result.mode).toBe("default");
+    expect(result.preHash).toBe(true);
+    expect(result.forceEmpty).toBe(false);
+  });
+
+  test("round-trip: syncSafetyToArgs then argsToSyncSafety", () => {
+    const original = {
+      mode: "custom" as const,
+      preHash: true,
+      forceEmpty: false,
+      maxDeletedFiles: 75,
+      maxDeletedPercent: 8,
+    };
+    const args = syncSafetyToArgs(original.mode, original, null);
+    const parsed = argsToSyncSafety(args);
+    expect(parsed.mode).toBe("custom");
+    expect(parsed.preHash).toBe(true);
+    expect(parsed.forceEmpty).toBe(false);
+    expect(parsed.maxDeletedFiles).toBe(75);
+    expect(parsed.maxDeletedPercent).toBe(8);
   });
 });

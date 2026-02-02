@@ -18,10 +18,9 @@ mock.module("../config", () => ({
   SNAPRAID_BIN: realConfig.SNAPRAID_BIN,
 }));
 
-const {
-  loadSyncSafetySettings,
-  saveSyncSafetySettings,
-} = await import("./sync-safety");
+const { loadSyncSafetySettings, saveSyncSafetySettings } = await import(
+  "./sync-safety"
+);
 
 beforeEach(async () => {
   // Clean up test file before each test
@@ -44,7 +43,8 @@ describe("loadSyncSafetySettings", () => {
       enabled: true,
       maxDeletedFiles: 100,
       maxDeletedPercent: 10,
-      runDiffBeforeSync: true,
+      preHash: false,
+      forceEmpty: false,
     });
   });
 
@@ -54,7 +54,8 @@ describe("loadSyncSafetySettings", () => {
         enabled: false,
         maxDeletedFiles: 50,
         maxDeletedPercent: 5,
-        runDiffBeforeSync: false,
+        preHash: true,
+        forceEmpty: true,
       },
     };
     await fs.writeFile(TEST_APP_CONFIG, JSON.stringify(config), "utf-8");
@@ -72,7 +73,8 @@ describe("loadSyncSafetySettings", () => {
       enabled: true,
       maxDeletedFiles: 100,
       maxDeletedPercent: 10,
-      runDiffBeforeSync: true,
+      preHash: false,
+      forceEmpty: false,
     });
   });
 
@@ -84,7 +86,8 @@ describe("loadSyncSafetySettings", () => {
       enabled: true,
       maxDeletedFiles: 100,
       maxDeletedPercent: 10,
-      runDiffBeforeSync: true,
+      preHash: false,
+      forceEmpty: false,
     });
   });
 });
@@ -95,7 +98,8 @@ describe("saveSyncSafetySettings", () => {
       enabled: false,
       maxDeletedFiles: 200,
       maxDeletedPercent: 20,
-      runDiffBeforeSync: false,
+      preHash: true,
+      forceEmpty: true,
     };
 
     await saveSyncSafetySettings(settings);
@@ -110,17 +114,14 @@ describe("saveSyncSafetySettings", () => {
       notifications: { some: "data" },
       schedules: [],
     };
-    await fs.writeFile(
-      TEST_APP_CONFIG,
-      JSON.stringify(initialConfig),
-      "utf-8"
-    );
+    await fs.writeFile(TEST_APP_CONFIG, JSON.stringify(initialConfig), "utf-8");
 
     const settings = {
       enabled: true,
       maxDeletedFiles: 150,
       maxDeletedPercent: 15,
-      runDiffBeforeSync: true,
+      preHash: false,
+      forceEmpty: false,
     };
 
     await saveSyncSafetySettings(settings);
@@ -137,7 +138,8 @@ describe("saveSyncSafetySettings", () => {
       enabled: false,
       maxDeletedFiles: 50,
       maxDeletedPercent: 5,
-      runDiffBeforeSync: false,
+      preHash: false,
+      forceEmpty: false,
     };
     await fs.writeFile(
       TEST_APP_CONFIG,
@@ -149,7 +151,8 @@ describe("saveSyncSafetySettings", () => {
       enabled: true,
       maxDeletedFiles: 300,
       maxDeletedPercent: 25,
-      runDiffBeforeSync: true,
+      preHash: true,
+      forceEmpty: true,
     };
 
     await saveSyncSafetySettings(newSettings);

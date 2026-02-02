@@ -8,7 +8,8 @@ const defaultSettings: SyncSafetySettings = {
   enabled: true,
   maxDeletedFiles: 100,
   maxDeletedPercent: 10,
-  runDiffBeforeSync: true,
+  preHash: false,
+  forceEmpty: false,
 };
 
 /**

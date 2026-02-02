@@ -328,7 +328,8 @@ export interface SyncSafetySettings {
   enabled: boolean;
   maxDeletedFiles: number;
   maxDeletedPercent: number;
-  runDiffBeforeSync: boolean;
+  preHash: boolean;
+  forceEmpty: boolean;
 }
 
 // ============================================================================

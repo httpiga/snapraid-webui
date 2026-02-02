@@ -19,7 +19,11 @@ import {
 } from "@/components/ui/select";
 import { CommandSelect } from "@/components/ui/command-select";
 import { CommandOptions } from "@/components/CommandOptions";
-import type { SnapRaidCommand } from "@shared/types";
+import {
+  SyncSafetySettings,
+  type SyncSafetyOptions,
+} from "@/components/SyncSafetySettings";
+import type { SnapRaidCommand, SyncSafetySettings as SyncSafetySettingsType } from "@shared/types";
 import type { CommandConfig } from "@/lib/command-config";
 
 export interface ScheduleFormData {
@@ -43,13 +47,16 @@ interface ScheduleFormDialogProps {
   cronPresets: CronPreset[];
   commands: CommandConfig[];
   optionValues: Record<string, unknown>;
+  syncSafetyOptions: SyncSafetyOptions;
   selectedCommandConfig: CommandConfig | null;
+  defaultSyncSafetySettings?: SyncSafetySettingsType | null;
   onOpenChange: (open: boolean) => void;
   onSubmit: (e: FormEvent) => void;
   onCancel: () => void;
   onFormDataChange: (data: ScheduleFormData) => void;
   onCronPresetChange: (value: string) => void;
   onOptionValuesChange: (value: Record<string, unknown>) => void;
+  onSyncSafetyOptionsChange: (value: SyncSafetyOptions) => void;
 }
 
 export function ScheduleFormDialog({
@@ -61,14 +68,18 @@ export function ScheduleFormDialog({
   cronPresets,
   commands,
   optionValues,
+  syncSafetyOptions,
   selectedCommandConfig,
+  defaultSyncSafetySettings,
   onOpenChange,
   onSubmit,
   onCancel,
   onFormDataChange,
   onCronPresetChange,
   onOptionValuesChange,
+  onSyncSafetyOptionsChange,
 }: ScheduleFormDialogProps) {
+  const isSyncCommand = formData.command === "sync";
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
@@ -154,11 +165,19 @@ export function ScheduleFormDialog({
             <Label>Options</Label>
             <Card>
               <CardContent>
-                <CommandOptions
-                  commandConfig={selectedCommandConfig}
-                  value={optionValues}
-                  onChange={onOptionValuesChange}
-                />
+                {isSyncCommand ? (
+                  <SyncSafetySettings
+                    value={syncSafetyOptions}
+                    onChange={onSyncSafetyOptionsChange}
+                    defaultSettings={defaultSyncSafetySettings}
+                  />
+                ) : (
+                  <CommandOptions
+                    commandConfig={selectedCommandConfig}
+                    value={optionValues}
+                    onChange={onOptionValuesChange}
+                  />
+                )}
               </CardContent>
             </Card>
           </div>

@@ -6,15 +6,22 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CommandOptions } from "@/components/CommandOptions";
+import {
+  SyncSafetySettings,
+  type SyncSafetyOptions,
+} from "@/components/SyncSafetySettings";
+import { useGetSyncSafetySettingsQuery } from "@/store/api";
 import { Play, Square } from "lucide-react";
 import type { CommandConfig } from "@/lib/command-config";
 
 interface CommandOptionsCardProps {
   selectedCommand: CommandConfig | null;
   options: Record<string, unknown>;
+  syncSafetyOptions?: SyncSafetyOptions;
   isCommandRunning: boolean;
   currentCommand: string | null;
   onOptionsChange: (value: Record<string, unknown>) => void;
+  onSyncSafetyOptionsChange?: (value: SyncSafetyOptions) => void;
   onRun: (command: CommandConfig) => void;
   onAbort: () => void;
 }
@@ -22,23 +29,38 @@ interface CommandOptionsCardProps {
 export function CommandOptionsCard({
   selectedCommand,
   options,
+  syncSafetyOptions,
   isCommandRunning,
   currentCommand,
   onOptionsChange,
+  onSyncSafetyOptionsChange,
   onRun,
   onAbort,
 }: CommandOptionsCardProps) {
+  const { data: defaultSyncSafetySettings } = useGetSyncSafetySettingsQuery();
+  const isSyncCommand = selectedCommand?.command === "sync";
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{selectedCommand ? selectedCommand.name : "Options"}</CardTitle>
+        <CardTitle>
+          {selectedCommand ? selectedCommand.name : "Options"}
+        </CardTitle>
       </CardHeader>
       <CardContent>
-        <CommandOptions
-          commandConfig={selectedCommand}
-          value={options}
-          onChange={onOptionsChange}
-        />
+        {isSyncCommand && syncSafetyOptions && onSyncSafetyOptionsChange ? (
+          <SyncSafetySettings
+            value={syncSafetyOptions}
+            onChange={onSyncSafetyOptionsChange}
+            defaultSettings={defaultSyncSafetySettings}
+          />
+        ) : (
+          <CommandOptions
+            commandConfig={selectedCommand}
+            value={options}
+            onChange={onOptionsChange}
+          />
+        )}
 
         {selectedCommand && (
           <div className="mt-6 flex gap-2">

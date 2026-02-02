@@ -7,6 +7,7 @@ import {
   useCreateScheduleMutation,
   useUpdateScheduleMutation,
   useDeleteScheduleMutation,
+  useGetSyncSafetySettingsQuery,
 } from "@/store/api";
 import type { Schedule } from "@shared/types";
 import {
@@ -14,7 +15,10 @@ import {
   getCommandConfig,
   optionsToArgs,
   argsToOptions,
+  syncSafetyToArgs,
+  argsToSyncSafety,
 } from "@/lib/command-config";
+import type { SyncSafetyOptions } from "@/components/SyncSafetySettings";
 import { PageHeader } from "@/pages/components/PageHeader";
 import { PageLoading } from "@/pages/components/PageLoading";
 import {
@@ -39,6 +43,7 @@ type OptionValues = Record<string, unknown>;
 
 export function Schedules() {
   const { data: schedules, isLoading } = useGetSchedulesQuery();
+  const { data: defaultSyncSafetySettings } = useGetSyncSafetySettingsQuery();
   const [createSchedule] = useCreateScheduleMutation();
   const [updateSchedule] = useUpdateScheduleMutation();
   const [deleteSchedule] = useDeleteScheduleMutation();
@@ -53,6 +58,15 @@ export function Schedules() {
     enabled: true,
   });
   const [optionValues, setOptionValues] = useState<OptionValues>({});
+  const [syncSafetyOptions, setSyncSafetyOptions] = useState<SyncSafetyOptions>(
+    {
+      mode: "default",
+      preHash: false,
+      forceEmpty: false,
+      maxDeletedFiles: 100,
+      maxDeletedPercent: 10,
+    }
+  );
 
   const selectedCommandConfig = getCommandConfig(formData.command) ?? null;
 
@@ -64,6 +78,13 @@ export function Schedules() {
       enabled: true,
     });
     setOptionValues({});
+    setSyncSafetyOptions({
+      mode: "default",
+      preHash: false,
+      forceEmpty: false,
+      maxDeletedFiles: 100,
+      maxDeletedPercent: 10,
+    });
     setCronPreset("0 2 * * *");
     setEditingSchedule(null);
     setShowForm(false);
@@ -77,10 +98,16 @@ export function Schedules() {
       cronExpression: schedule.cronExpression,
       enabled: schedule.enabled,
     });
-    const cmdConfig = getCommandConfig(schedule.command);
-    setOptionValues(
-      cmdConfig ? argsToOptions(cmdConfig, schedule.args ?? []) : {}
-    );
+
+    if (schedule.command === "sync") {
+      // Parse sync safety options from args
+      setSyncSafetyOptions(argsToSyncSafety(schedule.args ?? []));
+    } else {
+      const cmdConfig = getCommandConfig(schedule.command);
+      setOptionValues(
+        cmdConfig ? argsToOptions(cmdConfig, schedule.args ?? []) : {}
+      );
+    }
 
     const preset = CRON_PRESETS.find(
       (presetOption) => presetOption.value === schedule.cronExpression
@@ -92,9 +119,20 @@ export function Schedules() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
-    const args = selectedCommandConfig
-      ? optionsToArgs(selectedCommandConfig, optionValues)
-      : [];
+    let args: string[];
+    
+    // For sync commands, use sync safety settings
+    if (formData.command === "sync") {
+      args = syncSafetyToArgs(
+        syncSafetyOptions.mode,
+        syncSafetyOptions,
+        defaultSyncSafetySettings
+      );
+    } else {
+      args = selectedCommandConfig
+        ? optionsToArgs(selectedCommandConfig, optionValues)
+        : [];
+    }
 
     try {
       if (editingSchedule) {
@@ -171,7 +209,9 @@ export function Schedules() {
         cronPresets={CRON_PRESETS}
         commands={schedulableCommands}
         optionValues={optionValues}
+        syncSafetyOptions={syncSafetyOptions}
         selectedCommandConfig={selectedCommandConfig}
+        defaultSyncSafetySettings={defaultSyncSafetySettings}
         onOpenChange={(open) => {
           if (!open) resetForm();
         }}
@@ -180,6 +220,7 @@ export function Schedules() {
         onFormDataChange={setFormData}
         onCronPresetChange={setCronPreset}
         onOptionValuesChange={setOptionValues}
+        onSyncSafetyOptionsChange={setSyncSafetyOptions}
       />
 
       <ScheduleList

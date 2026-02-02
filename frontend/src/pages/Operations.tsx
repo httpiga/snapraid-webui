@@ -6,13 +6,16 @@ import {
   api,
   useExecuteCommandMutation,
   useAbortCommandMutation,
+  useGetSyncSafetySettingsQuery,
 } from "@/store/api";
 import { useWebSocket } from "@/hooks/use-websocket";
 import {
   getCommandConfig,
   optionsToArgs,
+  syncSafetyToArgs,
   type CommandConfig,
 } from "@/lib/command-config";
+import type { SyncSafetyOptions } from "@/components/SyncSafetySettings";
 import type { SnapRaidCommand } from "@shared/types";
 import { PageHeader } from "@/pages/components/PageHeader";
 import { CommandSelectionCard } from "@/pages/components/operations/CommandSelectionCard";
@@ -26,6 +29,16 @@ export function Operations() {
     null
   );
   const [options, setOptions] = useState<Record<string, unknown>>({});
+  const [syncSafetyOptions, setSyncSafetyOptions] = useState<SyncSafetyOptions>(
+    {
+      mode: "default",
+      preHash: false,
+      forceEmpty: false,
+      maxDeletedFiles: 100,
+      maxDeletedPercent: 10,
+    }
+  );
+  const { data: defaultSyncSafetySettings } = useGetSyncSafetySettingsQuery();
 
   const {
     isConnected,
@@ -58,7 +71,19 @@ export function Operations() {
   const [abortCommand] = useAbortCommandMutation();
 
   const handleRunCommand = async (cmd: CommandConfig) => {
-    const args = optionsToArgs(cmd, options);
+    let args: string[];
+
+    // For sync commands, use sync safety settings
+    if (cmd.command === "sync") {
+      args = syncSafetyToArgs(
+        syncSafetyOptions.mode,
+        syncSafetyOptions,
+        defaultSyncSafetySettings
+      );
+    } else {
+      args = optionsToArgs(cmd, options);
+    }
+
     clearOutput();
 
     if (cmd.longRunning) {
@@ -91,11 +116,25 @@ export function Operations() {
     if (!value) {
       setSelectedCommand(null);
       setOptions({});
+      setSyncSafetyOptions({
+        mode: "default",
+        preHash: false,
+        forceEmpty: false,
+        maxDeletedFiles: 100,
+        maxDeletedPercent: 10,
+      });
       return;
     }
     const cmd = getCommandConfig(value as SnapRaidCommand);
     setSelectedCommand(cmd ?? null);
     setOptions({});
+    setSyncSafetyOptions({
+      mode: "default",
+      preHash: false,
+      forceEmpty: false,
+      maxDeletedFiles: 100,
+      maxDeletedPercent: 10,
+    });
   };
 
   return (
@@ -120,9 +159,11 @@ export function Operations() {
         <CommandOptionsCard
           selectedCommand={selectedCommand}
           options={options}
+          syncSafetyOptions={syncSafetyOptions}
           isCommandRunning={isCommandRunning}
           currentCommand={currentCommand}
           onOptionsChange={setOptions}
+          onSyncSafetyOptionsChange={setSyncSafetyOptions}
           onRun={handleRunCommand}
           onAbort={handleAbort}
         />
