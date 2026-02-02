@@ -1,6 +1,19 @@
 # SnapRAID Web UI
 
-A modern, self-hosted web interface for managing [SnapRAID](https://www.snapraid.it/) installations. Execute commands, manage configurations, schedule operations, and receive notifications - all through your browser.
+[![Build](https://github.com/httpiga/snapraid-webui/actions/workflows/docker-build.yml/badge.svg?branch=master)](https://github.com/httpiga/snapraid-webui/actions/workflows/docker-build.yml)
+[![License](https://img.shields.io/github/license/httpiga/snapraid-webui)](https://github.com/httpiga/snapraid-webui/blob/master/LICENSE.md)
+
+A modern, self-hosted web interface for managing [SnapRAID](https://www.snapraid.it/) installations. SnapRAID is a backup program for disk arrays that stores parity information and allows recovery from disk failures. Execute commands, manage configurations, schedule operations, and receive notifications—all through your browser.
+
+## Table of Contents
+
+- [Features](#features)
+- [Screenshots](#screenshots)
+- [Quick Start](#quick-start)
+- [Environment Variables](#environment-variables)
+- [Development](#development)
+- [Tech Stack](#tech-stack)
+- [License](#license)
 
 ## Features
 
@@ -9,8 +22,22 @@ A modern, self-hosted web interface for managing [SnapRAID](https://www.snapraid
 - **Command Execution** - Run sync, scrub, check, fix, and more with live output streaming
 - **Scheduling** - Automate sync and scrub operations with cron-based scheduling
 - **File Recovery** - Browse and restore accidentally deleted files
+- **Logs** - View and delete command output logs
 - **Notifications** - Get alerts via Discord, Telegram, Slack, or Email
+- **Sync Safety** - Configure pre-hash, force-empty, and limits for sync operations (Settings)
+- **Advanced** - Spin-down on error, bandwidth limit, and other SnapRAID options (Settings)
 - **Optional Auth** - Protect your instance with username/password authentication
+- **Light/Dark theme** - Theme toggle in the sidebar
+
+## Screenshots
+
+| Dashboard | Disks | Operations |
+|-----------|-------|------------|
+| ![Dashboard](docs/screenshots/dashboard.png) | ![Disks](docs/screenshots/disks.png) | ![Operations](docs/screenshots/operations.png) |
+
+| Schedules | Recovery | Settings |
+|-----------|----------|----------|
+| ![Schedules](docs/screenshots/schedules.png) | ![Recovery](docs/screenshots/recovery.png) | ![Settings](docs/screenshots/settings.png) |
 
 ## Quick Start
 
@@ -50,20 +77,32 @@ docker compose up -d
 
 3. Open http://localhost:3000 in your browser
 
-**SMART unavailable in Docker.** When running in Docker, SnapRAID’s SMART command and device listing are not available; the web UI does not offer the SMART command in this setup.
+Config and logs are stored under the mounted config folder (e.g. `./config`), so they persist across container restarts.
 
-> SMART and SnapRAID’s devices/smart features require mapping filesystem mountpoints to real block devices via /sys (major:minor → /dev/sdX). In Docker containers the root filesystem is typically an overlay mount (e.g., 0:70), which cannot be dereferenced to a physical block device, so SnapRAID reports “Device listing/SMART unsupported” and the SMART commands cannot be relied on in this environment.
+**SMART unavailable in Docker.** When running in Docker, SnapRAID's SMART command and device listing are not available; the web UI does not offer the SMART command in this setup.
+
+> SMART and SnapRAID's devices/smart features require mapping filesystem mountpoints to real block devices via /sys (major:minor → /dev/sdX). In Docker containers the root filesystem is typically an overlay mount (e.g., 0:70), which cannot be dereferenced to a physical block device, so SnapRAID reports "Device listing/SMART unsupported" and the SMART commands cannot be relied on in this environment.
 
 ### Environment Variables
 
-| Variable             | Description                                                              | Default             |
-| -------------------- | ------------------------------------------------------------------------ | ------------------- |
-| `TZ`                 | Timezone                                                                 | `UTC`               |
-| `AUTH_ENABLED`       | Enable authentication                                                    | `false`             |
-| `AUTH_USERNAME`      | Username for auth                                                        | `admin`             |
-| `AUTH_PASSWORD_HASH` | Bcrypt hash of password                                                  | -                   |
-| `CONFIG_PATH`        | Path to config directory                                                 | `/app/config`       |
-| `SNAPRAID_BIN`       | Path to snapraid binary (image includes SnapRAID at `/usr/bin/snapraid`) | `/usr/bin/snapraid` |
+| Variable             | Description                                                                 | Default             |
+| -------------------- | --------------------------------------------------------------------------- | ------------------- |
+| `TZ`                 | Timezone                                                                    | `UTC`               |
+| `PORT`               | Port the server listens on                                                  | `3000`              |
+| `AUTH_ENABLED`       | Enable authentication                                                       | `false`             |
+| `AUTH_USERNAME`      | Username for auth                                                           | `admin`             |
+| `AUTH_PASSWORD_HASH` | Bcrypt hash of password (see below)                                         | -                   |
+| `SESSION_SECRET`     | Secret for session cookies (auto-generated if not set when auth is enabled) | -                   |
+| `CONFIG_PATH`        | Path to config directory                                                    | `/app/config`       |
+| `SNAPRAID_BIN`       | Path to snapraid binary (image includes SnapRAID at `/usr/bin/snapraid`)    | `/usr/bin/snapraid` |
+
+To generate `AUTH_PASSWORD_HASH`, run:
+
+```bash
+docker run --rm -it node:22-alpine -e "console.log(require('bcryptjs').hashSync('YOUR_PASSWORD', 10))"
+```
+
+Use the printed hash as the value for `AUTH_PASSWORD_HASH`.
 
 ## Development
 
@@ -105,16 +144,6 @@ bun run virtual-disks:teardown
 
 Then run `snapraid status` and `snapraid sync` from the web UI or CLI. On Linux you can achieve the same with `losetup` + separate loop devices and mount points.
 
-### Project Structure
-
-```
-snapraid-webui/
-├── backend/          # Bun/Express API server
-├── frontend/         # React/Vite application
-├── shared/           # Shared TypeScript types
-└── docker/           # Docker configuration
-```
-
 ## Tech Stack
 
 - **Runtime**: Bun
@@ -126,4 +155,4 @@ snapraid-webui/
 
 ## License
 
-MIT
+[MIT](LICENSE.md)
