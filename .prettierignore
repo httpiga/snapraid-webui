@@ -1,0 +1,5 @@
+build
+coverage
+.virtual-disk-images
+.mock-disks
+.node_modules

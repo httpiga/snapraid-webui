@@ -24,12 +24,14 @@
     "virtual-disks:setup": "bash scripts/setup-virtual-disks.sh setup",
     "virtual-disks:seed": "bun run scripts/seed-mock-disks.ts",
     "virtual-disks:teardown": "bash scripts/setup-virtual-disks.sh teardown",
-    "prepare": "husky"
+    "prepare": "husky",
+    "prettier": "prettier --write ."
   },
   "devDependencies": {
     "@types/node": "^22.10.0",
     "concurrently": "^9.1.0",
     "husky": "^9.1.7",
+    "prettier": "^3.8.1",
     "typescript": "^5.7.3"
   }
 }
