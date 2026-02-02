@@ -25,6 +25,8 @@ import {
   useGetNotificationSettingsQuery,
   useUpdateNotificationSettingsMutation,
   useTestNotificationMutation,
+  useGetSyncSafetySettingsQuery,
+  useUpdateSyncSafetySettingsMutation,
 } from "@/store/api";
 import { toast } from "sonner";
 import {
@@ -32,7 +34,11 @@ import {
   Shield,
   Settings as SettingsIcon,
 } from "lucide-react";
-import type { NotificationSettings, NotificationChannel } from "@shared/types";
+import type {
+  NotificationSettings,
+  NotificationChannel,
+  SyncSafetySettings,
+} from "@shared/types";
 import { NotificationProviderEditDialog } from "@/components/NotificationProviderEditDialog";
 import { getEmptyChannelConfig } from "@/lib/notification-channel-utils";
 import { PageHeader } from "@/pages/components/PageHeader";
@@ -41,12 +47,17 @@ import { NotificationProviderCard } from "@/pages/components/settings/Notificati
 import { getApiErrorMessage } from "@/lib/api-error";
 
 export function Settings() {
-  const { data: notificationSettings, isLoading } =
+  const { data: notificationSettings, isLoading: isLoadingNotifications } =
     useGetNotificationSettingsQuery();
+  const { data: syncSafetySettings, isLoading: isLoadingSyncSafety } =
+    useGetSyncSafetySettingsQuery();
   const [updateNotificationSettings] = useUpdateNotificationSettingsMutation();
+  const [updateSyncSafetySettings] = useUpdateSyncSafetySettingsMutation();
   const [testNotification] = useTestNotificationMutation();
 
   const [settings, setSettings] = useState<NotificationSettings | null>(null);
+  const [safetySettings, setSafetySettings] =
+    useState<SyncSafetySettings | null>(null);
   const [editChannel, setEditChannel] = useState<NotificationChannel | null>(
     null
   );
@@ -58,6 +69,12 @@ export function Settings() {
       setSettings(notificationSettings);
     }
   }, [notificationSettings]);
+
+  useEffect(() => {
+    if (syncSafetySettings) {
+      setSafetySettings(syncSafetySettings);
+    }
+  }, [syncSafetySettings]);
 
   const handleSaveFromDialog = async (updated: NotificationSettings) => {
     try {
@@ -99,7 +116,24 @@ export function Settings() {
     }
   };
 
-  if (isLoading || !settings) {
+  const handleSaveSyncSafety = async () => {
+    if (!safetySettings) return;
+    try {
+      await updateSyncSafetySettings(safetySettings).unwrap();
+      toast.success("Sync safety settings saved");
+    } catch (error) {
+      toast.error("Failed to save sync safety settings", {
+        description: getApiErrorMessage(error),
+      });
+    }
+  };
+
+  if (
+    isLoadingNotifications ||
+    isLoadingSyncSafety ||
+    !settings ||
+    !safetySettings
+  ) {
     return <PageLoading message="Loading settings..." />;
   }
 
@@ -194,12 +228,27 @@ export function Settings() {
                     Stop sync if too many files are deleted
                   </p>
                 </div>
-                <Switch defaultChecked />
+                <Switch
+                  checked={safetySettings.enabled}
+                  onCheckedChange={(checked) =>
+                    setSafetySettings({ ...safetySettings, enabled: checked })
+                  }
+                />
               </div>
 
               <div className="space-y-2">
                 <Label>Maximum Deleted Files</Label>
-                <Input type="number" defaultValue={100} />
+                <Input
+                  type="number"
+                  value={safetySettings.maxDeletedFiles}
+                  onChange={(e) =>
+                    setSafetySettings({
+                      ...safetySettings,
+                      maxDeletedFiles: parseInt(e.target.value) || 0,
+                    })
+                  }
+                  disabled={!safetySettings.enabled}
+                />
                 <p className="text-xs text-muted-foreground">
                   Stop sync if more than this many files are deleted
                 </p>
@@ -207,7 +256,17 @@ export function Settings() {
 
               <div className="space-y-2">
                 <Label>Maximum Delete Percentage</Label>
-                <Input type="number" defaultValue={10} />
+                <Input
+                  type="number"
+                  value={safetySettings.maxDeletedPercent}
+                  onChange={(e) =>
+                    setSafetySettings({
+                      ...safetySettings,
+                      maxDeletedPercent: parseInt(e.target.value) || 0,
+                    })
+                  }
+                  disabled={!safetySettings.enabled}
+                />
                 <p className="text-xs text-muted-foreground">
                   Stop sync if more than this percentage of files are deleted
                 </p>
@@ -220,8 +279,20 @@ export function Settings() {
                     Always check changes before syncing
                   </p>
                 </div>
-                <Switch defaultChecked />
+                <Switch
+                  checked={safetySettings.runDiffBeforeSync}
+                  onCheckedChange={(checked) =>
+                    setSafetySettings({
+                      ...safetySettings,
+                      runDiffBeforeSync: checked,
+                    })
+                  }
+                />
               </div>
+
+              <Button onClick={handleSaveSyncSafety}>
+                Save Sync Safety Settings
+              </Button>
             </CardContent>
           </Card>
         </TabsContent>

@@ -245,3 +245,63 @@ describe("command helpers", () => {
     );
   });
 });
+
+describe("sync safety settings", () => {
+  test("runSync with maxDeletedFiles adds filter-delete args", async () => {
+    const runner = new SnapRaidRunner();
+    await runner.runSync("/a/b.conf", undefined, {
+      maxDeletedFiles: 100,
+    });
+    expect(spawnState.spawnCalls[0].args).toEqual(
+      expect.arrayContaining(["-d", "100", "sync"])
+    );
+  });
+
+  test("runSync with maxDeletedPercent adds filter-delete-percentage args", async () => {
+    const runner = new SnapRaidRunner();
+    await runner.runSync("/a/b.conf", undefined, {
+      maxDeletedPercent: 10,
+    });
+    expect(spawnState.spawnCalls[0].args).toEqual(
+      expect.arrayContaining(["-p", "10", "sync"])
+    );
+  });
+
+  test("runSync combines all safety options correctly", async () => {
+    const runner = new SnapRaidRunner();
+    await runner.runSync("/a/b.conf", undefined, {
+      preHash: true,
+      maxDeletedFiles: 50,
+      maxDeletedPercent: 5,
+      forceEmpty: false,
+    });
+    const args = spawnState.spawnCalls[0].args;
+    expect(args).toContain("--pre-hash");
+    expect(args).toContain("-d");
+    expect(args).toContain("50");
+    expect(args).toContain("-p");
+    expect(args).toContain("5");
+    expect(args).toContain("sync");
+    expect(args).not.toContain("--force-empty");
+  });
+
+  test("runSync without safety options only runs sync", async () => {
+    const runner = new SnapRaidRunner();
+    await runner.runSync("/a/b.conf", undefined, {});
+    const args = spawnState.spawnCalls[0].args;
+    expect(args).toEqual(["-c", "/a/b.conf", "sync"]);
+  });
+
+  test("runSync forceEmpty flag bypasses delete checks", async () => {
+    const runner = new SnapRaidRunner();
+    await runner.runSync("/a/b.conf", undefined, {
+      forceEmpty: true,
+      maxDeletedFiles: 10,
+      maxDeletedPercent: 5,
+    });
+    const args = spawnState.spawnCalls[0].args;
+    expect(args).toContain("--force-empty");
+    // When force-empty is used, SnapRAID ignores delete thresholds
+    // but we can still pass them for informational purposes
+  });
+});

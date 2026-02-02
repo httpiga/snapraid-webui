@@ -40,6 +40,20 @@ export const commands: CommandConfig[] = [
         description: "Verify data before syncing",
       },
       {
+        name: "Max Deleted Files",
+        key: "max-deleted-files",
+        type: "number",
+        description: "Maximum number of files that can be deleted",
+        default: 0,
+      },
+      {
+        name: "Max Deleted Percent",
+        key: "max-deleted-percent",
+        type: "number",
+        description: "Maximum percentage of files that can be deleted",
+        default: 0,
+      },
+      {
         name: "Force Empty",
         key: "force-empty",
         type: "boolean",
@@ -140,6 +154,15 @@ export const schedulableCommands = commands.filter((c) =>
   ["sync", "scrub", "check", "status"].includes(c.command)
 );
 
+// Map option keys to their CLI argument flags
+const optionKeyToCliFlag: Record<string, string> = {
+  "max-deleted-files": "-d",
+  "max-deleted-percent": "-p",
+  "older-than": "-o",
+  plan: "-p",
+  filter: "-f",
+};
+
 /**
  * Convert options state to SnapRAID CLI args
  */
@@ -153,10 +176,13 @@ export function optionsToArgs(
   for (const opt of commandConfig.options) {
     const value = options[opt.key];
     if (value === undefined || value === false || value === "") continue;
+    
     if (opt.type === "boolean") {
       args.push(`--${opt.key}`);
     } else {
-      args.push(`-${opt.key.charAt(0)}`, String(value));
+      // Use mapped flag or fallback to first character
+      const flag = optionKeyToCliFlag[opt.key] || `-${opt.key.charAt(0)}`;
+      args.push(flag, String(value));
     }
   }
   return args;
@@ -176,8 +202,9 @@ export function argsToOptions(
     if (opt.type === "boolean") {
       result[opt.key] = args.includes(`--${opt.key}`);
     } else {
-      const shortChar = opt.key.charAt(0);
-      const idx = args.indexOf(`-${shortChar}`);
+      // Use mapped flag or fallback to first character
+      const flag = optionKeyToCliFlag[opt.key] || `-${opt.key.charAt(0)}`;
+      const idx = args.indexOf(flag);
       if (idx !== -1 && idx + 1 < args.length) {
         const raw = args[idx + 1];
         result[opt.key] =

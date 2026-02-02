@@ -7,6 +7,7 @@ import type {
   SmartReport,
   DiffReport,
   NotificationSettings,
+  SyncSafetySettings,
   AppConfig,
   ApiResponse,
   FileSystemResponse,
@@ -15,7 +16,15 @@ import type {
 export const api = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({ baseUrl: "/api" }),
-  tagTypes: ["Status", "Config", "Schedules", "Logs", "Smart", "Notifications"],
+  tagTypes: [
+    "Status",
+    "Config",
+    "Schedules",
+    "Logs",
+    "Smart",
+    "Notifications",
+    "SyncSafety",
+  ],
   endpoints: (builder) => ({
     // Status
     getStatus: builder.query<SnapRaidStatus, void>({
@@ -165,6 +174,23 @@ export const api = createApi({
       }),
     }),
 
+    // Sync Safety
+    getSyncSafetySettings: builder.query<SyncSafetySettings, void>({
+      query: () => "/sync-safety/settings",
+      providesTags: ["SyncSafety"],
+    }),
+    updateSyncSafetySettings: builder.mutation<
+      ApiResponse,
+      SyncSafetySettings
+    >({
+      query: (settings) => ({
+        url: "/sync-safety/settings",
+        method: "PUT",
+        body: settings,
+      }),
+      invalidatesTags: ["SyncSafety"],
+    }),
+
     // App Config
     getAppConfig: builder.query<AppConfig, void>({
       query: () => "/app-config",
@@ -201,6 +227,8 @@ export const {
   useGetNotificationSettingsQuery,
   useUpdateNotificationSettingsMutation,
   useTestNotificationMutation,
+  useGetSyncSafetySettingsQuery,
+  useUpdateSyncSafetySettingsMutation,
   useGetAppConfigQuery,
   useGetFileSystemEntriesQuery,
 } = api;

@@ -159,6 +159,8 @@ export class SnapRaidRunner {
       preHash?: boolean;
       forceEmpty?: boolean;
       forceZero?: boolean;
+      maxDeletedFiles?: number;
+      maxDeletedPercent?: number;
     } = {}
   ): Promise<{ exitCode: number; output: string }> {
     const args: string[] = [];
@@ -171,6 +173,12 @@ export class SnapRaidRunner {
     }
     if (options.forceZero) {
       args.push("--force-zero");
+    }
+    if (options.maxDeletedFiles !== undefined) {
+      args.push("-d", options.maxDeletedFiles.toString());
+    }
+    if (options.maxDeletedPercent !== undefined) {
+      args.push("-p", options.maxDeletedPercent.toString());
     }
 
     return this.executeCommand("sync", configPath, onOutput, args);

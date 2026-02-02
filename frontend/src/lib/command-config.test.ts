@@ -199,3 +199,147 @@ describe("getCommandConfig", () => {
     expect(getCommandConfig("unknown" as never)).toBeUndefined();
   });
 });
+
+describe("Sync safety options", () => {
+  test("optionsToArgs converts max-deleted-files to -d flag", () => {
+    const config = mockCommandConfig([
+      {
+        name: "Max Deleted Files",
+        key: "max-deleted-files",
+        type: "number",
+        description: "Test",
+        default: 0,
+      },
+    ]);
+    expect(optionsToArgs(config, { "max-deleted-files": 100 })).toEqual([
+      "-d",
+      "100",
+    ]);
+  });
+
+  test("optionsToArgs converts max-deleted-percent to -p flag", () => {
+    const config = mockCommandConfig([
+      {
+        name: "Max Deleted Percent",
+        key: "max-deleted-percent",
+        type: "number",
+        description: "Test",
+        default: 0,
+      },
+    ]);
+    expect(optionsToArgs(config, { "max-deleted-percent": 10 })).toEqual([
+      "-p",
+      "10",
+    ]);
+  });
+
+  test("optionsToArgs handles sync with all safety options", () => {
+    const config = mockCommandConfig([
+      {
+        name: "Pre-hash",
+        key: "pre-hash",
+        type: "boolean",
+        description: "Test",
+      },
+      {
+        name: "Max Deleted Files",
+        key: "max-deleted-files",
+        type: "number",
+        description: "Test",
+        default: 0,
+      },
+      {
+        name: "Max Deleted Percent",
+        key: "max-deleted-percent",
+        type: "number",
+        description: "Test",
+        default: 0,
+      },
+      {
+        name: "Force Empty",
+        key: "force-empty",
+        type: "boolean",
+        description: "Test",
+      },
+    ]);
+    const args = optionsToArgs(config, {
+      "pre-hash": true,
+      "max-deleted-files": 50,
+      "max-deleted-percent": 5,
+      "force-empty": false,
+    });
+    expect(args).toContain("--pre-hash");
+    expect(args).toContain("-d");
+    expect(args).toContain("50");
+    expect(args).toContain("-p");
+    expect(args).toContain("5");
+    expect(args).not.toContain("--force-empty");
+  });
+
+  test("argsToOptions parses sync safety args correctly", () => {
+    const config = mockCommandConfig([
+      {
+        name: "Pre-hash",
+        key: "pre-hash",
+        type: "boolean",
+        description: "Test",
+      },
+      {
+        name: "Max Deleted Files",
+        key: "max-deleted-files",
+        type: "number",
+        description: "Test",
+        default: 0,
+      },
+      {
+        name: "Max Deleted Percent",
+        key: "max-deleted-percent",
+        type: "number",
+        description: "Test",
+        default: 0,
+      },
+    ]);
+    const options = argsToOptions(config, [
+      "--pre-hash",
+      "-d",
+      "100",
+      "-p",
+      "10",
+    ]);
+    expect(options["pre-hash"]).toBe(true);
+    expect(options["max-deleted-files"]).toBe(100);
+    expect(options["max-deleted-percent"]).toBe(10);
+  });
+
+  test("argsToOptions uses defaults when args not provided", () => {
+    const config = mockCommandConfig([
+      {
+        name: "Max Deleted Files",
+        key: "max-deleted-files",
+        type: "number",
+        description: "Test",
+        default: 100,
+      },
+      {
+        name: "Max Deleted Percent",
+        key: "max-deleted-percent",
+        type: "number",
+        description: "Test",
+        default: 10,
+      },
+    ]);
+    const options = argsToOptions(config, []);
+    expect(options["max-deleted-files"]).toBe(100);
+    expect(options["max-deleted-percent"]).toBe(10);
+  });
+
+  test("sync command config includes safety options", () => {
+    const config = getCommandConfig("sync");
+    expect(config).toBeDefined();
+    const optionKeys = config!.options?.map((o) => o.key) || [];
+    expect(optionKeys).toContain("pre-hash");
+    expect(optionKeys).toContain("max-deleted-files");
+    expect(optionKeys).toContain("max-deleted-percent");
+    expect(optionKeys).toContain("force-empty");
+  });
+});

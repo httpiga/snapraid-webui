@@ -179,7 +179,8 @@ describe("scheduler execution and notifications", () => {
     await scheduler.initializeScheduler();
     expect(cronState.scheduled.length).toBe(1);
     cronState.scheduled[0].cb();
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    // Wait for async operations to complete (executeScheduledCommand is fire-and-forget)
+    await new Promise((resolve) => setTimeout(resolve, 100));
     const saved = JSON.parse(await fs.readFile(schedulesPath, "utf-8"));
     expect(saved.schedules[0].lastRun).toBeDefined();
     expect(saved.schedules[0].updatedAt).toBeDefined();
