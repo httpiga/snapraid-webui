@@ -17,8 +17,11 @@ mock.module("../config.js", () => ({
 }));
 
 // Import after setting up the mock
-const { loadAdvancedSettings, saveAdvancedSettings, getAdvancedArgsForCommand } =
-  await import("./advanced-settings.js");
+const {
+  loadAdvancedSettings,
+  saveAdvancedSettings,
+  getAdvancedArgsForCommand,
+} = await import("./advanced-settings.js");
 
 describe("loadAdvancedSettings", () => {
   beforeEach(async () => {
@@ -147,7 +150,7 @@ describe("saveAdvancedSettings", () => {
     await fs.writeFile(
       TEST_APP_CONFIG,
       JSON.stringify({ advanced: oldSettings }),
-      "utf-8"
+      "utf-8",
     );
 
     const newSettings: AdvancedSettings = {

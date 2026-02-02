@@ -66,7 +66,7 @@ async function seedMockDisks() {
     await writeFile(
       CONFIG_OUT,
       await readFile(CONFIG_EXAMPLE, "utf-8"),
-      "utf-8"
+      "utf-8",
     );
     console.log("  wrote config/snapraid.conf from config.example");
   } catch (err) {

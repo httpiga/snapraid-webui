@@ -11,7 +11,7 @@ export async function sendTelegramNotification(
   event: NotificationEvent,
   title: string,
   message: string,
-  details?: Record<string, string>
+  details?: Record<string, string>,
 ): Promise<boolean> {
   if (!settings.enabled || !settings.botToken || !settings.chatId) {
     return false;

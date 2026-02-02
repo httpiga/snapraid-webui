@@ -28,7 +28,7 @@ export async function sendDiscordNotification(
   event: NotificationEvent,
   title: string,
   message: string,
-  details?: Record<string, string>
+  details?: Record<string, string>,
 ): Promise<boolean> {
   if (!settings.enabled || !settings.webhookUrl) {
     return false;
@@ -72,7 +72,7 @@ export async function sendDiscordNotification(
 
     if (!response.ok) {
       console.error(
-        `Discord webhook failed: ${response.status} ${response.statusText}`
+        `Discord webhook failed: ${response.status} ${response.statusText}`,
       );
       return false;
     }

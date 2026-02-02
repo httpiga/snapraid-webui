@@ -12,9 +12,7 @@ import type { ReactNode } from "react";
 import { toast } from "sonner";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import type { NotificationChannel, NotificationSettings } from "@shared/types";
-import {
-  getChannelConfigSummary,
-} from "@/lib/notification-channel-utils";
+import { getChannelConfigSummary } from "@/lib/notification-channel-utils";
 import { useUpdateNotificationSettingsMutation } from "@/store/api";
 import { getApiErrorMessage } from "@/lib/api-error";
 
@@ -53,7 +51,7 @@ export function NotificationProviderCard({
       toast.success(
         checked
           ? `${channel} notifications enabled`
-          : `${channel} notifications disabled`
+          : `${channel} notifications disabled`,
       );
     } catch (error) {
       setSettings(settings);

@@ -76,13 +76,13 @@ export function getNextRunTime(cronExpression: string): string | undefined {
  */
 async function executeScheduledCommand(schedule: Schedule): Promise<void> {
   console.log(
-    `Executing scheduled command: ${schedule.name} (${schedule.command})`
+    `Executing scheduled command: ${schedule.name} (${schedule.command})`,
   );
 
   // Check if another command is running
   if (snapraidRunner.isRunning()) {
     console.log(
-      `Skipping schedule ${schedule.name}: another command is running`
+      `Skipping schedule ${schedule.name}: another command is running`,
     );
     return;
   }
@@ -93,7 +93,7 @@ async function executeScheduledCommand(schedule: Schedule): Promise<void> {
     `=== Scheduled: ${schedule.name} ===\n` +
       `Command: ${schedule.command}\n` +
       `Started: ${new Date().toISOString()}\n` +
-      `Cron: ${schedule.cronExpression}\n\n`
+      `Cron: ${schedule.cronExpression}\n\n`,
   );
 
   try {
@@ -101,7 +101,7 @@ async function executeScheduledCommand(schedule: Schedule): Promise<void> {
     const advancedSettings = await loadAdvancedSettings();
     const advancedArgs = getAdvancedArgsForCommand(
       advancedSettings,
-      schedule.command
+      schedule.command,
     );
     const finalArgs = [...advancedArgs, ...(schedule.args || [])];
 
@@ -114,12 +114,12 @@ async function executeScheduledCommand(schedule: Schedule): Promise<void> {
         // Append to log
         appendToLogFile(logFile, chunk).catch(console.error);
       },
-      finalArgs
+      finalArgs,
     );
 
     await appendToLogFile(
       logFile,
-      `\n=== Completed with exit code ${result.exitCode} ===\n`
+      `\n=== Completed with exit code ${result.exitCode} ===\n`,
     );
 
     // Update last run time
@@ -129,7 +129,7 @@ async function executeScheduledCommand(schedule: Schedule): Promise<void> {
     const payload = getOperationNotificationPayload(
       schedule.command,
       result.exitCode,
-      { scheduleName: schedule.name }
+      { scheduleName: schedule.name },
     );
     if (payload) {
       try {
@@ -137,7 +137,7 @@ async function executeScheduledCommand(schedule: Schedule): Promise<void> {
           payload.event,
           payload.title,
           payload.message,
-          payload.details
+          payload.details,
         );
       } catch (err) {
         console.error("Failed to send schedule completion notification:", err);
@@ -145,7 +145,7 @@ async function executeScheduledCommand(schedule: Schedule): Promise<void> {
     }
 
     console.log(
-      `Schedule ${schedule.name} completed with exit code ${result.exitCode}`
+      `Schedule ${schedule.name} completed with exit code ${result.exitCode}`,
     );
   } catch (error) {
     const errorMessage =
@@ -185,7 +185,7 @@ function startCronJob(schedule: Schedule): void {
     // Validate cron expression
     if (!cron.validate(schedule.cronExpression)) {
       console.error(
-        `Invalid cron expression for schedule ${schedule.id}: ${schedule.cronExpression}`
+        `Invalid cron expression for schedule ${schedule.id}: ${schedule.cronExpression}`,
       );
       return;
     }
@@ -196,7 +196,7 @@ function startCronJob(schedule: Schedule): void {
 
     activeJobs.set(schedule.id, job);
     console.log(
-      `Started schedule: ${schedule.name} (${schedule.cronExpression})`
+      `Started schedule: ${schedule.name} (${schedule.cronExpression})`,
     );
   } catch (error) {
     console.error(`Failed to start schedule ${schedule.id}:`, error);
@@ -257,7 +257,7 @@ export async function createSchedule(
   input: Omit<
     Schedule,
     "id" | "createdAt" | "updatedAt" | "lastRun" | "nextRun"
-  >
+  >,
 ): Promise<Schedule> {
   // Validate cron expression
   if (!cron.validate(input.cronExpression)) {
@@ -289,7 +289,7 @@ export async function createSchedule(
  */
 export async function updateSchedule(
   id: string,
-  updates: Partial<Omit<Schedule, "id" | "createdAt">>
+  updates: Partial<Omit<Schedule, "id" | "createdAt">>,
 ): Promise<Schedule> {
   const schedules = await loadSchedules();
   const index = schedules.findIndex((s) => s.id === id);

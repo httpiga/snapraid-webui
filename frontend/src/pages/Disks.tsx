@@ -26,7 +26,7 @@ export function Disks() {
   const [updateRawConfig] = useUpdateRawConfigMutation();
 
   const [editedConfig, setEditedConfig] = useState<ParsedSnapRaidConfig | null>(
-    null
+    null,
   );
   const [editedRaw, setEditedRaw] = useState<string>("");
   const [activeTab, setActiveTab] = useState("visual");
@@ -192,7 +192,10 @@ export function Disks() {
         </TabsContent>
 
         <TabsContent value="raw">
-          <RawConfigEditor value={editedRaw || currentRaw} onChange={setEditedRaw} />
+          <RawConfigEditor
+            value={editedRaw || currentRaw}
+            onChange={setEditedRaw}
+          />
 
           <div className="flex justify-end mt-4">
             <Button onClick={handleSaveRaw} disabled={!editedRaw}>

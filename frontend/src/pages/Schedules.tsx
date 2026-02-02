@@ -66,7 +66,7 @@ export function Schedules() {
       maxDeletedFiles: 100,
       maxUpdatedFiles: 500,
       maxAddedFiles: 10000,
-    }
+    },
   );
 
   const selectedCommandConfig = getCommandConfig(formData.command) ?? null;
@@ -107,12 +107,12 @@ export function Schedules() {
     } else {
       const cmdConfig = getCommandConfig(schedule.command);
       setOptionValues(
-        cmdConfig ? argsToOptions(cmdConfig, schedule.args ?? []) : {}
+        cmdConfig ? argsToOptions(cmdConfig, schedule.args ?? []) : {},
       );
     }
 
     const preset = CRON_PRESETS.find(
-      (presetOption) => presetOption.value === schedule.cronExpression
+      (presetOption) => presetOption.value === schedule.cronExpression,
     );
     setCronPreset(preset ? preset.value : "custom");
     setShowForm(true);
@@ -128,7 +128,7 @@ export function Schedules() {
       args = syncSafetyToArgs(
         syncSafetyOptions.mode,
         syncSafetyOptions,
-        defaultSyncSafetySettings
+        defaultSyncSafetySettings,
       );
     } else {
       args = selectedCommandConfig

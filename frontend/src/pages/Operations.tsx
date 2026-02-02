@@ -26,7 +26,7 @@ import { getApiErrorMessage } from "@/lib/api-error";
 export function Operations() {
   const dispatch = useDispatch();
   const [selectedCommand, setSelectedCommand] = useState<CommandConfig | null>(
-    null
+    null,
   );
   const [options, setOptions] = useState<Record<string, unknown>>({});
   const [syncSafetyOptions, setSyncSafetyOptions] = useState<SyncSafetyOptions>(
@@ -37,7 +37,7 @@ export function Operations() {
       maxDeletedFiles: 100,
       maxUpdatedFiles: 500,
       maxAddedFiles: 10000,
-    }
+    },
   );
   const { data: defaultSyncSafetySettings } = useGetSyncSafetySettingsQuery();
 
@@ -79,7 +79,7 @@ export function Operations() {
       args = syncSafetyToArgs(
         syncSafetyOptions.mode,
         syncSafetyOptions,
-        defaultSyncSafetySettings
+        defaultSyncSafetySettings,
       );
     } else {
       args = optionsToArgs(cmd, options);

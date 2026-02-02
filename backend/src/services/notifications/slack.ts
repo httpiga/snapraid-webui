@@ -29,7 +29,7 @@ export async function sendSlackNotification(
   event: NotificationEvent,
   title: string,
   message: string,
-  details?: Record<string, string>
+  details?: Record<string, string>,
 ): Promise<boolean> {
   if (!settings.enabled || !settings.webhookUrl) {
     return false;
@@ -105,7 +105,7 @@ export async function sendSlackNotification(
 
     if (!response.ok) {
       console.error(
-        `Slack webhook failed: ${response.status} ${response.statusText}`
+        `Slack webhook failed: ${response.status} ${response.statusText}`,
       );
       return false;
     }

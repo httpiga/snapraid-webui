@@ -14,11 +14,11 @@ beforeAll(() => {
       body.text
     ) {
       return Promise.resolve(
-        new Response(JSON.stringify({ ok: true }), { status: 200 })
+        new Response(JSON.stringify({ ok: true }), { status: 200 }),
       );
     }
     return Promise.resolve(
-      new Response(JSON.stringify({ ok: false }), { status: 400 })
+      new Response(JSON.stringify({ ok: false }), { status: 400 }),
     );
   });
 });
@@ -38,27 +38,37 @@ describe("sendTelegramNotification", () => {
       },
       "sync_complete",
       "Title",
-      "Message"
+      "Message",
     );
     expect(result).toBe(false);
   });
 
   test("returns false when botToken is empty", async () => {
     const result = await sendTelegramNotification(
-      { enabled: true, botToken: "", chatId: "123", events: [...NOTIFICATION_EVENTS] },
+      {
+        enabled: true,
+        botToken: "",
+        chatId: "123",
+        events: [...NOTIFICATION_EVENTS],
+      },
       "sync_complete",
       "Title",
-      "Message"
+      "Message",
     );
     expect(result).toBe(false);
   });
 
   test("returns false when chatId is empty", async () => {
     const result = await sendTelegramNotification(
-      { enabled: true, botToken: "token", chatId: "", events: [...NOTIFICATION_EVENTS] },
+      {
+        enabled: true,
+        botToken: "token",
+        chatId: "",
+        events: [...NOTIFICATION_EVENTS],
+      },
       "sync_complete",
       "Title",
-      "Message"
+      "Message",
     );
     expect(result).toBe(false);
   });
@@ -74,7 +84,7 @@ describe("sendTelegramNotification", () => {
       "sync_complete",
       "Sync completed",
       "Message body",
-      { Key: "value" }
+      { Key: "value" },
     );
     expect(result).toBe(true);
     expect((globalThis as any).fetch).toHaveBeenCalled();
@@ -94,9 +104,9 @@ describe("sendTelegramNotification", () => {
       Promise.resolve(
         new Response(
           JSON.stringify({ ok: false, description: "Bad request" }),
-          { status: 400 }
-        )
-      )
+          { status: 400 },
+        ),
+      ),
     );
     const restore = silenceConsole();
     const result = await sendTelegramNotification(
@@ -108,7 +118,7 @@ describe("sendTelegramNotification", () => {
       },
       "sync_error",
       "Title",
-      "Message"
+      "Message",
     );
     restore();
     expect(result).toBe(false);

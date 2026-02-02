@@ -55,13 +55,13 @@ async function handleOutput(chunk: string): Promise<void> {
 export async function executeCommandWithStreaming(
   command: SnapRaidCommand,
   args: string[] = [],
-  options?: { diffOutput?: string }
+  options?: { diffOutput?: string },
 ): Promise<{ exitCode: number; output: string }> {
   // Create log file if not already created (e.g., by sync safety validation)
   if (!currentLogFile) {
     currentLogFile = await createLogFile(
       command,
-      `=== SnapRAID ${command} started at ${new Date().toISOString()} ===\n`
+      `=== SnapRAID ${command} started at ${new Date().toISOString()} ===\n`,
     );
 
     // Notify clients that command started
@@ -77,7 +77,7 @@ export async function executeCommandWithStreaming(
       command,
       SNAPRAID_CONF_FILE,
       handleOutput,
-      args
+      args,
     );
 
     // Append completion to log
@@ -86,7 +86,7 @@ export async function executeCommandWithStreaming(
         currentLogFile,
         `\n=== Command completed with exit code ${
           result.exitCode
-        } at ${new Date().toISOString()} ===\n`
+        } at ${new Date().toISOString()} ===\n`,
       );
     }
 
@@ -108,12 +108,12 @@ export async function executeCommandWithStreaming(
           payload.event,
           payload.title,
           payload.message,
-          payload.details
+          payload.details,
         );
       } catch (err) {
         console.error(
           "[notifications] Failed to send operation notification:",
-          err
+          err,
         );
       }
     }
@@ -127,7 +127,7 @@ export async function executeCommandWithStreaming(
     if (currentLogFile) {
       await appendToLogFile(
         currentLogFile,
-        `\n=== ERROR: ${errorMessage} ===\n`
+        `\n=== ERROR: ${errorMessage} ===\n`,
       );
     }
 
@@ -159,7 +159,7 @@ export function initializeWebSocket(server: Server): WebSocketServer {
       JSON.stringify({
         type: "connected",
         timestamp: new Date().toISOString(),
-      } satisfies WSMessage)
+      } satisfies WSMessage),
     );
 
     // Send current job status if any
@@ -170,7 +170,7 @@ export function initializeWebSocket(server: Server): WebSocketServer {
           type: "status",
           command: currentJob.command,
           timestamp: currentJob.startTime,
-        } satisfies WSMessage)
+        } satisfies WSMessage),
       );
     }
 
@@ -188,14 +188,17 @@ export function initializeWebSocket(server: Server): WebSocketServer {
                 type: "error",
                 error: "Another command is already running",
                 timestamp: new Date().toISOString(),
-              } satisfies WSMessage)
+              } satisfies WSMessage),
             );
             return;
           }
 
           // Load advanced settings and merge with user args
           const advancedSettings = await loadAdvancedSettings();
-          const advancedArgs = getAdvancedArgsForCommand(advancedSettings, command);
+          const advancedArgs = getAdvancedArgsForCommand(
+            advancedSettings,
+            command,
+          );
           const finalArgs = [...advancedArgs, ...args];
 
           let diffOutput = "";
@@ -204,7 +207,7 @@ export function initializeWebSocket(server: Server): WebSocketServer {
             // Create log file before validation so diff output is captured
             currentLogFile = await createLogFile(
               command,
-              `=== SnapRAID ${command} started at ${new Date().toISOString()} ===\n`
+              `=== SnapRAID ${command} started at ${new Date().toISOString()} ===\n`,
             );
 
             // Notify clients that command started
@@ -224,7 +227,7 @@ export function initializeWebSocket(server: Server): WebSocketServer {
             const validation = await validateSyncSafetyWithNotification(
               SNAPRAID_CONF_FILE,
               outputWithCapture,
-              syncSafetySettings
+              syncSafetySettings,
             );
 
             if (!validation.safe) {
@@ -232,7 +235,7 @@ export function initializeWebSocket(server: Server): WebSocketServer {
               if (currentLogFile) {
                 await appendToLogFile(
                   currentLogFile,
-                  `\n=== Sync halted by safety checks at ${new Date().toISOString()} ===\n`
+                  `\n=== Sync halted by safety checks at ${new Date().toISOString()} ===\n`,
                 );
               }
 
@@ -249,13 +252,10 @@ export function initializeWebSocket(server: Server): WebSocketServer {
           }
 
           // Execute command in background (include diff output for sync notification)
-          const streamOptions =
-            command === "sync" ? { diffOutput } : undefined;
-          executeCommandWithStreaming(
-            command,
-            finalArgs,
-            streamOptions
-          ).catch(console.error);
+          const streamOptions = command === "sync" ? { diffOutput } : undefined;
+          executeCommandWithStreaming(command, finalArgs, streamOptions).catch(
+            console.error,
+          );
         }
 
         // Handle abort request
@@ -266,7 +266,7 @@ export function initializeWebSocket(server: Server): WebSocketServer {
               type: aborted ? "status" : "error",
               error: aborted ? undefined : "No command is running",
               timestamp: new Date().toISOString(),
-            } satisfies WSMessage)
+            } satisfies WSMessage),
           );
         }
       } catch (error) {

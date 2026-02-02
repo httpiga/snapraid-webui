@@ -38,7 +38,7 @@ export function Logs() {
       } else {
         const result = await deleteLogsOlderThan(30).unwrap();
         toast.success(
-          `Deleted ${result.deleted} log file(s) older than 30 days`
+          `Deleted ${result.deleted} log file(s) older than 30 days`,
         );
       }
       setDeleteConfirmMode(null);

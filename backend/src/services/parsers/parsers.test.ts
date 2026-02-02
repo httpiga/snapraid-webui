@@ -1,10 +1,6 @@
 import { describe, test, expect } from "bun:test";
 import * as parsers from "./index";
-import {
-  parseStatusOutput,
-  parseDiffOutput,
-  parseDiskStatus,
-} from "./index";
+import { parseStatusOutput, parseDiffOutput, parseDiskStatus } from "./index";
 
 describe("parseStatusOutput", () => {
   test("default status for empty output", () => {
@@ -20,7 +16,7 @@ describe("parseStatusOutput", () => {
 
   test("sets hasErrors when DANGER and errors present", () => {
     const status = parseStatusOutput(
-      "DANGER! In the array there are 2 errors!"
+      "DANGER! In the array there are 2 errors!",
     );
     expect(status.hasErrors).toBe(true);
   });

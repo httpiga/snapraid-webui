@@ -43,7 +43,7 @@ export type CommandEnum = (typeof Command)[keyof typeof Command];
 
 /** All command values in a single array. */
 export const COMMAND_VALUES: readonly SnapRaidCommand[] = Object.values(
-  Command
+  Command,
 ) as SnapRaidCommand[];
 
 /**

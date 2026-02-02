@@ -97,7 +97,7 @@ export function parseConfigFromContent(content: string): ParsedSnapRaidConfig {
  * Parse a snapraid.conf file into a structured object
  */
 export async function parseSnapRaidConfig(
-  configPath: string
+  configPath: string,
 ): Promise<ParsedSnapRaidConfig> {
   if (!existsSync(configPath)) {
     return parseConfigFromContent("");
@@ -228,7 +228,7 @@ export function validateSnapRaidConfig(config: ParsedSnapRaidConfig): {
   // Content files should be stored in multiple locations
   if (config.content.length < 2) {
     errors.push(
-      "Warning: It is recommended to have multiple content files for redundancy"
+      "Warning: It is recommended to have multiple content files for redundancy",
     );
   }
 

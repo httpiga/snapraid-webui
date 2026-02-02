@@ -38,12 +38,12 @@ router.get("/", async (_req, res) => {
 
       // Parse timestamp from filename
       const timestampMatch = filename.match(
-        /-(\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2})\.log$/
+        /-(\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2})\.log$/,
       );
       let timestamp = stats.mtime.toISOString();
       if (timestampMatch) {
         timestamp = timestampMatch[1].replace(/-/g, (m, i) =>
-          i > 9 ? ":" : m
+          i > 9 ? ":" : m,
         );
       }
 
@@ -76,7 +76,7 @@ router.get("/", async (_req, res) => {
     // Sort by timestamp descending (newest first)
     logFiles.sort(
       (a, b) =>
-        new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+        new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
     );
 
     res.json(logFiles);
@@ -215,7 +215,7 @@ router.delete("/:filename", async (req, res) => {
  */
 export async function createLogFile(
   command: SnapRaidCommand,
-  content: string
+  content: string,
 ): Promise<string> {
   const timestamp = new Date()
     .toISOString()
@@ -233,7 +233,7 @@ export async function createLogFile(
  */
 export async function appendToLogFile(
   filename: string,
-  content: string
+  content: string,
 ): Promise<void> {
   const filePath = path.join(LOGS_DIR, filename);
   await fs.appendFile(filePath, content, "utf-8");

@@ -15,10 +15,9 @@ function handleScheduleMutationError(
   error: unknown,
   logMessage: string,
   defaultStatus: number,
-  fallbackMessage: string
+  fallbackMessage: string,
 ) {
-  const message =
-    error instanceof Error ? error.message : fallbackMessage;
+  const message = error instanceof Error ? error.message : fallbackMessage;
   console.error(logMessage, error);
 
   if (message.includes("not found")) {
@@ -118,7 +117,7 @@ router.put("/:id", async (req, res) => {
       error,
       "Error updating schedule:",
       400,
-      "Failed to update schedule"
+      "Failed to update schedule",
     );
   }
 });
@@ -137,7 +136,7 @@ router.delete("/:id", async (req, res) => {
       error,
       "Error deleting schedule:",
       500,
-      "Failed to delete schedule"
+      "Failed to delete schedule",
     );
   }
 });

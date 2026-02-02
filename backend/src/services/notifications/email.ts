@@ -9,7 +9,7 @@ export async function sendEmailNotification(
   event: NotificationEvent,
   title: string,
   message: string,
-  details?: Record<string, string>
+  details?: Record<string, string>,
 ): Promise<boolean> {
   if (
     !settings.enabled ||

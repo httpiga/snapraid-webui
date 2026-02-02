@@ -20,15 +20,21 @@ describe("Sync safety validation logic", () => {
 
     // Test the validation logic
     const violations: string[] = [];
-    
+
     if (diff.deletedFiles > settings.maxDeletedFiles) {
-      violations.push(`Deleted files (${diff.deletedFiles}) exceeds limit (${settings.maxDeletedFiles})`);
+      violations.push(
+        `Deleted files (${diff.deletedFiles}) exceeds limit (${settings.maxDeletedFiles})`,
+      );
     }
     if (diff.modifiedFiles > settings.maxUpdatedFiles) {
-      violations.push(`Updated files (${diff.modifiedFiles}) exceeds limit (${settings.maxUpdatedFiles})`);
+      violations.push(
+        `Updated files (${diff.modifiedFiles}) exceeds limit (${settings.maxUpdatedFiles})`,
+      );
     }
     if (diff.newFiles > settings.maxAddedFiles) {
-      violations.push(`Added files (${diff.newFiles}) exceeds limit (${settings.maxAddedFiles})`);
+      violations.push(
+        `Added files (${diff.newFiles}) exceeds limit (${settings.maxAddedFiles})`,
+      );
     }
 
     expect(violations).toEqual([]);
@@ -51,9 +57,11 @@ describe("Sync safety validation logic", () => {
     };
 
     const violations: string[] = [];
-    
+
     if (diff.deletedFiles > settings.maxDeletedFiles) {
-      violations.push(`Deleted files (${diff.deletedFiles}) exceeds limit (${settings.maxDeletedFiles})`);
+      violations.push(
+        `Deleted files (${diff.deletedFiles}) exceeds limit (${settings.maxDeletedFiles})`,
+      );
     }
 
     expect(violations).toContain("Deleted files (150) exceeds limit (100)");
@@ -76,9 +84,11 @@ describe("Sync safety validation logic", () => {
     };
 
     const violations: string[] = [];
-    
+
     if (diff.modifiedFiles > settings.maxUpdatedFiles) {
-      violations.push(`Updated files (${diff.modifiedFiles}) exceeds limit (${settings.maxUpdatedFiles})`);
+      violations.push(
+        `Updated files (${diff.modifiedFiles}) exceeds limit (${settings.maxUpdatedFiles})`,
+      );
     }
 
     expect(violations).toContain("Updated files (600) exceeds limit (500)");
@@ -101,9 +111,11 @@ describe("Sync safety validation logic", () => {
     };
 
     const violations: string[] = [];
-    
+
     if (diff.newFiles > settings.maxAddedFiles) {
-      violations.push(`Added files (${diff.newFiles}) exceeds limit (${settings.maxAddedFiles})`);
+      violations.push(
+        `Added files (${diff.newFiles}) exceeds limit (${settings.maxAddedFiles})`,
+      );
     }
 
     expect(violations).toContain("Added files (11000) exceeds limit (10000)");
@@ -126,15 +138,21 @@ describe("Sync safety validation logic", () => {
     };
 
     const violations: string[] = [];
-    
+
     if (diff.deletedFiles > settings.maxDeletedFiles) {
-      violations.push(`Deleted files (${diff.deletedFiles}) exceeds limit (${settings.maxDeletedFiles})`);
+      violations.push(
+        `Deleted files (${diff.deletedFiles}) exceeds limit (${settings.maxDeletedFiles})`,
+      );
     }
     if (diff.modifiedFiles > settings.maxUpdatedFiles) {
-      violations.push(`Updated files (${diff.modifiedFiles}) exceeds limit (${settings.maxUpdatedFiles})`);
+      violations.push(
+        `Updated files (${diff.modifiedFiles}) exceeds limit (${settings.maxUpdatedFiles})`,
+      );
     }
     if (diff.newFiles > settings.maxAddedFiles) {
-      violations.push(`Added files (${diff.newFiles}) exceeds limit (${settings.maxAddedFiles})`);
+      violations.push(
+        `Added files (${diff.newFiles}) exceeds limit (${settings.maxAddedFiles})`,
+      );
     }
 
     expect(violations.length).toBe(3);
@@ -172,7 +190,9 @@ describe("Sync safety validation logic", () => {
       "Added Files": diff.newFiles.toString(),
     };
 
-    expect(notificationDetails.Violations).toBe("Deleted files (150) exceeds limit (100)");
+    expect(notificationDetails.Violations).toBe(
+      "Deleted files (150) exceeds limit (100)",
+    );
     expect(notificationDetails["Deleted Files"]).toBe("150");
     expect(notificationDetails["Updated Files"]).toBe("20");
     expect(notificationDetails["Added Files"]).toBe("10");

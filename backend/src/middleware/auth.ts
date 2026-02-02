@@ -66,7 +66,7 @@ export async function loadAuthSettings(): Promise<AuthSettings> {
  * Save auth settings to app config
  */
 export async function saveAuthSettings(
-  settings: Partial<AuthSettings>
+  settings: Partial<AuthSettings>,
 ): Promise<void> {
   let config: Record<string, unknown> = {};
 
@@ -93,7 +93,7 @@ export async function hashPassword(password: string): Promise<string> {
  */
 export async function verifyPassword(
   password: string,
-  hash: string
+  hash: string,
 ): Promise<boolean> {
   return bcrypt.compare(password, hash);
 }
@@ -159,7 +159,7 @@ export function authMiddleware() {
  */
 export async function login(
   username: string,
-  password: string
+  password: string,
 ): Promise<boolean> {
   const settings = await loadAuthSettings();
 

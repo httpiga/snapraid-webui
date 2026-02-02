@@ -35,7 +35,7 @@ interface NotificationProviderEditDialogProps {
 
 function getChannelConfig(
   settings: NotificationSettings,
-  channel: NotificationChannel
+  channel: NotificationChannel,
 ): ChannelConfig {
   return settings.channels[channel];
 }
@@ -43,7 +43,7 @@ function getChannelConfig(
 function mergeChannelIntoSettings(
   settings: NotificationSettings,
   channel: NotificationChannel,
-  config: ChannelConfig
+  config: ChannelConfig,
 ): NotificationSettings {
   return {
     ...settings,
@@ -120,10 +120,10 @@ export function NotificationProviderEditDialog({
     channel === "discord"
       ? "Discord"
       : channel === "telegram"
-      ? "Telegram"
-      : channel === "email"
-      ? "Email"
-      : "Slack";
+        ? "Telegram"
+        : channel === "email"
+          ? "Email"
+          : "Slack";
 
   const toggleEvent = (event: NotificationEvent) => {
     const currentEvents = draft.events ?? [];

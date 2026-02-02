@@ -43,7 +43,7 @@ export type ChannelConfig =
   | SlackSettings;
 
 export function getEmptyChannelConfig(
-  channel: NotificationChannel
+  channel: NotificationChannel,
 ): ChannelConfig {
   switch (channel) {
     case "discord":
@@ -59,7 +59,7 @@ export function getEmptyChannelConfig(
 
 export function getChannelConfigSummary(
   channel: NotificationChannel,
-  settings: NotificationSettings
+  settings: NotificationSettings,
 ): string {
   switch (channel) {
     case "discord":

@@ -63,10 +63,10 @@ afterEach(async () => {
 describe("getOperationNotificationPayload", () => {
   test("returns null for check command", () => {
     expect(
-      notifications.getOperationNotificationPayload("check", 0)
+      notifications.getOperationNotificationPayload("check", 0),
     ).toBeNull();
     expect(
-      notifications.getOperationNotificationPayload("check", 1)
+      notifications.getOperationNotificationPayload("check", 1),
     ).toBeNull();
   });
 
@@ -106,7 +106,7 @@ describe("getOperationNotificationPayload", () => {
     const sigterm = 128 + 15;
     const payload = notifications.getOperationNotificationPayload(
       "sync",
-      sigterm
+      sigterm,
     );
     expect(payload).not.toBeNull();
     expect(payload!.event).toBe("sync_aborted");
@@ -118,7 +118,7 @@ describe("getOperationNotificationPayload", () => {
     const sigint = 128 + 2;
     const payload = notifications.getOperationNotificationPayload(
       "sync",
-      sigint
+      sigint,
     );
     expect(payload).not.toBeNull();
     expect(payload!.event).toBe("sync_aborted");
@@ -126,7 +126,8 @@ describe("getOperationNotificationPayload", () => {
   });
 
   test("sync exit 0 with diffOutput includes pre-sync diff in details", () => {
-    const diffOutput = "=== Checking Sync Safety ===\nRunning diff...\n\n 1 removed";
+    const diffOutput =
+      "=== Checking Sync Safety ===\nRunning diff...\n\n 1 removed";
     const payload = notifications.getOperationNotificationPayload("sync", 0, {
       diffOutput,
     });
@@ -162,7 +163,7 @@ describe("getOperationNotificationPayload", () => {
     const sigterm = 128 + 15;
     const payload = notifications.getOperationNotificationPayload(
       "scrub",
-      sigterm
+      sigterm,
     );
     expect(payload).not.toBeNull();
     expect(payload!.event).toBe("scrub_error");
@@ -214,9 +215,9 @@ describe("loadNotificationSettings", () => {
           },
         },
         null,
-        2
+        2,
       ),
-      "utf-8"
+      "utf-8",
     );
     const settings = await notifications.loadNotificationSettings();
     expect(settings.channels.discord.events).toEqual(["sync_complete"]);
@@ -239,7 +240,7 @@ describe("saveNotificationSettings and loadNotificationSettings", () => {
     const parsed = JSON.parse(content);
     expect(parsed.notifications.channels.discord.enabled).toBe(true);
     expect(parsed.notifications.channels.discord.webhookUrl).toBe(
-      "https://discord.com/webhook"
+      "https://discord.com/webhook",
     );
   });
 
@@ -247,7 +248,7 @@ describe("saveNotificationSettings and loadNotificationSettings", () => {
     await fs.writeFile(
       configPath,
       JSON.stringify({ otherKey: "value" }, null, 2),
-      "utf-8"
+      "utf-8",
     );
     const settings = await notifications.loadNotificationSettings();
     await notifications.saveNotificationSettings(settings);
@@ -297,14 +298,14 @@ describe("sendNotification", () => {
           },
         },
         null,
-        2
+        2,
       ),
-      "utf-8"
+      "utf-8",
     );
     const result = await notifications.sendNotification(
       "sync_complete",
       "Title",
-      "Message"
+      "Message",
     );
     expect(result.success).toBe(false);
     expect(result.results.discord).toBe(false);
@@ -361,15 +362,15 @@ describe("sendNotification", () => {
           },
         },
         null,
-        2
+        2,
       ),
-      "utf-8"
+      "utf-8",
     );
     const result = await notifications.sendNotification(
       "sync_complete",
       "Title",
       "Message",
-      { Key: "Value" }
+      { Key: "Value" },
     );
     expect(result.success).toBe(true);
     expect(result.results.discord).toBe(true);
@@ -416,14 +417,14 @@ describe("sendNotification", () => {
           },
         },
         null,
-        2
+        2,
       ),
-      "utf-8"
+      "utf-8",
     );
     const result = await notifications.sendNotification(
       "sync_complete",
       "Title",
-      "Message"
+      "Message",
     );
     expect(result.results.discord).toBe(true);
     expect(result.results.slack).toBe(false);
@@ -470,9 +471,9 @@ describe("testNotificationChannel", () => {
           },
         },
         null,
-        2
+        2,
       ),
-      "utf-8"
+      "utf-8",
     );
     const result = await notifications.testNotificationChannel("discord");
     expect(result).toBe(false);
@@ -521,9 +522,9 @@ describe("testNotificationChannel", () => {
           },
         },
         null,
-        2
+        2,
       ),
-      "utf-8"
+      "utf-8",
     );
     const result = await notifications.testNotificationChannel("email");
     expect(result).toBe(true);
@@ -568,9 +569,9 @@ describe("testNotificationChannel", () => {
           },
         },
         null,
-        2
+        2,
       ),
-      "utf-8"
+      "utf-8",
     );
     const result = await notifications.testNotificationChannel("slack");
     expect(result).toBe(true);

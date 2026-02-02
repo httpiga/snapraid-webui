@@ -38,7 +38,8 @@ export function DashboardDiskStatusCard({
                 </div>
               </div>
               <div className="w-32 text-right text-sm text-muted-foreground">
-                {disk.usedGB.toFixed(1)} / {(disk.usedGB + disk.freeGB).toFixed(1)} GB
+                {disk.usedGB.toFixed(1)} /{" "}
+                {(disk.usedGB + disk.freeGB).toFixed(1)} GB
               </div>
             </div>
           ))}

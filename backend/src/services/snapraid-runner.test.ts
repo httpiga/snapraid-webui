@@ -22,14 +22,14 @@ mock.module("child_process", () => ({
       stdout: {
         on: (_: string, cb: (data: Buffer) => void) => {
           spawnState.stdoutChunks.forEach((chunk) =>
-            setImmediate(() => cb(Buffer.from(chunk)))
+            setImmediate(() => cb(Buffer.from(chunk))),
           );
         },
       },
       stderr: {
         on: (_: string, cb: (data: Buffer) => void) => {
           spawnState.stderrChunks.forEach((chunk) =>
-            setImmediate(() => cb(Buffer.from(chunk)))
+            setImmediate(() => cb(Buffer.from(chunk))),
           );
         },
       },
@@ -108,15 +108,17 @@ describe("executeCommand behavior", () => {
     const runner = new SnapRaidRunner();
     const result = await runner.executeCommand(
       "status",
-      "/tmp/config/snapraid.conf"
+      "/tmp/config/snapraid.conf",
     );
     expect(result.exitCode).toBe(0);
-    expect(result.output).toContain("$ snapraid -c /tmp/config/snapraid.conf status");
+    expect(result.output).toContain(
+      "$ snapraid -c /tmp/config/snapraid.conf status",
+    );
     expect(result.output).toContain("status line 1");
     expect(result.output).toContain("No sync is in progress");
     expect(spawnState.spawnCalls.length).toBe(1);
     expect(spawnState.spawnCalls[0].args).toEqual(
-      expect.arrayContaining(["-c", "/tmp/config/snapraid.conf", "status"])
+      expect.arrayContaining(["-c", "/tmp/config/snapraid.conf", "status"]),
     );
   });
 
@@ -126,7 +128,7 @@ describe("executeCommand behavior", () => {
     const chunks: string[] = [];
     const runner = new SnapRaidRunner();
     await runner.executeCommand("status", "/x/y.conf", (chunk) =>
-      chunks.push(chunk)
+      chunks.push(chunk),
     );
     expect(chunks.length).toBe(3); // command line + out1 + err1
     expect(chunks[0]).toContain("$ snapraid -c /x/y.conf status");
@@ -139,7 +141,7 @@ describe("executeCommand behavior", () => {
     spawnState.closeCode = null;
     const runner = new SnapRaidRunner();
     await expect(
-      runner.executeCommand("status", "/x/y.conf")
+      runner.executeCommand("status", "/x/y.conf"),
     ).rejects.toMatchObject({ code: "SNAPRAID_NOT_FOUND" });
   });
 
@@ -148,7 +150,7 @@ describe("executeCommand behavior", () => {
     const runner = new SnapRaidRunner();
     const first = runner.executeCommand("status", "/a/b.conf");
     await expect(runner.executeCommand("sync", "/a/b.conf")).rejects.toThrow(
-      "Another command is already running"
+      "Another command is already running",
     );
     await first;
   });
@@ -230,7 +232,7 @@ describe("command helpers", () => {
     });
     const args = spawnState.spawnCalls[0].args;
     expect(args).toEqual(
-      expect.arrayContaining(["--pre-hash", "--force-empty", "--force-zero"])
+      expect.arrayContaining(["--pre-hash", "--force-empty", "--force-zero"]),
     );
   });
 
@@ -238,7 +240,7 @@ describe("command helpers", () => {
     const runner = new SnapRaidRunner();
     await runner.runScrub("/a/b.conf", undefined, { plan: 10, olderThan: 7 });
     expect(spawnState.spawnCalls[0].args).toEqual(
-      expect.arrayContaining(["-p", "10", "-o", "7", "scrub"])
+      expect.arrayContaining(["-p", "10", "-o", "7", "scrub"]),
     );
   });
 
@@ -251,7 +253,7 @@ describe("command helpers", () => {
       filterDisk: "d1",
     });
     expect(spawnState.spawnCalls[0].args).toEqual(
-      expect.arrayContaining(["-f", "foo", "-m", "-e", "-d", "d1", "fix"])
+      expect.arrayContaining(["-f", "foo", "-m", "-e", "-d", "d1", "fix"]),
     );
   });
 
@@ -262,7 +264,7 @@ describe("command helpers", () => {
       filter: "bar",
     });
     expect(spawnState.spawnCalls[0].args).toEqual(
-      expect.arrayContaining(["-a", "-f", "bar", "check"])
+      expect.arrayContaining(["-a", "-f", "bar", "check"]),
     );
   });
 
@@ -286,7 +288,7 @@ describe("command helpers", () => {
         "-i",
         "/import/path",
         "check",
-      ])
+      ]),
     );
   });
 
@@ -294,7 +296,7 @@ describe("command helpers", () => {
     const runner = new SnapRaidRunner();
     await runner.runScrub("/a/b.conf", undefined, { plan: "bad" });
     expect(spawnState.spawnCalls[0].args).toEqual(
-      expect.arrayContaining(["-p", "bad", "scrub"])
+      expect.arrayContaining(["-p", "bad", "scrub"]),
     );
   });
 
@@ -302,7 +304,7 @@ describe("command helpers", () => {
     const runner = new SnapRaidRunner();
     await runner.runScrub("/a/b.conf", undefined, { plan: "new" });
     expect(spawnState.spawnCalls[0].args).toEqual(
-      expect.arrayContaining(["-p", "new", "scrub"])
+      expect.arrayContaining(["-p", "new", "scrub"]),
     );
   });
 
@@ -310,7 +312,7 @@ describe("command helpers", () => {
     const runner = new SnapRaidRunner();
     await runner.runScrub("/a/b.conf", undefined, { plan: "full" });
     expect(spawnState.spawnCalls[0].args).toEqual(
-      expect.arrayContaining(["-p", "full", "scrub"])
+      expect.arrayContaining(["-p", "full", "scrub"]),
     );
   });
 });
@@ -347,7 +349,7 @@ describe("validateSyncSafety", () => {
     });
     expect(result.safe).toBe(false);
     expect(result.violations).toContain(
-      "Deleted files (150) exceeds limit (100)"
+      "Deleted files (150) exceeds limit (100)",
     );
   });
 
@@ -364,7 +366,7 @@ describe("validateSyncSafety", () => {
     });
     expect(result.safe).toBe(false);
     expect(result.violations).toContain(
-      "Updated files (600) exceeds limit (500)"
+      "Updated files (600) exceeds limit (500)",
     );
   });
 
@@ -381,7 +383,7 @@ describe("validateSyncSafety", () => {
     });
     expect(result.safe).toBe(false);
     expect(result.violations).toContain(
-      "Added files (11000) exceeds limit (10000)"
+      "Added files (11000) exceeds limit (10000)",
     );
   });
 
@@ -399,13 +401,13 @@ describe("validateSyncSafety", () => {
     expect(result.safe).toBe(false);
     expect(result.violations.length).toBe(3);
     expect(result.violations).toContain(
-      "Deleted files (150) exceeds limit (100)"
+      "Deleted files (150) exceeds limit (100)",
     );
     expect(result.violations).toContain(
-      "Updated files (600) exceeds limit (500)"
+      "Updated files (600) exceeds limit (500)",
     );
     expect(result.violations).toContain(
-      "Added files (11000) exceeds limit (10000)"
+      "Added files (11000) exceeds limit (10000)",
     );
   });
 });

@@ -7,7 +7,8 @@ import type { SnapRaidCommand } from "@shared/types";
 import type { VariantProps } from "class-variance-authority";
 
 export interface CommandBadgeProps
-  extends Omit<React.ComponentProps<typeof Badge>, "children" | "variant">,
+  extends
+    Omit<React.ComponentProps<typeof Badge>, "children" | "variant">,
     VariantProps<typeof badgeVariants> {
   /** The command enum value (e.g. Command.SYNC or "sync"). */
   command: SnapRaidCommand;

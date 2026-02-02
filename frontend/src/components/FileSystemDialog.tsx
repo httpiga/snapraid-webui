@@ -35,7 +35,7 @@ export function FileSystemDialog({
 
   const { data, isFetching, refetch } = useGetFileSystemEntriesQuery(
     { path: currentPath },
-    { skip: !open }
+    { skip: !open },
   );
 
   useEffect(() => {
@@ -74,7 +74,9 @@ export function FileSystemDialog({
               type="button"
               variant="outline"
               size="sm"
-              onClick={() => data?.parentPath && setCurrentPath(data.parentPath)}
+              onClick={() =>
+                data?.parentPath && setCurrentPath(data.parentPath)
+              }
               disabled={!data?.parentPath}
             >
               <ArrowUp className="h-4 w-4 mr-1" />
@@ -87,7 +89,9 @@ export function FileSystemDialog({
               onClick={() => refetch()}
               disabled={isFetching}
             >
-              <RefreshCw className={cn("h-4 w-4 mr-1", isFetching && "animate-spin")} />
+              <RefreshCw
+                className={cn("h-4 w-4 mr-1", isFetching && "animate-spin")}
+              />
               Refresh
             </Button>
             <div className="text-sm text-muted-foreground truncate">
@@ -110,7 +114,7 @@ export function FileSystemDialog({
                       className={cn(
                         "flex w-full items-center justify-between gap-4 px-4 py-3 text-left text-sm transition",
                         "hover:bg-muted/40",
-                        selectedPath === entry.path && "bg-muted/60"
+                        selectedPath === entry.path && "bg-muted/60",
                       )}
                       onClick={() => {
                         if (entry.isDirectory) {
@@ -140,7 +144,9 @@ export function FileSystemDialog({
                         </Button>
                       ) : (
                         <span className="text-xs text-muted-foreground">
-                          {entry.size !== undefined ? `${entry.size} B` : "File"}
+                          {entry.size !== undefined
+                            ? `${entry.size} B`
+                            : "File"}
                         </span>
                       )}
                     </button>
@@ -149,11 +155,14 @@ export function FileSystemDialog({
               )}
             </ScrollArea>
           </div>
-
         </div>
 
         <DialogFooter showCloseButton={false}>
-          <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+          >
             Cancel
           </Button>
           <Button type="button" onClick={handleSelect} disabled={!selectedPath}>

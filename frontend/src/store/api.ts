@@ -173,17 +173,16 @@ export const api = createApi({
       query: () => "/sync-safety/settings",
       providesTags: ["SyncSafety"],
     }),
-    updateSyncSafetySettings: builder.mutation<
-      ApiResponse,
-      SyncSafetySettings
-    >({
-      query: (settings) => ({
-        url: "/sync-safety/settings",
-        method: "PUT",
-        body: settings,
-      }),
-      invalidatesTags: ["SyncSafety"],
-    }),
+    updateSyncSafetySettings: builder.mutation<ApiResponse, SyncSafetySettings>(
+      {
+        query: (settings) => ({
+          url: "/sync-safety/settings",
+          method: "PUT",
+          body: settings,
+        }),
+        invalidatesTags: ["SyncSafety"],
+      },
+    ),
 
     // Advanced Settings
     getAdvancedSettings: builder.query<AdvancedSettings, void>({

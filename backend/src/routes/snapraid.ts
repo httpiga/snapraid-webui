@@ -37,7 +37,7 @@ function handleSnapraidError(
   res: ExpressResponse,
   error: unknown,
   logMessage: string,
-  fallback: () => void
+  fallback: () => void,
 ): void {
   console.error(logMessage, error);
   if (isSnapraidNotFoundError(error)) {
@@ -93,7 +93,7 @@ function queueLongRunningCommand(command: SnapRaidCommand, args: string[]) {
             payload.event,
             payload.title,
             payload.message,
-            payload.details
+            payload.details,
           );
         } catch (err) {
           console.error("Failed to send operation notification:", err);
@@ -216,9 +216,8 @@ router.post("/command/:cmd", async (req, res) => {
     // Check sync safety before running sync command
     if (command === "sync") {
       // Validate sync safety before executing
-      const validation = await validateSyncSafetyWithNotification(
-        SNAPRAID_CONF_FILE
-      );
+      const validation =
+        await validateSyncSafetyWithNotification(SNAPRAID_CONF_FILE);
 
       if (!validation.safe) {
         res.status(400).json({
@@ -246,7 +245,7 @@ router.post("/command/:cmd", async (req, res) => {
       command,
       SNAPRAID_CONF_FILE,
       undefined,
-      finalArgs
+      finalArgs,
     );
     res.json({
       success: result.exitCode === 0,
@@ -264,7 +263,7 @@ router.post("/command/:cmd", async (req, res) => {
           error:
             error instanceof Error ? error.message : "Command execution failed",
         });
-      }
+      },
     );
   }
 });

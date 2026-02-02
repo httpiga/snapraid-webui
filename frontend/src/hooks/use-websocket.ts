@@ -1,5 +1,9 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import type { WSMessage, SnapRaidCommand, SyncSafetySettings } from "@shared/types";
+import type {
+  WSMessage,
+  SnapRaidCommand,
+  SyncSafetySettings,
+} from "@shared/types";
 
 interface UseWebSocketOptions {
   onOutput?: (chunk: string) => void;
@@ -14,14 +18,14 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
   const initialConnectTimeoutRef = useRef<NodeJS.Timeout | undefined>(
-    undefined
+    undefined,
   );
   const closedByUsRef = useRef(false);
 
   const [isConnected, setIsConnected] = useState(false);
   const [isCommandRunning, setIsCommandRunning] = useState(false);
   const [currentCommand, setCurrentCommand] = useState<SnapRaidCommand | null>(
-    null
+    null,
   );
   const [output, setOutput] = useState<string>("");
 
@@ -133,7 +137,7 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
     (
       command: SnapRaidCommand,
       args: string[] = [],
-      syncSafetySettings?: SyncSafetySettings
+      syncSafetySettings?: SyncSafetySettings,
     ) => {
       if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
         console.error("WebSocket is not connected");
@@ -142,11 +146,11 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
 
       setOutput("");
       wsRef.current.send(
-        JSON.stringify({ type: "command", command, args, syncSafetySettings })
+        JSON.stringify({ type: "command", command, args, syncSafetySettings }),
       );
       return true;
     },
-    []
+    [],
   );
 
   const abort = useCallback(() => {

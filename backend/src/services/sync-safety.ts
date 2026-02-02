@@ -36,7 +36,7 @@ export async function loadSyncSafetySettings(): Promise<SyncSafetySettings> {
  * Save sync safety settings to app config
  */
 export async function saveSyncSafetySettings(
-  settings: SyncSafetySettings
+  settings: SyncSafetySettings,
 ): Promise<void> {
   let config: Record<string, unknown> = {};
 
@@ -53,7 +53,7 @@ export async function saveSyncSafetySettings(
  * Validates sync safety before executing a sync command.
  * If safety checks are enabled and validation fails, sends a notification.
  * Returns the validation result for the caller to handle the response.
- * 
+ *
  * @param configPath Path to SnapRAID config file
  * @param onOutput Optional callback to stream diff command output to the client
  * @param explicitSettings Optional explicit settings (overrides config file, always runs validation)
@@ -61,7 +61,7 @@ export async function saveSyncSafetySettings(
 export async function validateSyncSafetyWithNotification(
   configPath: string,
   onOutput?: (chunk: string) => void,
-  explicitSettings?: SyncSafetySettings
+  explicitSettings?: SyncSafetySettings,
 ): Promise<
   | { safe: true }
   | {
@@ -85,7 +85,7 @@ export async function validateSyncSafetyWithNotification(
   // Send header message if output callback provided
   if (onOutput) {
     onOutput(
-      "\n=== Checking Sync Safety Limits ===\nRunning diff to detect changes...\n\n"
+      "\n=== Checking Sync Safety Limits ===\nRunning diff to detect changes...\n\n",
     );
   }
 
@@ -93,7 +93,7 @@ export async function validateSyncSafetyWithNotification(
   const validation = await snapraidRunner.validateSyncSafety(
     configPath,
     safetySettings,
-    onOutput
+    onOutput,
   );
 
   // Send validation result message
@@ -124,7 +124,7 @@ export async function validateSyncSafetyWithNotification(
           "Deleted Files": validation.diff.deletedFiles.toString(),
           "Updated Files": validation.diff.modifiedFiles.toString(),
           "Added Files": validation.diff.newFiles.toString(),
-        }
+        },
       );
     } catch (err) {
       console.error("Failed to send sync safety halt notification:", err);

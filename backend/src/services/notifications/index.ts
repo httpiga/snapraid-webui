@@ -47,7 +47,7 @@ type LegacyNotificationSettings = Partial<NotificationSettings> & {
 };
 
 function normalizeNotificationSettings(
-  settings: LegacyNotificationSettings | undefined
+  settings: LegacyNotificationSettings | undefined,
 ): NotificationSettings {
   if (!settings) {
     return defaultSettings;
@@ -56,7 +56,7 @@ function normalizeNotificationSettings(
   const legacyEvents = settings.events;
   const getLegacyEventsForChannel = (channel: NotificationChannel) =>
     NOTIFICATION_EVENTS.filter((event) =>
-      legacyEvents?.[event]?.includes(channel)
+      legacyEvents?.[event]?.includes(channel),
     );
 
   return {
@@ -64,40 +64,36 @@ function normalizeNotificationSettings(
       discord: {
         ...defaultSettings.channels.discord,
         ...settings.channels?.discord,
-        events:
-          settings.channels?.discord?.events?.length
-            ? settings.channels.discord.events
-            : getLegacyEventsForChannel("discord").length
+        events: settings.channels?.discord?.events?.length
+          ? settings.channels.discord.events
+          : getLegacyEventsForChannel("discord").length
             ? getLegacyEventsForChannel("discord")
             : defaultSettings.channels.discord.events,
       },
       telegram: {
         ...defaultSettings.channels.telegram,
         ...settings.channels?.telegram,
-        events:
-          settings.channels?.telegram?.events?.length
-            ? settings.channels.telegram.events
-            : getLegacyEventsForChannel("telegram").length
+        events: settings.channels?.telegram?.events?.length
+          ? settings.channels.telegram.events
+          : getLegacyEventsForChannel("telegram").length
             ? getLegacyEventsForChannel("telegram")
             : defaultSettings.channels.telegram.events,
       },
       email: {
         ...defaultSettings.channels.email,
         ...settings.channels?.email,
-        events:
-          settings.channels?.email?.events?.length
-            ? settings.channels.email.events
-            : getLegacyEventsForChannel("email").length
+        events: settings.channels?.email?.events?.length
+          ? settings.channels.email.events
+          : getLegacyEventsForChannel("email").length
             ? getLegacyEventsForChannel("email")
             : defaultSettings.channels.email.events,
       },
       slack: {
         ...defaultSettings.channels.slack,
         ...settings.channels?.slack,
-        events:
-          settings.channels?.slack?.events?.length
-            ? settings.channels.slack.events
-            : getLegacyEventsForChannel("slack").length
+        events: settings.channels?.slack?.events?.length
+          ? settings.channels.slack.events
+          : getLegacyEventsForChannel("slack").length
             ? getLegacyEventsForChannel("slack")
             : defaultSettings.channels.slack.events,
       },
@@ -126,7 +122,7 @@ export async function loadNotificationSettings(): Promise<NotificationSettings> 
  * Save notification settings to app config
  */
 export async function saveNotificationSettings(
-  settings: NotificationSettings
+  settings: NotificationSettings,
 ): Promise<void> {
   let config: Record<string, unknown> = {};
 
@@ -146,7 +142,7 @@ export async function sendNotification(
   event: NotificationEvent,
   title: string,
   message: string,
-  details?: Record<string, string>
+  details?: Record<string, string>,
 ): Promise<{
   success: boolean;
   results: Record<NotificationChannel, boolean>;
@@ -171,10 +167,10 @@ export async function sendNotification(
         event,
         title,
         message,
-        details
+        details,
       ).then((result) => {
         results.discord = result;
-      })
+      }),
     );
   }
 
@@ -188,10 +184,10 @@ export async function sendNotification(
         event,
         title,
         message,
-        details
+        details,
       ).then((result) => {
         results.telegram = result;
-      })
+      }),
     );
   }
 
@@ -205,10 +201,10 @@ export async function sendNotification(
         event,
         title,
         message,
-        details
+        details,
       ).then((result) => {
         results.email = result;
-      })
+      }),
     );
   }
 
@@ -222,10 +218,10 @@ export async function sendNotification(
         event,
         title,
         message,
-        details
+        details,
       ).then((result) => {
         results.slack = result;
-      })
+      }),
     );
   }
 
@@ -247,7 +243,7 @@ const EXIT_SIGINT = 128 + 2;
 export function getOperationNotificationPayload(
   command: SnapRaidCommand,
   exitCode: number,
-  context?: { scheduleName?: string; diffOutput?: string }
+  context?: { scheduleName?: string; diffOutput?: string },
 ): {
   event: NotificationEvent;
   title: string;
@@ -328,7 +324,7 @@ export function getOperationNotificationPayload(
  * Test a specific notification channel
  */
 export async function testNotificationChannel(
-  channel: NotificationChannel
+  channel: NotificationChannel,
 ): Promise<boolean> {
   const settings = await loadNotificationSettings();
   const testEvent: NotificationEvent = "sync_complete";
@@ -346,7 +342,7 @@ export async function testNotificationChannel(
         testEvent,
         title,
         message,
-        details
+        details,
       );
     case "telegram":
       return sendTelegramNotification(
@@ -354,7 +350,7 @@ export async function testNotificationChannel(
         testEvent,
         title,
         message,
-        details
+        details,
       );
     case "email":
       return sendEmailNotification(
@@ -362,7 +358,7 @@ export async function testNotificationChannel(
         testEvent,
         title,
         message,
-        details
+        details,
       );
     case "slack":
       return sendSlackNotification(
@@ -370,7 +366,7 @@ export async function testNotificationChannel(
         testEvent,
         title,
         message,
-        details
+        details,
       );
     default:
       return false;

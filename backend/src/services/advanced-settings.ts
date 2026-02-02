@@ -32,7 +32,7 @@ export async function loadAdvancedSettings(): Promise<AdvancedSettings> {
  * Save advanced settings to app config
  */
 export async function saveAdvancedSettings(
-  settings: AdvancedSettings
+  settings: AdvancedSettings,
 ): Promise<void> {
   let config: Record<string, unknown> = {};
 
@@ -51,7 +51,7 @@ export async function saveAdvancedSettings(
  */
 export function getAdvancedArgsForCommand(
   settings: AdvancedSettings,
-  command: SnapRaidCommand
+  command: SnapRaidCommand,
 ): string[] {
   const args: string[] = [];
 

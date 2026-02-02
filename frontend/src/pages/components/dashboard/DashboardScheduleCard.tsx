@@ -16,7 +16,11 @@ function formatNextRun(isoString: string | undefined): string {
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const tomorrow = new Date(today);
   tomorrow.setDate(tomorrow.getDate() + 1);
-  const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const dateOnly = new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate(),
+  );
   const timeStr = date.toLocaleTimeString(undefined, {
     hour: "2-digit",
     minute: "2-digit",
@@ -40,7 +44,9 @@ interface DashboardScheduleCardProps {
   schedules: Schedule[];
 }
 
-export function DashboardScheduleCard({ schedules }: DashboardScheduleCardProps) {
+export function DashboardScheduleCard({
+  schedules,
+}: DashboardScheduleCardProps) {
   const enabled = schedules.filter((schedule) => schedule.enabled);
   const sorted = [...enabled].sort((a, b) => {
     const aTime = a.nextRun ? new Date(a.nextRun).getTime() : Infinity;

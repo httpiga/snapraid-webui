@@ -8,7 +8,7 @@ import { silenceConsole } from "../test-utils/silence-console";
 
 const tmpDir = path.join(
   tmpdir(),
-  `logs-test-${Date.now()}-${Math.random().toString(16).slice(2)}`
+  `logs-test-${Date.now()}-${Math.random().toString(16).slice(2)}`,
 );
 
 const { mock } = await import("bun:test");
@@ -30,7 +30,7 @@ const { createLogFile, appendToLogFile } = importedLogs;
 function createMockReq(
   method: string,
   path: string,
-  params: Record<string, string> = {}
+  params: Record<string, string> = {},
 ) {
   return {
     method,
@@ -44,7 +44,7 @@ function createMockReq(
 }
 
 function createMockRes(
-  resolve: (r: { status: number; data: unknown; text: string }) => void
+  resolve: (r: { status: number; data: unknown; text: string }) => void,
 ) {
   let statusCode = 200;
   let data: unknown = null;
@@ -88,7 +88,7 @@ function handle(
   router: any,
   method: string,
   path: string,
-  params: Record<string, string> = {}
+  params: Record<string, string> = {},
 ): Promise<{ status: number; data: unknown; text: string }> {
   return new Promise((resolve, reject) => {
     const req = createMockReq(method, path, params);
@@ -134,7 +134,7 @@ describe("GET /api/logs", () => {
   test("returns list of log files with parsed command and timestamp", async () => {
     const filename = await createLogFile(
       "sync",
-      "=== Scheduled: Nightly ===\nLine 1\n"
+      "=== Scheduled: Nightly ===\nLine 1\n",
     );
     const res = await handle(logsRouter, "GET", "/");
     expect(res.status).toBe(200);
@@ -226,7 +226,7 @@ describe("DELETE /api/logs (bulk)", () => {
         logsRouter.handle(req, res, (err: unknown) => {
           if (err) reject(err);
         });
-      }
+      },
     );
     expect(res.status).toBe(400);
   });
@@ -241,7 +241,7 @@ describe("DELETE /api/logs (bulk)", () => {
         logsRouter.handle(req, res, (err: unknown) => {
           if (err) reject(err);
         });
-      }
+      },
     );
     expect(res.status).toBe(200);
     expect(res.data).toEqual({ success: true, deleted: 0 });
@@ -265,7 +265,7 @@ describe("DELETE /api/logs (bulk)", () => {
         logsRouter.handle(req, res, (err: unknown) => {
           if (err) reject(err);
         });
-      }
+      },
     );
     Date.now = realNow;
     expect(res.status).toBe(200);
@@ -286,7 +286,7 @@ describe("DELETE /api/logs (bulk)", () => {
         logsRouter.handle(req, res, (err: unknown) => {
           if (err) reject(err);
         });
-      }
+      },
     );
     restore();
     expect(res.status).toBe(500);

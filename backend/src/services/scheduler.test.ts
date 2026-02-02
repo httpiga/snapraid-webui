@@ -141,7 +141,7 @@ describe("scheduler CRUD with temp file", () => {
         cronExpression: "invalid",
         enabled: false,
         configPath: snapraidConfPath,
-      })
+      }),
     ).rejects.toThrow("Invalid cron");
   });
 });
@@ -154,7 +154,7 @@ describe("scheduler execution and notifications", () => {
       command: any,
       configPath: any,
       onOutput?: (chunk: string) => void,
-      args?: string[]
+      args?: string[],
     ) => {
       runnerState.executeCalls.push({ command, configPath, args });
       onOutput?.("chunk");
@@ -174,7 +174,7 @@ describe("scheduler execution and notifications", () => {
     await fs.writeFile(
       schedulesPath,
       JSON.stringify({ schedules: [schedule] }, null, 2),
-      "utf-8"
+      "utf-8",
     );
     await scheduler.initializeScheduler();
     expect(cronState.scheduled.length).toBe(1);
@@ -203,7 +203,7 @@ describe("scheduler execution and notifications", () => {
     await fs.writeFile(
       schedulesPath,
       JSON.stringify({ schedules: [schedule] }, null, 2),
-      "utf-8"
+      "utf-8",
     );
     await scheduler.initializeScheduler();
     cronState.scheduled[0].cb();
@@ -233,7 +233,7 @@ describe("scheduler execution and notifications", () => {
     await fs.writeFile(
       schedulesPath,
       JSON.stringify({ schedules: [schedule] }, null, 2),
-      "utf-8"
+      "utf-8",
     );
     await scheduler.initializeScheduler();
     cronState.scheduled[0].cb();
@@ -260,7 +260,7 @@ describe("scheduler job lifecycle", () => {
     await fs.writeFile(
       schedulesPath,
       JSON.stringify({ schedules: [schedule] }, null, 2),
-      "utf-8"
+      "utf-8",
     );
     await scheduler.initializeScheduler();
     expect(cronState.scheduled.length).toBe(0);
@@ -316,7 +316,7 @@ describe("scheduler job lifecycle", () => {
 describe("scheduler errors", () => {
   test("updateSchedule throws when schedule is missing", async () => {
     await expect(
-      scheduler.updateSchedule("missing-id", { name: "Nope" })
+      scheduler.updateSchedule("missing-id", { name: "Nope" }),
     ).rejects.toThrow("not found");
   });
 
@@ -330,13 +330,13 @@ describe("scheduler errors", () => {
     });
     cronState.invalidExpressions.add("bad-cron");
     await expect(
-      scheduler.updateSchedule(created.id, { cronExpression: "bad-cron" })
+      scheduler.updateSchedule(created.id, { cronExpression: "bad-cron" }),
     ).rejects.toThrow("Invalid cron expression");
   });
 
   test("deleteSchedule throws when schedule missing", async () => {
     await expect(scheduler.deleteSchedule("missing-id")).rejects.toThrow(
-      "not found"
+      "not found",
     );
   });
 });

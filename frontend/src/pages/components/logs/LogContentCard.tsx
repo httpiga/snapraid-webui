@@ -66,10 +66,10 @@ export function LogContentCard({
             {isLoadingContent
               ? "Loading..."
               : logContent
-              ? logContent
-              : selectedLog
-              ? "Failed to load log content"
-              : "Select a log file from the list to view its content"}
+                ? logContent
+                : selectedLog
+                  ? "Failed to load log content"
+                  : "Select a log file from the list to view its content"}
           </pre>
         </ScrollArea>
       </CardContent>

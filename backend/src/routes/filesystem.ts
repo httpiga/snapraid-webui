@@ -1,14 +1,18 @@
 import { Router, type IRouter } from "express";
 import path from "path";
 import fs from "fs/promises";
-import type { FileSystemEntry, FileSystemResponse } from "@snapraid-webui/shared";
+import type {
+  FileSystemEntry,
+  FileSystemResponse,
+} from "@snapraid-webui/shared";
 
 const router: IRouter = Router();
 const basePath = path.parse(process.cwd()).root;
 
 router.get("/fs", async (req, res) => {
   try {
-    const requestedPath = typeof req.query.path === "string" ? req.query.path : "";
+    const requestedPath =
+      typeof req.query.path === "string" ? req.query.path : "";
     const resolvedPath = requestedPath
       ? path.resolve(basePath, requestedPath)
       : basePath;

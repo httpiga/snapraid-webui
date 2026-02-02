@@ -45,7 +45,7 @@ export function Layout() {
         <div
           className={cn(
             "flex h-16 shrink-0 items-center border-b transition-[padding] duration-200",
-            collapsed ? "px-2 justify-center" : "px-4 justify-between"
+            collapsed ? "px-2 justify-center" : "px-4 justify-between",
           )}
         >
           {!collapsed && (
@@ -88,7 +88,7 @@ export function Layout() {
                   collapsed ? "justify-center px-0" : "gap-3 px-3",
                   isActive
                     ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                    : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
                 )}
               >
                 <item.icon className="h-4 w-4 shrink-0" />
@@ -98,7 +98,12 @@ export function Layout() {
           })}
         </nav>
         <div className="mt-auto border-t p-2">
-          <div className={cn("flex", collapsed ? "justify-center" : "justify-start")}>
+          <div
+            className={cn(
+              "flex",
+              collapsed ? "justify-center" : "justify-start",
+            )}
+          >
             <ModeToggle />
           </div>
         </div>

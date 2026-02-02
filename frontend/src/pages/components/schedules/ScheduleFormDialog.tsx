@@ -23,7 +23,10 @@ import {
   SyncSafetySettings,
   type SyncSafetyOptions,
 } from "@/components/SyncSafetySettings";
-import type { SnapRaidCommand, SyncSafetySettings as SyncSafetySettingsType } from "@shared/types";
+import type {
+  SnapRaidCommand,
+  SyncSafetySettings as SyncSafetySettingsType,
+} from "@shared/types";
 import type { CommandConfig } from "@/lib/command-config";
 
 export interface ScheduleFormData {

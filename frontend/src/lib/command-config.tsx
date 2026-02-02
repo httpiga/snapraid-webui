@@ -133,7 +133,7 @@ export const commands: CommandConfig[] = [
 
 /** Commands that can be scheduled (sync, scrub, check, status) */
 export const schedulableCommands = commands.filter((c) =>
-  ["sync", "scrub", "check", "status"].includes(c.command)
+  ["sync", "scrub", "check", "status"].includes(c.command),
 );
 
 // Map option keys to their CLI argument flags
@@ -149,7 +149,7 @@ const optionKeyToCliFlag: Record<string, string> = {
  */
 export function optionsToArgs(
   commandConfig: CommandConfig,
-  options: Record<string, unknown>
+  options: Record<string, unknown>,
 ): string[] {
   const args: string[] = [];
   if (!commandConfig.options) return args;
@@ -174,7 +174,7 @@ export function optionsToArgs(
  */
 export function argsToOptions(
   commandConfig: CommandConfig,
-  args: string[] = []
+  args: string[] = [],
 ): Record<string, unknown> {
   const result: Record<string, unknown> = {};
   if (!commandConfig.options) return result;
@@ -199,7 +199,7 @@ export function argsToOptions(
 }
 
 export function getCommandConfig(
-  command: SnapRaidCommand
+  command: SnapRaidCommand,
 ): CommandConfig | undefined {
   return commands.find((c) => c.command === command);
 }
@@ -222,7 +222,7 @@ export function syncSafetyToArgs(
   defaultSettings?: {
     preHash?: boolean;
     forceEmpty?: boolean;
-  } | null
+  } | null,
 ): string[] {
   const args: string[] = [];
 

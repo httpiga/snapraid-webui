@@ -30,7 +30,7 @@ export function NotificationsSettingsTab() {
 
   const [settings, setSettings] = useState<NotificationSettings | null>(null);
   const [editChannel, setEditChannel] = useState<NotificationChannel | null>(
-    null
+    null,
   );
   const [removeChannel, setRemoveChannel] =
     useState<NotificationChannel | null>(null);

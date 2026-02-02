@@ -41,7 +41,7 @@ export class SnapRaidRunner {
     command: SnapRaidCommand,
     configPath: string,
     onOutput?: OutputCallback,
-    args: string[] = []
+    args: string[] = [],
   ): Promise<{ exitCode: number; output: string }> {
     if (this.isRunning()) {
       throw new Error("Another command is already running");
@@ -159,7 +159,7 @@ export class SnapRaidRunner {
   async validateSyncSafety(
     configPath: string,
     settings: SyncSafetySettings,
-    onOutput?: OutputCallback
+    onOutput?: OutputCallback,
   ): Promise<{
     safe: boolean;
     violations: string[];
@@ -174,21 +174,21 @@ export class SnapRaidRunner {
     // Check deleted files
     if (diff.deletedFiles > settings.maxDeletedFiles) {
       violations.push(
-        `Deleted files (${diff.deletedFiles}) exceeds limit (${settings.maxDeletedFiles})`
+        `Deleted files (${diff.deletedFiles}) exceeds limit (${settings.maxDeletedFiles})`,
       );
     }
 
     // Check updated files
     if (diff.modifiedFiles > settings.maxUpdatedFiles) {
       violations.push(
-        `Updated files (${diff.modifiedFiles}) exceeds limit (${settings.maxUpdatedFiles})`
+        `Updated files (${diff.modifiedFiles}) exceeds limit (${settings.maxUpdatedFiles})`,
       );
     }
 
     // Check added files
     if (diff.newFiles > settings.maxAddedFiles) {
       violations.push(
-        `Added files (${diff.newFiles}) exceeds limit (${settings.maxAddedFiles})`
+        `Added files (${diff.newFiles}) exceeds limit (${settings.maxAddedFiles})`,
       );
     }
 
@@ -209,7 +209,7 @@ export class SnapRaidRunner {
       preHash?: boolean;
       forceEmpty?: boolean;
       forceZero?: boolean;
-    } = {}
+    } = {},
   ): Promise<{ exitCode: number; output: string }> {
     const args: string[] = [];
 
@@ -235,7 +235,7 @@ export class SnapRaidRunner {
     options: {
       plan?: number | "bad" | "new" | "full";
       olderThan?: number;
-    } = {}
+    } = {},
   ): Promise<{ exitCode: number; output: string }> {
     const args: string[] = [];
 
@@ -261,7 +261,7 @@ export class SnapRaidRunner {
       filterError?: boolean;
       filterDisk?: string;
       extraArgs?: string[];
-    } = {}
+    } = {},
   ): Promise<{ exitCode: number; output: string }> {
     const args: string[] = [...(options.extraArgs || [])];
 
@@ -294,7 +294,7 @@ export class SnapRaidRunner {
       filterMissing?: boolean;
       filterError?: boolean;
       importDir?: string;
-    } = {}
+    } = {},
   ): Promise<{ exitCode: number; output: string }> {
     const args: string[] = [];
 

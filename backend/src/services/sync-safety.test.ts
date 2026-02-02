@@ -18,9 +18,8 @@ mock.module("../config", () => ({
   SNAPRAID_BIN: realConfig.SNAPRAID_BIN,
 }));
 
-const { loadSyncSafetySettings, saveSyncSafetySettings } = await import(
-  "./sync-safety"
-);
+const { loadSyncSafetySettings, saveSyncSafetySettings } =
+  await import("./sync-safety");
 
 beforeEach(async () => {
   // Clean up test file before each test
@@ -151,7 +150,7 @@ describe("saveSyncSafetySettings", () => {
     await fs.writeFile(
       TEST_APP_CONFIG,
       JSON.stringify({ syncSafety: oldSettings }),
-      "utf-8"
+      "utf-8",
     );
 
     const newSettings = {

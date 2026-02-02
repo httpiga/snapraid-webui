@@ -126,7 +126,7 @@ describe("optionsToArgs", () => {
       },
     ]);
     expect(
-      optionsToArgs(config, { "pre-hash": true, "force-empty": true })
+      optionsToArgs(config, { "pre-hash": true, "force-empty": true }),
     ).toEqual(["--pre-hash", "--force-empty"]);
   });
 });
@@ -241,7 +241,10 @@ describe("argsToOptions", () => {
         description: "Filter disk",
       },
     ]);
-    expect(optionsToArgs(config, { "filter-disk": "d1" })).toEqual(["-d", "d1"]);
+    expect(optionsToArgs(config, { "filter-disk": "d1" })).toEqual([
+      "-d",
+      "d1",
+    ]);
   });
 
   test("filter-disk option for Fix: argsToOptions", () => {
@@ -253,7 +256,9 @@ describe("argsToOptions", () => {
         description: "Filter disk",
       },
     ]);
-    expect(argsToOptions(config, ["-d", "d1"])).toEqual({ "filter-disk": "d1" });
+    expect(argsToOptions(config, ["-d", "d1"])).toEqual({
+      "filter-disk": "d1",
+    });
   });
 
   test("Check with all filter options: optionsToArgs", () => {
@@ -284,8 +289,15 @@ describe("argsToOptions", () => {
         "filter-disk": "d1",
         "filter-missing": true,
         "filter-error": true,
-      })
-    ).toEqual(["-f", "/path", "-d", "d1", "--filter-missing", "--filter-error"]);
+      }),
+    ).toEqual([
+      "-f",
+      "/path",
+      "-d",
+      "d1",
+      "--filter-missing",
+      "--filter-error",
+    ]);
   });
 
   test("Check with all filter options: argsToOptions", () => {
@@ -318,7 +330,7 @@ describe("argsToOptions", () => {
         "d1",
         "--filter-missing",
         "--filter-error",
-      ])
+      ]),
     ).toEqual({
       filter: "/path",
       "filter-disk": "d1",
@@ -364,7 +376,7 @@ describe("syncSafetyToArgs and argsToSyncSafety", () => {
         preHash: true,
         forceEmpty: true,
       },
-      null
+      null,
     );
     expect(args).toContain("--pre-hash");
     expect(args).toContain("--force-empty");
@@ -380,7 +392,7 @@ describe("syncSafetyToArgs and argsToSyncSafety", () => {
       {
         preHash: true,
         forceEmpty: false,
-      }
+      },
     );
     expect(args).toContain("--pre-hash");
     expect(args).not.toContain("--force-empty");
@@ -393,7 +405,7 @@ describe("syncSafetyToArgs and argsToSyncSafety", () => {
         preHash: false,
         forceEmpty: true,
       },
-      null
+      null,
     );
     expect(args).not.toContain("--pre-hash");
     expect(args).toContain("--force-empty");

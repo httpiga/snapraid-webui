@@ -47,7 +47,7 @@ export function parseStatusOutput(output: string): SnapRaidStatus {
 
     // Scrub coverage: "X% of the array is not scrubbed" -> coverage = 100 - X; "The full array was scrubbed" -> 100%
     const notScrubbedMatch = line.match(
-      /(\d+)%\s+of\s+the\s+array\s+is\s+not\s+scrubbed/i
+      /(\d+)%\s+of\s+the\s+array\s+is\s+not\s+scrubbed/i,
     );
     if (notScrubbedMatch) {
       status.scrubPercentage = 100 - parseInt(notScrubbedMatch[1], 10);
@@ -71,7 +71,7 @@ export function parseStatusOutput(output: string): SnapRaidStatus {
     if (line.includes("--------") && lines[i + 1]) {
       const totalsLine = lines[i + 1];
       const totalsMatch = totalsLine.match(
-        /^\s*\d+\s+\d+\s+\d+\s+[\d.-]+\s+(\d+)\s+(\d+|-)\s/
+        /^\s*\d+\s+\d+\s+\d+\s+[\d.-]+\s+(\d+)\s+(\d+|-)\s/,
       );
       if (totalsMatch) {
         status.totalUsedGB = parseFloat(totalsMatch[1]);
@@ -116,7 +116,7 @@ export function parseDiffOutput(output: string): DiffReport {
   for (const line of lines) {
     // Parse file entries
     const fileMatch = line.match(
-      /^(add|remove|update|move|copy|restore|equal)\s+(.+)$/i
+      /^(add|remove|update|move|copy|restore|equal)\s+(.+)$/i,
     );
     if (fileMatch) {
       const [, statusStr, name] = fileMatch;
@@ -138,7 +138,7 @@ export function parseDiffOutput(output: string): DiffReport {
 
     // Parse summary line
     const summaryMatch = line.match(
-      /(\d+)\s+(equal|added|removed|updated|moved|copied|restored)/gi
+      /(\d+)\s+(equal|added|removed|updated|moved|copied|restored)/gi,
     );
     if (summaryMatch) {
       for (const match of summaryMatch) {
@@ -210,7 +210,7 @@ export function parseDiskStatus(output: string): DiskStatusInfo[] {
 
     // Fixed-width format: files frag excess wasted used free use% name (use% can be " - " when unknown)
     const diskMatch = line.match(
-      /^\s*(\d+)\s+(\d+)\s+(\d+)\s+([\d.]+|-)\s+(\d+)\s+(\d+|\s*-\s*)\s+(?:\d+%|-)\s+(\S+)$/
+      /^\s*(\d+)\s+(\d+)\s+(\d+)\s+([\d.]+|-)\s+(\d+)\s+(\d+|\s*-\s*)\s+(?:\d+%|-)\s+(\S+)$/,
     );
     if (diskMatch) {
       const [, files, fragmented, excess, _wasted, usedGB, freeStr, name] =
@@ -229,15 +229,14 @@ export function parseDiskStatus(output: string): DiskStatusInfo[] {
         wastedGB: 0,
         usedGB: used,
         freeGB,
-        usePercent:
-          totalGB > 0 ? Math.round((used / totalGB) * 100) : 0,
+        usePercent: totalGB > 0 ? Math.round((used / totalGB) * 100) : 0,
       });
       continue;
     }
 
     // Legacy format: "d1  12345 files, 500.25 GB" (for compatibility)
     const legacyMatch = line.match(
-      /^([a-zA-Z0-9]+)\s+(\d+)\s+files.*?(\d+(?:\.\d+)?)\s*GB/i
+      /^([a-zA-Z0-9]+)\s+(\d+)\s+files.*?(\d+(?:\.\d+)?)\s*GB/i,
     );
     if (legacyMatch) {
       const [, name, files, usedGB] = legacyMatch;
