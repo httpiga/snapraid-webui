@@ -8,6 +8,7 @@ import type {
   DiffReport,
   NotificationSettings,
   SyncSafetySettings,
+  AdvancedSettings,
   AppConfig,
   ApiResponse,
   FileSystemResponse,
@@ -24,6 +25,7 @@ export const api = createApi({
     "Smart",
     "Notifications",
     "SyncSafety",
+    "Advanced",
   ],
   endpoints: (builder) => ({
     // Status
@@ -191,6 +193,20 @@ export const api = createApi({
       invalidatesTags: ["SyncSafety"],
     }),
 
+    // Advanced Settings
+    getAdvancedSettings: builder.query<AdvancedSettings, void>({
+      query: () => "/advanced/settings",
+      providesTags: ["Advanced"],
+    }),
+    updateAdvancedSettings: builder.mutation<ApiResponse, AdvancedSettings>({
+      query: (settings) => ({
+        url: "/advanced/settings",
+        method: "PUT",
+        body: settings,
+      }),
+      invalidatesTags: ["Advanced"],
+    }),
+
     // App Config
     getAppConfig: builder.query<AppConfig, void>({
       query: () => "/app-config",
@@ -229,6 +245,8 @@ export const {
   useTestNotificationMutation,
   useGetSyncSafetySettingsQuery,
   useUpdateSyncSafetySettingsMutation,
+  useGetAdvancedSettingsQuery,
+  useUpdateAdvancedSettingsMutation,
   useGetAppConfigQuery,
   useGetFileSystemEntriesQuery,
 } = api;

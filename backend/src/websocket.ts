@@ -9,6 +9,10 @@ import {
   getOperationNotificationPayload,
 } from "./services/notifications/index.js";
 import { validateSyncSafetyWithNotification } from "./services/sync-safety.js";
+import {
+  loadAdvancedSettings,
+  getAdvancedArgsForCommand,
+} from "./services/advanced-settings.js";
 
 // Connected clients
 const clients = new Set<WebSocket>();
@@ -186,6 +190,11 @@ export function initializeWebSocket(server: Server): WebSocketServer {
             return;
           }
 
+          // Load advanced settings and merge with user args
+          const advancedSettings = await loadAdvancedSettings();
+          const advancedArgs = getAdvancedArgsForCommand(advancedSettings, command);
+          const finalArgs = [...advancedArgs, ...args];
+
           // Check sync safety before running sync command
           if (command === "sync") {
             // Create log file before validation so diff output is captured
@@ -232,7 +241,7 @@ export function initializeWebSocket(server: Server): WebSocketServer {
           }
 
           // Execute command in background
-          executeCommandWithStreaming(command, args).catch(console.error);
+          executeCommandWithStreaming(command, finalArgs).catch(console.error);
         }
 
         // Handle abort request

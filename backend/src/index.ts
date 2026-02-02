@@ -12,6 +12,7 @@ import logsRoutes from "./routes/logs.js";
 import schedulesRoutes from "./routes/schedules.js";
 import notificationsRoutes from "./routes/notifications.js";
 import syncSafetyRoutes from "./routes/sync-safety.js";
+import advancedRoutes from "./routes/advanced.js";
 import authRoutes from "./routes/auth.js";
 import filesystemRoutes from "./routes/filesystem.js";
 import { initializeWebSocket } from "./websocket.js";
@@ -58,6 +59,7 @@ app.use("/api/logs", logsRoutes);
 app.use("/api/schedules", schedulesRoutes);
 app.use("/api/notifications", notificationsRoutes);
 app.use("/api/sync-safety", syncSafetyRoutes);
+app.use("/api/advanced", advancedRoutes);
 app.use("/api", filesystemRoutes);
 
 // Health check

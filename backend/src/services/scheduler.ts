@@ -15,6 +15,10 @@ import {
   sendNotification,
   getOperationNotificationPayload,
 } from "./notifications/index.js";
+import {
+  loadAdvancedSettings,
+  getAdvancedArgsForCommand,
+} from "./advanced-settings.js";
 
 // Active cron jobs
 const activeJobs = new Map<string, cron.ScheduledTask>();
@@ -93,6 +97,14 @@ async function executeScheduledCommand(schedule: Schedule): Promise<void> {
   );
 
   try {
+    // Load advanced settings and merge with schedule args
+    const advancedSettings = await loadAdvancedSettings();
+    const advancedArgs = getAdvancedArgsForCommand(
+      advancedSettings,
+      schedule.command
+    );
+    const finalArgs = [...advancedArgs, ...(schedule.args || [])];
+
     const result = await snapraidRunner.executeCommand(
       schedule.command,
       schedule.configPath || SNAPRAID_CONF_FILE,
@@ -102,7 +114,7 @@ async function executeScheduledCommand(schedule: Schedule): Promise<void> {
         // Append to log
         appendToLogFile(logFile, chunk).catch(console.error);
       },
-      schedule.args || []
+      finalArgs
     );
 
     await appendToLogFile(

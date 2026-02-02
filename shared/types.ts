@@ -40,6 +40,7 @@ export interface AppConfig {
   };
   notifications: NotificationSettings;
   syncSafety: SyncSafetySettings;
+  advanced?: AdvancedSettings;
   auth: AuthSettings;
 }
 
@@ -334,6 +335,17 @@ export interface SyncSafetySettings {
   maxAddedFiles: number;
   preHash: boolean;
   forceEmpty: boolean;
+}
+
+// ============================================================================
+// Advanced Settings Types
+// ============================================================================
+
+export interface AdvancedSettings {
+  spinDownOnError: boolean;
+  bwLimit: string;
+  forceUuid: boolean;
+  errorLimit: number;
 }
 
 // ============================================================================

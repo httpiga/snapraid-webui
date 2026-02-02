@@ -7,6 +7,10 @@ import {
   getOperationNotificationPayload,
 } from "../services/notifications/index.js";
 import { validateSyncSafetyWithNotification } from "../services/sync-safety.js";
+import {
+  loadAdvancedSettings,
+  getAdvancedArgsForCommand,
+} from "../services/advanced-settings.js";
 
 const router: IRouter = Router();
 type ExpressResponse = import("express").Response;
@@ -220,6 +224,11 @@ router.post("/command/:cmd", async (req, res) => {
   }
 
   try {
+    // Load advanced settings and merge with user args
+    const advancedSettings = await loadAdvancedSettings();
+    const advancedArgs = getAdvancedArgsForCommand(advancedSettings, command);
+    const finalArgs = [...advancedArgs, ...args];
+
     // Check sync safety before running sync command
     if (command === "sync") {
       // Validate sync safety before executing
@@ -239,7 +248,7 @@ router.post("/command/:cmd", async (req, res) => {
     }
 
     if (LONG_RUNNING_COMMANDS.includes(command)) {
-      queueLongRunningCommand(command, args);
+      queueLongRunningCommand(command, finalArgs);
       res.json({
         success: true,
         message: `Command "${command}" started`,
@@ -253,7 +262,7 @@ router.post("/command/:cmd", async (req, res) => {
       command,
       SNAPRAID_CONF_FILE,
       undefined,
-      args
+      finalArgs
     );
     res.json({
       success: result.exitCode === 0,
@@ -309,6 +318,10 @@ router.post("/fix", async (req, res) => {
   }
 
   try {
+    // Load advanced settings and merge with fix options
+    const advancedSettings = await loadAdvancedSettings();
+    const advancedArgs = getAdvancedArgsForCommand(advancedSettings, "fix");
+
     // Start fix command
     snapraidRunner
       .runFix(SNAPRAID_CONF_FILE, undefined, {
@@ -316,6 +329,7 @@ router.post("/fix", async (req, res) => {
         filterMissing,
         filterError,
         filterDisk,
+        extraArgs: advancedArgs,
       })
       .then((result) => {
         console.log(`Fix command completed with exit code ${result.exitCode}`);

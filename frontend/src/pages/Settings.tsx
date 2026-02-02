@@ -27,13 +27,16 @@ import {
   useTestNotificationMutation,
   useGetSyncSafetySettingsQuery,
   useUpdateSyncSafetySettingsMutation,
+  useGetAdvancedSettingsQuery,
+  useUpdateAdvancedSettingsMutation,
 } from "@/store/api";
 import { toast } from "sonner";
-import { Bell, Shield, KeyRound } from "lucide-react";
+import { Bell, Shield, KeyRound, Sliders } from "lucide-react";
 import type {
   NotificationSettings,
   NotificationChannel,
   SyncSafetySettings,
+  AdvancedSettings,
 } from "@shared/types";
 import { NotificationProviderEditDialog } from "@/components/NotificationProviderEditDialog";
 import { getEmptyChannelConfig } from "@/lib/notification-channel-utils";
@@ -47,13 +50,17 @@ export function Settings() {
     useGetNotificationSettingsQuery();
   const { data: syncSafetySettings, isLoading: isLoadingSyncSafety } =
     useGetSyncSafetySettingsQuery();
+  const { data: advancedSettings, isLoading: isLoadingAdvanced } =
+    useGetAdvancedSettingsQuery();
   const [updateNotificationSettings] = useUpdateNotificationSettingsMutation();
   const [updateSyncSafetySettings] = useUpdateSyncSafetySettingsMutation();
+  const [updateAdvancedSettings] = useUpdateAdvancedSettingsMutation();
   const [testNotification] = useTestNotificationMutation();
 
   const [settings, setSettings] = useState<NotificationSettings | null>(null);
   const [safetySettings, setSafetySettings] =
     useState<SyncSafetySettings | null>(null);
+  const [advanced, setAdvanced] = useState<AdvancedSettings | null>(null);
   const [editChannel, setEditChannel] = useState<NotificationChannel | null>(
     null
   );
@@ -71,6 +78,12 @@ export function Settings() {
       setSafetySettings(syncSafetySettings);
     }
   }, [syncSafetySettings]);
+
+  useEffect(() => {
+    if (advancedSettings) {
+      setAdvanced(advancedSettings);
+    }
+  }, [advancedSettings]);
 
   const handleSaveFromDialog = async (updated: NotificationSettings) => {
     try {
@@ -124,11 +137,25 @@ export function Settings() {
     }
   };
 
+  const handleSaveAdvanced = async () => {
+    if (!advanced) return;
+    try {
+      await updateAdvancedSettings(advanced).unwrap();
+      toast.success("Advanced settings saved");
+    } catch (error) {
+      toast.error("Failed to save advanced settings", {
+        description: getApiErrorMessage(error),
+      });
+    }
+  };
+
   if (
     isLoadingNotifications ||
     isLoadingSyncSafety ||
+    isLoadingAdvanced ||
     !settings ||
-    !safetySettings
+    !safetySettings ||
+    !advanced
   ) {
     return <PageLoading message="Loading settings..." />;
   }
@@ -149,6 +176,10 @@ export function Settings() {
           <TabsTrigger value="sync">
             <Shield className="h-4 w-4 mr-1" />
             Sync Safety
+          </TabsTrigger>
+          <TabsTrigger value="advanced">
+            <Sliders className="h-4 w-4 mr-1" />
+            Advanced
           </TabsTrigger>
           <TabsTrigger value="auth">
             <KeyRound className="h-4 w-4 mr-1" />
@@ -327,6 +358,92 @@ export function Settings() {
 
               <Button onClick={handleSaveSyncSafety}>
                 Save Sync Safety Settings
+              </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="advanced" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Advanced SnapRAID Options</CardTitle>
+              <CardDescription>
+                Configure advanced command-line flags for SnapRAID operations
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label>Spin-down on error</Label>
+                  <p className="text-sm text-muted-foreground">
+                    On error, spin down disks before exiting. Useful for
+                    scheduled/unattended sync.
+                  </p>
+                </div>
+                <Switch
+                  checked={advanced.spinDownOnError}
+                  onCheckedChange={(checked) =>
+                    setAdvanced({ ...advanced, spinDownOnError: checked })
+                  }
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="bwLimit">Bandwidth limit (Bytes/s)</Label>
+                <Input
+                  id="bwLimit"
+                  type="text"
+                  placeholder="e.g. 100M, 1G"
+                  value={advanced.bwLimit}
+                  onChange={(e) =>
+                    setAdvanced({ ...advanced, bwLimit: e.target.value })
+                  }
+                />
+                <p className="text-xs text-muted-foreground">
+                  Limit disk throughput so sync doesn't saturate the system. The
+                  RATE is the number of bytes per second. You can specify a
+                  multiplier such as K, M, or G. Leave empty to disable.
+                </p>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label>Force UUID</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Allow sync/check/fix when disk UUIDs changed (e.g. after
+                    replacing a disk). Recovery scenario.
+                  </p>
+                </div>
+                <Switch
+                  checked={advanced.forceUuid}
+                  onCheckedChange={(checked) =>
+                    setAdvanced({ ...advanced, forceUuid: checked })
+                  }
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="errorLimit">Error limit</Label>
+                <Input
+                  id="errorLimit"
+                  type="number"
+                  placeholder="e.g. 200"
+                  value={advanced.errorLimit}
+                  onChange={(e) =>
+                    setAdvanced({
+                      ...advanced,
+                      errorLimit: parseInt(e.target.value) || 0,
+                    })
+                  }
+                />
+                <p className="text-xs text-muted-foreground">
+                  Allow more than 100 I/O errors before stopping (sync, scrub).
+                  0 = use SnapRAID default.
+                </p>
+              </div>
+
+              <Button onClick={handleSaveAdvanced}>
+                Save Advanced Settings
               </Button>
             </CardContent>
           </Card>

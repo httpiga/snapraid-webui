@@ -262,9 +262,10 @@ export class SnapRaidRunner {
       filterMissing?: boolean;
       filterError?: boolean;
       filterDisk?: string;
+      extraArgs?: string[];
     } = {}
   ): Promise<{ exitCode: number; output: string }> {
-    const args: string[] = [];
+    const args: string[] = [...(options.extraArgs || [])];
 
     if (options.filter) {
       args.push("-f", options.filter);
