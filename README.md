@@ -31,12 +31,12 @@ A modern, self-hosted web interface for managing [SnapRAID](https://www.snapraid
 
 ## Screenshots
 
-| Dashboard | Disks | Operations |
-|-----------|-------|------------|
+| Dashboard                                    | Disks                                | Operations                                     |
+| -------------------------------------------- | ------------------------------------ | ---------------------------------------------- |
 | ![Dashboard](docs/screenshots/dashboard.png) | ![Disks](docs/screenshots/disks.png) | ![Operations](docs/screenshots/operations.png) |
 
-| Schedules | Recovery | Settings |
-|-----------|----------|----------|
+| Schedules                                    | Recovery                                   | Settings                                   |
+| -------------------------------------------- | ------------------------------------------ | ------------------------------------------ |
 | ![Schedules](docs/screenshots/schedules.png) | ![Recovery](docs/screenshots/recovery.png) | ![Settings](docs/screenshots/settings.png) |
 
 ## Quick Start
@@ -66,7 +66,6 @@ services:
       - "3000:3000"
     environment:
       - TZ=Europe/Rome
-    privileged: true
 ```
 
 2. Start the container:

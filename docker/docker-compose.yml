@@ -46,6 +46,11 @@ services:
       # Timezone (important for schedules)
       - TZ=UTC
 
+      # Server (defaults set in image; override if needed)
+      # - PORT=3000
+      # - CONFIG_PATH=/app/config
+      # - SNAPRAID_BIN=/usr/bin/snapraid
+
       # Optional: Enable authentication
       # Generate password hash with: docker run --rm -it node:22-alpine -e "console.log(require('bcryptjs').hashSync('YOUR_PASSWORD', 10))"
       # - AUTH_ENABLED=true
