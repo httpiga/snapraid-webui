@@ -54,7 +54,12 @@ export class SnapRaidRunner {
       // Run with cwd = parent of config dir so relative paths in config (e.g. mock-disks/) resolve
       const cwd = path.dirname(path.dirname(configPath));
 
-      console.log(`Executing: ${SNAPRAID_BIN} ${fullArgs.join(" ")}`);
+      const commandLine = `${SNAPRAID_BIN} ${fullArgs.join(" ")}`;
+      console.log(`Executing: ${commandLine}`);
+
+      // Send the full command to the output first for visibility
+      const commandOutput = `\n$ ${commandLine}\n\n`;
+      onOutput?.(commandOutput);
 
       const process = spawn(SNAPRAID_BIN, fullArgs, {
         stdio: ["ignore", "pipe", "pipe"],
@@ -69,7 +74,7 @@ export class SnapRaidRunner {
         processId: process.pid?.toString() || "unknown",
       };
 
-      let output = "";
+      let output = commandOutput;
 
       process.stdout?.on("data", (data: Buffer) => {
         const chunk = data.toString();

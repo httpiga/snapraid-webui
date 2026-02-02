@@ -111,6 +111,7 @@ describe("executeCommand behavior", () => {
       "/tmp/config/snapraid.conf"
     );
     expect(result.exitCode).toBe(0);
+    expect(result.output).toContain("$ snapraid -c /tmp/config/snapraid.conf status");
     expect(result.output).toContain("status line 1");
     expect(result.output).toContain("No sync is in progress");
     expect(spawnState.spawnCalls.length).toBe(1);
@@ -127,6 +128,8 @@ describe("executeCommand behavior", () => {
     await runner.executeCommand("status", "/x/y.conf", (chunk) =>
       chunks.push(chunk)
     );
+    expect(chunks.length).toBe(3); // command line + out1 + err1
+    expect(chunks[0]).toContain("$ snapraid -c /x/y.conf status");
     expect(chunks).toContain("out1");
     expect(chunks).toContain("err1");
   });
