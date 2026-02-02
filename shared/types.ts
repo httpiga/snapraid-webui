@@ -278,6 +278,7 @@ export type NotificationEvent =
   | "sync_complete"
   | "sync_error"
   | "sync_aborted"
+  | "sync_safety_halt"
   | "scrub_complete"
   | "scrub_error"
   | "smart_warning"
@@ -327,7 +328,8 @@ export interface NotificationSettings {
 export interface SyncSafetySettings {
   enabled: boolean;
   maxDeletedFiles: number;
-  maxDeletedPercent: number;
+  maxUpdatedFiles: number;
+  maxAddedFiles: number;
   preHash: boolean;
   forceEmpty: boolean;
 }

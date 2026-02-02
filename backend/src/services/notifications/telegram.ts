@@ -22,6 +22,7 @@ export async function sendTelegramNotification(
     sync_complete: "✅",
     sync_error: "❌",
     sync_aborted: "⚠️",
+    sync_safety_halt: "⚠️",
     scrub_complete: "✅",
     scrub_error: "❌",
     smart_warning: "⚠️",

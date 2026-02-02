@@ -223,7 +223,7 @@ export function Settings() {
                 <div>
                   <Label>Enable Safety Checks</Label>
                   <p className="text-sm text-muted-foreground">
-                    Stop sync if too many files are deleted
+                    Halt sync if too many files are deleted, updated, or added
                   </p>
                 </div>
                 <Switch
@@ -233,43 +233,60 @@ export function Settings() {
                   }
                 />
               </div>
+              {safetySettings.enabled && (
+                <>
+                  <div className="space-y-2">
+                    <Label>Maximum Deleted Files</Label>
+                    <Input
+                      type="number"
+                      value={safetySettings.maxDeletedFiles}
+                      onChange={(e) =>
+                        setSafetySettings({
+                          ...safetySettings,
+                          maxDeletedFiles: parseInt(e.target.value) || 0,
+                        })
+                      }
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Halt sync if more than this many files are deleted
+                    </p>
+                  </div>
 
-              <div className="space-y-2">
-                <Label>Maximum Deleted Files</Label>
-                <Input
-                  type="number"
-                  value={safetySettings.maxDeletedFiles}
-                  onChange={(e) =>
-                    setSafetySettings({
-                      ...safetySettings,
-                      maxDeletedFiles: parseInt(e.target.value) || 0,
-                    })
-                  }
-                  disabled={!safetySettings.enabled}
-                />
-                <p className="text-xs text-muted-foreground">
-                  Stop sync if more than this many files are deleted
-                </p>
-              </div>
+                  <div className="space-y-2">
+                    <Label>Maximum Updated Files</Label>
+                    <Input
+                      type="number"
+                      value={safetySettings.maxUpdatedFiles}
+                      onChange={(e) =>
+                        setSafetySettings({
+                          ...safetySettings,
+                          maxUpdatedFiles: parseInt(e.target.value) || 0,
+                        })
+                      }
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Halt sync if more than this many files are modified
+                    </p>
+                  </div>
 
-              <div className="space-y-2">
-                <Label>Maximum Delete Percentage</Label>
-                <Input
-                  type="number"
-                  value={safetySettings.maxDeletedPercent}
-                  onChange={(e) =>
-                    setSafetySettings({
-                      ...safetySettings,
-                      maxDeletedPercent: parseInt(e.target.value) || 0,
-                    })
-                  }
-                  disabled={!safetySettings.enabled}
-                />
-                <p className="text-xs text-muted-foreground">
-                  Stop sync if more than this percentage of files are deleted
-                </p>
-              </div>
-
+                  <div className="space-y-2">
+                    <Label>Maximum Added Files</Label>
+                    <Input
+                      type="number"
+                      value={safetySettings.maxAddedFiles}
+                      onChange={(e) =>
+                        setSafetySettings({
+                          ...safetySettings,
+                          maxAddedFiles: parseInt(e.target.value) || 0,
+                        })
+                      }
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Halt sync if more than this many files are added
+                    </p>
+                  </div>
+                </>
+              )}
               <div className="flex items-center justify-between">
                 <div>
                   <Label>Pre-hash</Label>
@@ -293,8 +310,8 @@ export function Settings() {
                 <div>
                   <Label>Force Empty</Label>
                   <p className="text-sm text-muted-foreground">
-                    Allow sync with all files missing (bypasses missing disk
-                    detection)
+                    Allow sync when all original files are missing (use with
+                    caution)
                   </p>
                 </div>
                 <Switch

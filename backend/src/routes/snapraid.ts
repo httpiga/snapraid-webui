@@ -6,6 +6,7 @@ import {
   sendNotification,
   getOperationNotificationPayload,
 } from "../services/notifications/index.js";
+import { validateSyncSafetyWithNotification } from "../services/sync-safety.js";
 
 const router: IRouter = Router();
 type ExpressResponse = import("express").Response;
@@ -219,6 +220,24 @@ router.post("/command/:cmd", async (req, res) => {
   }
 
   try {
+    // Check sync safety before running sync command
+    if (command === "sync") {
+      // Validate sync safety before executing
+      const validation = await validateSyncSafetyWithNotification(
+        SNAPRAID_CONF_FILE
+      );
+
+      if (!validation.safe) {
+        res.status(400).json({
+          success: false,
+          error: `Sync halted: ${validation.violations.join("; ")}`,
+          violations: validation.violations,
+          diff: validation.diff,
+        });
+        return;
+      }
+    }
+
     if (LONG_RUNNING_COMMANDS.includes(command)) {
       queueLongRunningCommand(command, args);
       res.json({

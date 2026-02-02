@@ -8,6 +8,7 @@ import {
   sendNotification,
   getOperationNotificationPayload,
 } from "./services/notifications/index.js";
+import { validateSyncSafetyWithNotification } from "./services/sync-safety.js";
 
 // Connected clients
 const clients = new Set<WebSocket>();
@@ -181,6 +182,26 @@ export function initializeWebSocket(server: Server): WebSocketServer {
               } satisfies WSMessage)
             );
             return;
+          }
+
+          // Check sync safety before running sync command
+          if (command === "sync") {
+            // Validate sync safety before executing
+            const validation = await validateSyncSafetyWithNotification(
+              SNAPRAID_CONF_FILE
+            );
+
+            if (!validation.safe) {
+              // Send error to client
+              ws.send(
+                JSON.stringify({
+                  type: "error",
+                  error: `Sync halted: ${validation.violations.join("; ")}`,
+                  timestamp: new Date().toISOString(),
+                } satisfies WSMessage)
+              );
+              return;
+            }
           }
 
           // Execute command in background

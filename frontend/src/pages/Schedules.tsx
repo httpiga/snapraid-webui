@@ -64,7 +64,8 @@ export function Schedules() {
       preHash: false,
       forceEmpty: false,
       maxDeletedFiles: 100,
-      maxDeletedPercent: 10,
+      maxUpdatedFiles: 500,
+      maxAddedFiles: 10000,
     }
   );
 
@@ -83,7 +84,8 @@ export function Schedules() {
       preHash: false,
       forceEmpty: false,
       maxDeletedFiles: 100,
-      maxDeletedPercent: 10,
+      maxUpdatedFiles: 500,
+      maxAddedFiles: 10000,
     });
     setCronPreset("0 2 * * *");
     setEditingSchedule(null);

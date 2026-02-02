@@ -203,138 +203,6 @@ describe("getCommandConfig", () => {
 });
 
 describe("Sync safety options", () => {
-  test("optionsToArgs converts max-deleted-files to -d flag", () => {
-    const config = mockCommandConfig([
-      {
-        name: "Max Deleted Files",
-        key: "max-deleted-files",
-        type: "number",
-        description: "Test",
-        default: 0,
-      },
-    ]);
-    expect(optionsToArgs(config, { "max-deleted-files": 100 })).toEqual([
-      "-d",
-      "100",
-    ]);
-  });
-
-  test("optionsToArgs converts max-deleted-percent to -p flag", () => {
-    const config = mockCommandConfig([
-      {
-        name: "Max Deleted Percent",
-        key: "max-deleted-percent",
-        type: "number",
-        description: "Test",
-        default: 0,
-      },
-    ]);
-    expect(optionsToArgs(config, { "max-deleted-percent": 10 })).toEqual([
-      "-p",
-      "10",
-    ]);
-  });
-
-  test("optionsToArgs handles sync with all safety options", () => {
-    const config = mockCommandConfig([
-      {
-        name: "Pre-hash",
-        key: "pre-hash",
-        type: "boolean",
-        description: "Test",
-      },
-      {
-        name: "Max Deleted Files",
-        key: "max-deleted-files",
-        type: "number",
-        description: "Test",
-        default: 0,
-      },
-      {
-        name: "Max Deleted Percent",
-        key: "max-deleted-percent",
-        type: "number",
-        description: "Test",
-        default: 0,
-      },
-      {
-        name: "Force Empty",
-        key: "force-empty",
-        type: "boolean",
-        description: "Test",
-      },
-    ]);
-    const args = optionsToArgs(config, {
-      "pre-hash": true,
-      "max-deleted-files": 50,
-      "max-deleted-percent": 5,
-      "force-empty": false,
-    });
-    expect(args).toContain("--pre-hash");
-    expect(args).toContain("-d");
-    expect(args).toContain("50");
-    expect(args).toContain("-p");
-    expect(args).toContain("5");
-    expect(args).not.toContain("--force-empty");
-  });
-
-  test("argsToOptions parses sync safety args correctly", () => {
-    const config = mockCommandConfig([
-      {
-        name: "Pre-hash",
-        key: "pre-hash",
-        type: "boolean",
-        description: "Test",
-      },
-      {
-        name: "Max Deleted Files",
-        key: "max-deleted-files",
-        type: "number",
-        description: "Test",
-        default: 0,
-      },
-      {
-        name: "Max Deleted Percent",
-        key: "max-deleted-percent",
-        type: "number",
-        description: "Test",
-        default: 0,
-      },
-    ]);
-    const options = argsToOptions(config, [
-      "--pre-hash",
-      "-d",
-      "100",
-      "-p",
-      "10",
-    ]);
-    expect(options["pre-hash"]).toBe(true);
-    expect(options["max-deleted-files"]).toBe(100);
-    expect(options["max-deleted-percent"]).toBe(10);
-  });
-
-  test("argsToOptions uses defaults when args not provided", () => {
-    const config = mockCommandConfig([
-      {
-        name: "Max Deleted Files",
-        key: "max-deleted-files",
-        type: "number",
-        description: "Test",
-        default: 100,
-      },
-      {
-        name: "Max Deleted Percent",
-        key: "max-deleted-percent",
-        type: "number",
-        description: "Test",
-        default: 10,
-      },
-    ]);
-    const options = argsToOptions(config, []);
-    expect(options["max-deleted-files"]).toBe(100);
-    expect(options["max-deleted-percent"]).toBe(10);
-  });
-
   test("sync command config has no options (handled by SyncSafetySettings)", () => {
     const config = getCommandConfig("sync");
     expect(config).toBeDefined();
@@ -343,7 +211,7 @@ describe("Sync safety options", () => {
 });
 
 describe("syncSafetyToArgs and argsToSyncSafety", () => {
-  test("syncSafetyToArgs with mode disabled returns only pre-hash and force-empty", () => {
+  test("syncSafetyToArgs with mode disabled returns only flags when enabled", () => {
     const args = syncSafetyToArgs(
       "disabled",
       {
@@ -354,8 +222,6 @@ describe("syncSafetyToArgs and argsToSyncSafety", () => {
     );
     expect(args).toContain("--pre-hash");
     expect(args).toContain("--force-empty");
-    expect(args).not.toContain("-d");
-    expect(args).not.toContain("-p");
   });
 
   test("syncSafetyToArgs with mode default uses default settings", () => {
@@ -366,17 +232,11 @@ describe("syncSafetyToArgs and argsToSyncSafety", () => {
         forceEmpty: true, // Will be overridden by default settings
       },
       {
-        maxDeletedFiles: 150,
-        maxDeletedPercent: 15,
         preHash: true,
         forceEmpty: false,
       }
     );
     expect(args).toContain("--pre-hash");
-    expect(args).toContain("-d");
-    expect(args).toContain("150");
-    expect(args).toContain("-p");
-    expect(args).toContain("15");
     expect(args).not.toContain("--force-empty");
   });
 
@@ -386,36 +246,14 @@ describe("syncSafetyToArgs and argsToSyncSafety", () => {
       {
         preHash: false,
         forceEmpty: true,
-        maxDeletedFiles: 200,
-        maxDeletedPercent: 20,
       },
       null
     );
     expect(args).not.toContain("--pre-hash");
     expect(args).toContain("--force-empty");
-    expect(args).toContain("-d");
-    expect(args).toContain("200");
-    expect(args).toContain("-p");
-    expect(args).toContain("20");
   });
 
-  test("argsToSyncSafety parses args with custom thresholds", () => {
-    const result = argsToSyncSafety([
-      "--pre-hash",
-      "-d",
-      "100",
-      "-p",
-      "10",
-      "--force-empty",
-    ]);
-    expect(result.mode).toBe("custom");
-    expect(result.preHash).toBe(true);
-    expect(result.forceEmpty).toBe(true);
-    expect(result.maxDeletedFiles).toBe(100);
-    expect(result.maxDeletedPercent).toBe(10);
-  });
-
-  test("argsToSyncSafety with no thresholds returns disabled mode", () => {
+  test("argsToSyncSafety with no flags returns disabled mode", () => {
     const result = argsToSyncSafety([]);
     expect(result.mode).toBe("disabled");
     expect(result.preHash).toBe(false);
@@ -429,20 +267,24 @@ describe("syncSafetyToArgs and argsToSyncSafety", () => {
     expect(result.forceEmpty).toBe(false);
   });
 
+  test("argsToSyncSafety with force-empty returns default mode", () => {
+    const result = argsToSyncSafety(["--force-empty"]);
+    expect(result.mode).toBe("default");
+    expect(result.preHash).toBe(false);
+    expect(result.forceEmpty).toBe(true);
+  });
+
   test("round-trip: syncSafetyToArgs then argsToSyncSafety", () => {
     const original = {
       mode: "custom" as const,
       preHash: true,
       forceEmpty: false,
-      maxDeletedFiles: 75,
-      maxDeletedPercent: 8,
     };
     const args = syncSafetyToArgs(original.mode, original, null);
     const parsed = argsToSyncSafety(args);
-    expect(parsed.mode).toBe("custom");
+    // Mode detection is simpler now: disabled if no flags, default otherwise
+    expect(parsed.mode).toBe("default");
     expect(parsed.preHash).toBe(true);
     expect(parsed.forceEmpty).toBe(false);
-    expect(parsed.maxDeletedFiles).toBe(75);
-    expect(parsed.maxDeletedPercent).toBe(8);
   });
 });

@@ -17,7 +17,8 @@ export interface SyncSafetyOptions {
   preHash: boolean;
   forceEmpty: boolean;
   maxDeletedFiles?: number;
-  maxDeletedPercent?: number;
+  maxUpdatedFiles?: number;
+  maxAddedFiles?: number;
 }
 
 interface SyncSafetySettingsProps {
@@ -29,7 +30,7 @@ interface SyncSafetySettingsProps {
 /**
  * Reusable sync safety settings component for both Operations and Schedules.
  * Includes mode selection (disabled/default/custom), pre-hash, force-empty,
- * and conditional max deleted files/percent fields.
+ * and conditional max deleted/updated/added files fields.
  */
 export function SyncSafetySettings({
   value,
@@ -45,9 +46,7 @@ export function SyncSafetySettings({
         <Label>Sync Safety Mode</Label>
         <Select
           value={value.mode}
-          onValueChange={(mode: SyncSafetyMode) =>
-            onChange({ ...value, mode })
-          }
+          onValueChange={(mode: SyncSafetyMode) => onChange({ ...value, mode })}
         >
           <SelectTrigger>
             <SelectValue />
@@ -61,16 +60,23 @@ export function SyncSafetySettings({
         <p className="text-xs text-muted-foreground">
           {value.mode === "default" && defaultSettings && (
             <>
-              Using: max {defaultSettings.maxDeletedFiles} files,{" "}
-              {defaultSettings.maxDeletedPercent}%
-              {defaultSettings.preHash && ", pre-hash enabled"}
-              {defaultSettings.forceEmpty && ", force-empty enabled"}
+              {defaultSettings.enabled ? (
+                <>
+                  Using: {defaultSettings.maxDeletedFiles} deleted,{" "}
+                  {defaultSettings.maxUpdatedFiles} updated,{" "}
+                  {defaultSettings.maxAddedFiles} added
+                  {defaultSettings.preHash && ", pre-hash"}
+                  {defaultSettings.forceEmpty && ", force-empty"}
+                </>
+              ) : (
+                <>Disabled</>
+              )}
             </>
           )}
           {value.mode === "custom" &&
             "Configure custom thresholds for this operation"}
           {value.mode === "disabled" &&
-            "No safety checks - allows unlimited file deletions"}
+            "No safety checks - allows unlimited file changes"}
         </p>
       </div>
 
@@ -90,25 +96,43 @@ export function SyncSafetySettings({
               placeholder="100"
             />
             <p className="text-xs text-muted-foreground">
-              Stop sync if more than this many files are deleted
+              Halt sync if more than this many files are deleted
             </p>
           </div>
 
           <div className="space-y-2">
-            <Label>Maximum Delete Percentage</Label>
+            <Label>Maximum Updated Files</Label>
             <Input
               type="number"
-              value={value.maxDeletedPercent ?? 0}
+              value={value.maxUpdatedFiles ?? 0}
               onChange={(e) =>
                 onChange({
                   ...value,
-                  maxDeletedPercent: parseInt(e.target.value) || 0,
+                  maxUpdatedFiles: parseInt(e.target.value) || 0,
                 })
               }
-              placeholder="10"
+              placeholder="500"
             />
             <p className="text-xs text-muted-foreground">
-              Stop sync if more than this percentage of files are deleted
+              Halt sync if more than this many files are modified
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Maximum Added Files</Label>
+            <Input
+              type="number"
+              value={value.maxAddedFiles ?? 0}
+              onChange={(e) =>
+                onChange({
+                  ...value,
+                  maxAddedFiles: parseInt(e.target.value) || 0,
+                })
+              }
+              placeholder="10000"
+            />
+            <p className="text-xs text-muted-foreground">
+              Halt sync if more than this many files are added
             </p>
           </div>
         </>
@@ -135,7 +159,8 @@ export function SyncSafetySettings({
             <div>
               <Label>Force Empty</Label>
               <p className="text-xs text-muted-foreground">
-                Allow sync with many deleted files (bypasses safety checks)
+                Allow sync when all original files are missing (use with
+                caution)
               </p>
             </div>
             <Switch

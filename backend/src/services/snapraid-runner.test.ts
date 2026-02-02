@@ -8,7 +8,7 @@ const spawnState = {
   stderrChunks: [] as string[],
   closeCode: 0 as number | null,
   closeDelayMs: 0,
-  error: null as (NodeJS.ErrnoException | null),
+  error: null as NodeJS.ErrnoException | null,
   pid: 123,
   spawnCalls: [] as { bin: string; args: string[]; opts: object }[],
   killCalls: [] as string[],
@@ -201,14 +201,15 @@ describe("command helpers", () => {
     expect(smart.disks[0].name).toBe("d1");
   });
 
-  test("runSync passes preHash/forceEmpty/forceZero args", async () => {
+  test("runSync passes preHash/forceEmpty/forceZero args only", async () => {
     const runner = new SnapRaidRunner();
     await runner.runSync("/a/b.conf", undefined, {
       preHash: true,
       forceEmpty: true,
       forceZero: true,
     });
-    expect(spawnState.spawnCalls[0].args).toEqual(
+    const args = spawnState.spawnCalls[0].args;
+    expect(args).toEqual(
       expect.arrayContaining(["--pre-hash", "--force-empty", "--force-zero"])
     );
   });
@@ -246,62 +247,97 @@ describe("command helpers", () => {
   });
 });
 
-describe("sync safety settings", () => {
-  test("runSync with maxDeletedFiles adds filter-delete args", async () => {
+describe("validateSyncSafety", () => {
+  test("validateSyncSafety returns safe when all limits within bounds", async () => {
+    spawnState.stdoutChunks = ["10 added, 5 removed, 3 updated, 100 equal\n"];
     const runner = new SnapRaidRunner();
-    await runner.runSync("/a/b.conf", undefined, {
+    const result = await runner.validateSyncSafety("/a/b.conf", {
+      enabled: true,
       maxDeletedFiles: 100,
-    });
-    expect(spawnState.spawnCalls[0].args).toEqual(
-      expect.arrayContaining(["-d", "100", "sync"])
-    );
-  });
-
-  test("runSync with maxDeletedPercent adds filter-delete-percentage args", async () => {
-    const runner = new SnapRaidRunner();
-    await runner.runSync("/a/b.conf", undefined, {
-      maxDeletedPercent: 10,
-    });
-    expect(spawnState.spawnCalls[0].args).toEqual(
-      expect.arrayContaining(["-p", "10", "sync"])
-    );
-  });
-
-  test("runSync combines all safety options correctly", async () => {
-    const runner = new SnapRaidRunner();
-    await runner.runSync("/a/b.conf", undefined, {
-      preHash: true,
-      maxDeletedFiles: 50,
-      maxDeletedPercent: 5,
+      maxUpdatedFiles: 500,
+      maxAddedFiles: 10000,
+      preHash: false,
       forceEmpty: false,
     });
-    const args = spawnState.spawnCalls[0].args;
-    expect(args).toContain("--pre-hash");
-    expect(args).toContain("-d");
-    expect(args).toContain("50");
-    expect(args).toContain("-p");
-    expect(args).toContain("5");
-    expect(args).toContain("sync");
-    expect(args).not.toContain("--force-empty");
+    expect(result.safe).toBe(true);
+    expect(result.violations).toEqual([]);
+    expect(result.diff.newFiles).toBe(10);
+    expect(result.diff.deletedFiles).toBe(5);
+    expect(result.diff.modifiedFiles).toBe(3);
   });
 
-  test("runSync without safety options only runs sync", async () => {
+  test("validateSyncSafety returns unsafe when deleted files exceed limit", async () => {
+    spawnState.stdoutChunks = ["5 added, 150 removed, 10 updated\n"];
     const runner = new SnapRaidRunner();
-    await runner.runSync("/a/b.conf", undefined, {});
-    const args = spawnState.spawnCalls[0].args;
-    expect(args).toEqual(["-c", "/a/b.conf", "sync"]);
-  });
-
-  test("runSync forceEmpty flag bypasses delete checks", async () => {
-    const runner = new SnapRaidRunner();
-    await runner.runSync("/a/b.conf", undefined, {
-      forceEmpty: true,
-      maxDeletedFiles: 10,
-      maxDeletedPercent: 5,
+    const result = await runner.validateSyncSafety("/a/b.conf", {
+      enabled: true,
+      maxDeletedFiles: 100,
+      maxUpdatedFiles: 500,
+      maxAddedFiles: 10000,
+      preHash: false,
+      forceEmpty: false,
     });
-    const args = spawnState.spawnCalls[0].args;
-    expect(args).toContain("--force-empty");
-    // When force-empty is used, SnapRAID ignores delete thresholds
-    // but we can still pass them for informational purposes
+    expect(result.safe).toBe(false);
+    expect(result.violations).toContain(
+      "Deleted files (150) exceeds limit (100)"
+    );
+  });
+
+  test("validateSyncSafety returns unsafe when updated files exceed limit", async () => {
+    spawnState.stdoutChunks = ["5 added, 10 removed, 600 updated\n"];
+    const runner = new SnapRaidRunner();
+    const result = await runner.validateSyncSafety("/a/b.conf", {
+      enabled: true,
+      maxDeletedFiles: 100,
+      maxUpdatedFiles: 500,
+      maxAddedFiles: 10000,
+      preHash: false,
+      forceEmpty: false,
+    });
+    expect(result.safe).toBe(false);
+    expect(result.violations).toContain(
+      "Updated files (600) exceeds limit (500)"
+    );
+  });
+
+  test("validateSyncSafety returns unsafe when added files exceed limit", async () => {
+    spawnState.stdoutChunks = ["11000 added, 5 removed, 10 updated\n"];
+    const runner = new SnapRaidRunner();
+    const result = await runner.validateSyncSafety("/a/b.conf", {
+      enabled: true,
+      maxDeletedFiles: 100,
+      maxUpdatedFiles: 500,
+      maxAddedFiles: 10000,
+      preHash: false,
+      forceEmpty: false,
+    });
+    expect(result.safe).toBe(false);
+    expect(result.violations).toContain(
+      "Added files (11000) exceeds limit (10000)"
+    );
+  });
+
+  test("validateSyncSafety returns multiple violations when multiple limits exceeded", async () => {
+    spawnState.stdoutChunks = ["11000 added, 150 removed, 600 updated\n"];
+    const runner = new SnapRaidRunner();
+    const result = await runner.validateSyncSafety("/a/b.conf", {
+      enabled: true,
+      maxDeletedFiles: 100,
+      maxUpdatedFiles: 500,
+      maxAddedFiles: 10000,
+      preHash: false,
+      forceEmpty: false,
+    });
+    expect(result.safe).toBe(false);
+    expect(result.violations.length).toBe(3);
+    expect(result.violations).toContain(
+      "Deleted files (150) exceeds limit (100)"
+    );
+    expect(result.violations).toContain(
+      "Updated files (600) exceeds limit (500)"
+    );
+    expect(result.violations).toContain(
+      "Added files (11000) exceeds limit (10000)"
+    );
   });
 });

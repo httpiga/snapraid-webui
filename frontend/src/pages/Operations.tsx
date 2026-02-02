@@ -35,7 +35,8 @@ export function Operations() {
       preHash: false,
       forceEmpty: false,
       maxDeletedFiles: 100,
-      maxDeletedPercent: 10,
+      maxUpdatedFiles: 500,
+      maxAddedFiles: 10000,
     }
   );
   const { data: defaultSyncSafetySettings } = useGetSyncSafetySettingsQuery();
@@ -121,7 +122,8 @@ export function Operations() {
         preHash: false,
         forceEmpty: false,
         maxDeletedFiles: 100,
-        maxDeletedPercent: 10,
+        maxUpdatedFiles: 500,
+        maxAddedFiles: 10000,
       });
       return;
     }
@@ -133,7 +135,8 @@ export function Operations() {
       preHash: false,
       forceEmpty: false,
       maxDeletedFiles: 100,
-      maxDeletedPercent: 10,
+      maxUpdatedFiles: 500,
+      maxAddedFiles: 10000,
     });
   };
 

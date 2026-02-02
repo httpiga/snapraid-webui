@@ -6,6 +6,7 @@ import type {
   SnapRaidStatus,
   DiffReport,
   SmartReport,
+  SyncSafetySettings,
 } from "@snapraid-webui/shared";
 import { SNAPRAID_BIN } from "../config.js";
 import {
@@ -150,7 +151,51 @@ export class SnapRaidRunner {
   }
 
   /**
-   * Run sync command with optional pre-sync safety checks
+   * Validate sync safety by running diff and checking against limits
+   */
+  async validateSyncSafety(
+    configPath: string,
+    settings: SyncSafetySettings
+  ): Promise<{
+    safe: boolean;
+    violations: string[];
+    diff: DiffReport;
+  }> {
+    // Run diff command to get current changes
+    const diff = await this.getDiff(configPath);
+
+    const violations: string[] = [];
+
+    // Check deleted files
+    if (diff.deletedFiles > settings.maxDeletedFiles) {
+      violations.push(
+        `Deleted files (${diff.deletedFiles}) exceeds limit (${settings.maxDeletedFiles})`
+      );
+    }
+
+    // Check updated files
+    if (diff.modifiedFiles > settings.maxUpdatedFiles) {
+      violations.push(
+        `Updated files (${diff.modifiedFiles}) exceeds limit (${settings.maxUpdatedFiles})`
+      );
+    }
+
+    // Check added files
+    if (diff.newFiles > settings.maxAddedFiles) {
+      violations.push(
+        `Added files (${diff.newFiles}) exceeds limit (${settings.maxAddedFiles})`
+      );
+    }
+
+    return {
+      safe: violations.length === 0,
+      violations,
+      diff,
+    };
+  }
+
+  /**
+   * Run sync command with optional flags
    */
   async runSync(
     configPath: string,
@@ -159,8 +204,6 @@ export class SnapRaidRunner {
       preHash?: boolean;
       forceEmpty?: boolean;
       forceZero?: boolean;
-      maxDeletedFiles?: number;
-      maxDeletedPercent?: number;
     } = {}
   ): Promise<{ exitCode: number; output: string }> {
     const args: string[] = [];
@@ -173,12 +216,6 @@ export class SnapRaidRunner {
     }
     if (options.forceZero) {
       args.push("--force-zero");
-    }
-    if (options.maxDeletedFiles !== undefined) {
-      args.push("-d", options.maxDeletedFiles.toString());
-    }
-    if (options.maxDeletedPercent !== undefined) {
-      args.push("-p", options.maxDeletedPercent.toString());
     }
 
     return this.executeCommand("sync", configPath, onOutput, args);

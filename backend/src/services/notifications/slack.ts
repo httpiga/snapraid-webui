@@ -40,6 +40,7 @@ export async function sendSlackNotification(
     sync_complete: "#36a64f", // Green
     sync_error: "#ff0000", // Red
     sync_aborted: "#ff9800", // Orange
+    sync_safety_halt: "#ff9800", // Orange
     scrub_complete: "#36a64f", // Green
     scrub_error: "#ff0000", // Red
     smart_warning: "#ff9800", // Orange
@@ -51,6 +52,7 @@ export async function sendSlackNotification(
     sync_complete: ":white_check_mark:",
     sync_error: ":x:",
     sync_aborted: ":warning:",
+    sync_safety_halt: ":warning:",
     scrub_complete: ":white_check_mark:",
     scrub_error: ":x:",
     smart_warning: ":warning:",

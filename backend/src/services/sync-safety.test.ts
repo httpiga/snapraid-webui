@@ -42,7 +42,8 @@ describe("loadSyncSafetySettings", () => {
     expect(settings).toEqual({
       enabled: true,
       maxDeletedFiles: 100,
-      maxDeletedPercent: 10,
+      maxUpdatedFiles: 500,
+      maxAddedFiles: 10000,
       preHash: false,
       forceEmpty: false,
     });
@@ -53,7 +54,8 @@ describe("loadSyncSafetySettings", () => {
       syncSafety: {
         enabled: false,
         maxDeletedFiles: 50,
-        maxDeletedPercent: 5,
+        maxUpdatedFiles: 200,
+        maxAddedFiles: 5000,
         preHash: true,
         forceEmpty: true,
       },
@@ -72,7 +74,8 @@ describe("loadSyncSafetySettings", () => {
     expect(settings).toEqual({
       enabled: true,
       maxDeletedFiles: 100,
-      maxDeletedPercent: 10,
+      maxUpdatedFiles: 500,
+      maxAddedFiles: 10000,
       preHash: false,
       forceEmpty: false,
     });
@@ -85,7 +88,8 @@ describe("loadSyncSafetySettings", () => {
     expect(settings).toEqual({
       enabled: true,
       maxDeletedFiles: 100,
-      maxDeletedPercent: 10,
+      maxUpdatedFiles: 500,
+      maxAddedFiles: 10000,
       preHash: false,
       forceEmpty: false,
     });
@@ -97,7 +101,8 @@ describe("saveSyncSafetySettings", () => {
     const settings = {
       enabled: false,
       maxDeletedFiles: 200,
-      maxDeletedPercent: 20,
+      maxUpdatedFiles: 600,
+      maxAddedFiles: 12000,
       preHash: true,
       forceEmpty: true,
     };
@@ -119,7 +124,8 @@ describe("saveSyncSafetySettings", () => {
     const settings = {
       enabled: true,
       maxDeletedFiles: 150,
-      maxDeletedPercent: 15,
+      maxUpdatedFiles: 450,
+      maxAddedFiles: 9000,
       preHash: false,
       forceEmpty: false,
     };
@@ -137,7 +143,8 @@ describe("saveSyncSafetySettings", () => {
     const oldSettings = {
       enabled: false,
       maxDeletedFiles: 50,
-      maxDeletedPercent: 5,
+      maxUpdatedFiles: 250,
+      maxAddedFiles: 5000,
       preHash: false,
       forceEmpty: false,
     };
@@ -150,7 +157,8 @@ describe("saveSyncSafetySettings", () => {
     const newSettings = {
       enabled: true,
       maxDeletedFiles: 300,
-      maxDeletedPercent: 25,
+      maxUpdatedFiles: 750,
+      maxAddedFiles: 15000,
       preHash: true,
       forceEmpty: true,
     };

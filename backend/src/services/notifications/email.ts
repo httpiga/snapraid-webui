@@ -36,6 +36,7 @@ export async function sendEmailNotification(
     sync_complete: "[OK]",
     sync_error: "[ERROR]",
     sync_aborted: "[WARNING]",
+    sync_safety_halt: "[WARNING]",
     scrub_complete: "[OK]",
     scrub_error: "[ERROR]",
     smart_warning: "[WARNING]",

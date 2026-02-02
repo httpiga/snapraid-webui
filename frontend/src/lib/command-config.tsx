@@ -150,7 +150,7 @@ export function optionsToArgs(
   for (const opt of commandConfig.options) {
     const value = options[opt.key];
     if (value === undefined || value === false || value === "") continue;
-    
+
     if (opt.type === "boolean") {
       args.push(`--${opt.key}`);
     } else {
@@ -201,18 +201,18 @@ export function getCommandConfig(
  * Convert sync safety options to CLI args.
  * This is separate from optionsToArgs since sync safety is handled
  * by the SyncSafetySettings component.
+ *
+ * Note: Safety checks (deleted/updated/added file limits) are enforced
+ * by the backend before running sync, not via SnapRAID CLI flags.
+ * Only --pre-hash and --force-empty flags are passed to SnapRAID.
  */
 export function syncSafetyToArgs(
   mode: "disabled" | "default" | "custom",
   options: {
     preHash?: boolean;
     forceEmpty?: boolean;
-    maxDeletedFiles?: number;
-    maxDeletedPercent?: number;
   },
   defaultSettings?: {
-    maxDeletedFiles: number;
-    maxDeletedPercent: number;
     preHash?: boolean;
     forceEmpty?: boolean;
   } | null
@@ -220,12 +220,14 @@ export function syncSafetyToArgs(
   const args: string[] = [];
 
   // Use options for custom/disabled modes, or default settings for default mode
-  const usePreHash = mode === "default" && defaultSettings 
-    ? defaultSettings.preHash 
-    : options.preHash;
-  const useForceEmpty = mode === "default" && defaultSettings
-    ? defaultSettings.forceEmpty
-    : options.forceEmpty;
+  const usePreHash =
+    mode === "default" && defaultSettings
+      ? defaultSettings.preHash
+      : options.preHash;
+  const useForceEmpty =
+    mode === "default" && defaultSettings
+      ? defaultSettings.forceEmpty
+      : options.forceEmpty;
 
   // Pre-hash
   if (usePreHash) {
@@ -236,27 +238,6 @@ export function syncSafetyToArgs(
   if (useForceEmpty) {
     args.push("--force-empty");
   }
-
-  // Safety thresholds based on mode
-  if (mode === "default" && defaultSettings) {
-    if (defaultSettings.maxDeletedFiles > 0) {
-      args.push("-d", String(defaultSettings.maxDeletedFiles));
-    }
-    if (defaultSettings.maxDeletedPercent > 0) {
-      args.push("-p", String(defaultSettings.maxDeletedPercent));
-    }
-  } else if (mode === "custom") {
-    if (options.maxDeletedFiles !== undefined && options.maxDeletedFiles > 0) {
-      args.push("-d", String(options.maxDeletedFiles));
-    }
-    if (
-      options.maxDeletedPercent !== undefined &&
-      options.maxDeletedPercent > 0
-    ) {
-      args.push("-p", String(options.maxDeletedPercent));
-    }
-  }
-  // mode === "disabled" adds no safety args
 
   return args;
 }
@@ -269,30 +250,15 @@ export function argsToSyncSafety(args: string[] = []): {
   mode: "disabled" | "default" | "custom";
   preHash: boolean;
   forceEmpty: boolean;
-  maxDeletedFiles?: number;
-  maxDeletedPercent?: number;
 } {
   const preHash = args.includes("--pre-hash");
   const forceEmpty = args.includes("--force-empty");
 
-  const dIdx = args.indexOf("-d");
-  const maxDeletedFiles =
-    dIdx !== -1 && dIdx + 1 < args.length
-      ? parseInt(args[dIdx + 1], 10)
-      : undefined;
-
-  const pIdx = args.indexOf("-p");
-  const maxDeletedPercent =
-    pIdx !== -1 && pIdx + 1 < args.length
-      ? parseInt(args[pIdx + 1], 10)
-      : undefined;
-
-  // Determine mode: if we have custom thresholds, it's custom; 
-  // if no thresholds at all, it's disabled; otherwise default
+  // Determine mode: if no flags at all, it's disabled; otherwise default
+  // (custom mode can't be determined from args alone since safety limits
+  // are now enforced by backend, not via CLI flags)
   let mode: "disabled" | "default" | "custom";
-  if (maxDeletedFiles !== undefined || maxDeletedPercent !== undefined) {
-    mode = "custom";
-  } else if (!preHash && !forceEmpty) {
+  if (!preHash && !forceEmpty) {
     mode = "disabled";
   } else {
     mode = "default";
@@ -302,7 +268,5 @@ export function argsToSyncSafety(args: string[] = []): {
     mode,
     preHash,
     forceEmpty,
-    maxDeletedFiles: maxDeletedFiles ?? 100,
-    maxDeletedPercent: maxDeletedPercent ?? 10,
   };
 }
