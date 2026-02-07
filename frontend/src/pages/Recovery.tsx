@@ -2,6 +2,7 @@ import { useState } from "react"
 import { useWebSocket } from "@/hooks/use-websocket"
 import { useGetConfigQuery } from "@/store/api"
 import { toast } from "sonner"
+import { buildFixArgs } from "@/lib/fix-args"
 import { PageHeader } from "@/pages/components/PageHeader"
 import { RecoveryWarning } from "@/pages/components/recovery/RecoveryWarning"
 import { RecoveryOptionsCard } from "@/pages/components/recovery/RecoveryOptionsCard"
@@ -42,21 +43,12 @@ export function Recovery() {
   })
 
   const handleStartRecovery = () => {
-    const args: string[] = []
-
-    if (filterPath) {
-      args.push("-f", filterPath)
-    }
-    if (filterMissing) {
-      args.push("-m")
-    }
-    if (filterError) {
-      args.push("-e")
-    }
-    if (filterDisk) {
-      args.push("-d", filterDisk)
-    }
-
+    const args = buildFixArgs({
+      filterPath,
+      filterMissing,
+      filterError,
+      filterDisk,
+    })
     clearOutput()
     sendCommand("fix", args)
   }
