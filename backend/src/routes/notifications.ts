@@ -4,7 +4,7 @@ import {
   loadNotificationSettings,
   saveNotificationSettings,
   testNotificationChannel,
-} from "../services/notifications/index.js"
+} from "../services/notifications/index"
 
 const router: IRouter = Router()
 

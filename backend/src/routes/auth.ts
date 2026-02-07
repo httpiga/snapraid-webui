@@ -5,7 +5,7 @@ import {
   hashPassword,
   isAuthEnabled,
   login,
-} from "../middleware/auth.js"
+} from "../middleware/auth"
 
 const router: IRouter = Router()
 

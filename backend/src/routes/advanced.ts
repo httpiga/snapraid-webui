@@ -2,7 +2,7 @@ import { Router, type IRouter } from "express"
 import {
   loadAdvancedSettings,
   saveAdvancedSettings,
-} from "../services/advanced-settings.js"
+} from "../services/advanced-settings"
 
 const router: IRouter = Router()
 

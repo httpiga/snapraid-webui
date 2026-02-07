@@ -1,16 +1,16 @@
 import { Router, type IRouter } from "express"
 import type { SnapRaidCommand } from "@snapraid-webui/shared"
-import { SNAPRAID_CONF_FILE } from "../config.js"
-import { snapraidRunner } from "../services/snapraid-runner.js"
+import { SNAPRAID_CONF_FILE } from "../config"
+import { snapraidRunner } from "../services/snapraid-runner"
 import {
   sendNotification,
   getOperationNotificationPayload,
-} from "../services/notifications/index.js"
-import { validateSyncSafetyWithNotification } from "../services/sync-safety.js"
+} from "../services/notifications/index"
+import { validateSyncSafetyWithNotification } from "../services/sync-safety"
 import {
   loadAdvancedSettings,
   getAdvancedArgsForCommand,
-} from "../services/advanced-settings.js"
+} from "../services/advanced-settings"
 
 const router: IRouter = Router()
 type ExpressResponse = import("express").Response

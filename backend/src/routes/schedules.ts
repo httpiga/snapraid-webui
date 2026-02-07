@@ -5,7 +5,7 @@ import {
   createSchedule,
   updateSchedule,
   deleteSchedule,
-} from "../services/scheduler.js"
+} from "../services/scheduler"
 
 const router: IRouter = Router()
 type ExpressResponse = import("express").Response

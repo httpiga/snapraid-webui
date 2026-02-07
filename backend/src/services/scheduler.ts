@@ -4,17 +4,17 @@ import fs from "fs/promises"
 import { existsSync } from "fs"
 import { v4 as uuidv4 } from "uuid"
 import type { Schedule, ScheduleConfig } from "@snapraid-webui/shared"
-import { SCHEDULES_FILE, SNAPRAID_CONF_FILE } from "../config.js"
-import { snapraidRunner } from "./snapraid-runner.js"
-import { createLogFile, appendToLogFile } from "../routes/logs.js"
+import { SCHEDULES_FILE, SNAPRAID_CONF_FILE } from "../config"
+import { snapraidRunner } from "./snapraid-runner"
+import { createLogFile, appendToLogFile } from "../routes/logs"
 import {
   sendNotification,
   getOperationNotificationPayload,
-} from "./notifications/index.js"
+} from "./notifications/index"
 import {
   loadAdvancedSettings,
   getAdvancedArgsForCommand,
-} from "./advanced-settings.js"
+} from "./advanced-settings"
 
 // Active cron jobs
 const activeJobs = new Map<string, cron.ScheduledTask>()

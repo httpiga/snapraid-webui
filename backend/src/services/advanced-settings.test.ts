@@ -6,7 +6,7 @@ import type { AdvancedSettings } from "@snapraid-webui/shared"
 const TEST_APP_CONFIG = "/tmp/test-app-config-advanced.json"
 
 // Mock the config module before importing advanced-settings
-mock.module("../config.js", () => ({
+mock.module("../config", () => ({
   APP_CONFIG_FILE: TEST_APP_CONFIG,
   SNAPRAID_CONF_FILE: "/tmp/test.conf",
   SCHEDULES_FILE: "/tmp/test-schedules.json",
@@ -21,7 +21,7 @@ const {
   loadAdvancedSettings,
   saveAdvancedSettings,
   getAdvancedArgsForCommand,
-} = await import("./advanced-settings.js")
+} = await import("./advanced-settings")
 
 describe("loadAdvancedSettings", () => {
   beforeEach(async () => {

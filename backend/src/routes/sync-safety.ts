@@ -2,7 +2,7 @@ import { Router, type IRouter } from "express"
 import {
   loadSyncSafetySettings,
   saveSyncSafetySettings,
-} from "../services/sync-safety.js"
+} from "../services/sync-safety"
 
 const router: IRouter = Router()
 

@@ -1,9 +1,9 @@
 import fs from "fs/promises"
 import { existsSync } from "fs"
 import type { SyncSafetySettings } from "@snapraid-webui/shared"
-import { APP_CONFIG_FILE } from "../config.js"
-import { snapraidRunner } from "./snapraid-runner.js"
-import { sendNotification } from "./notifications/index.js"
+import { APP_CONFIG_FILE } from "../config"
+import { snapraidRunner } from "./snapraid-runner"
+import { sendNotification } from "./notifications/index"
 
 // Default sync safety settings
 const defaultSettings: SyncSafetySettings = {

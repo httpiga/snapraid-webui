@@ -7,11 +7,11 @@ import type {
   SnapRaidCommand,
 } from "@snapraid-webui/shared"
 import { NOTIFICATION_EVENTS } from "@snapraid-webui/shared"
-import { APP_CONFIG_FILE } from "../../config.js"
-import { sendDiscordNotification } from "./discord.js"
-import { sendTelegramNotification } from "./telegram.js"
-import { sendEmailNotification } from "./email.js"
-import { sendSlackNotification } from "./slack.js"
+import { APP_CONFIG_FILE } from "../../config"
+import { sendDiscordNotification } from "./discord"
+import { sendTelegramNotification } from "./telegram"
+import { sendEmailNotification } from "./email"
+import { sendSlackNotification } from "./slack"
 
 // Default notification settings
 const defaultSettings: NotificationSettings = {
@@ -374,7 +374,7 @@ export async function testNotificationChannel(
 }
 
 // Re-export individual senders for direct use
-export { sendDiscordNotification } from "./discord.js"
-export { sendTelegramNotification } from "./telegram.js"
-export { sendEmailNotification } from "./email.js"
-export { sendSlackNotification } from "./slack.js"
+export { sendDiscordNotification } from "./discord"
+export { sendTelegramNotification } from "./telegram"
+export { sendEmailNotification } from "./email"
+export { sendSlackNotification } from "./slack"

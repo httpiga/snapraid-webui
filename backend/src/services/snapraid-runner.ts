@@ -7,12 +7,12 @@ import type {
   DiffReport,
   SyncSafetySettings,
 } from "@snapraid-webui/shared"
-import { SNAPRAID_BIN } from "../config.js"
+import { SNAPRAID_BIN } from "../config"
 import {
   parseStatusOutput,
   parseDiffOutput,
   parseDiskStatus,
-} from "./parsers/index.js"
+} from "./parsers/index"
 
 type OutputCallback = (chunk: string) => void
 

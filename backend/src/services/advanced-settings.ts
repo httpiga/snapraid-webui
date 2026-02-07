@@ -1,7 +1,7 @@
 import fs from "fs/promises"
 import { existsSync } from "fs"
 import type { AdvancedSettings, SnapRaidCommand } from "@snapraid-webui/shared"
-import { APP_CONFIG_FILE } from "../config.js"
+import { APP_CONFIG_FILE } from "../config"
 
 // Default advanced settings
 const defaultSettings: AdvancedSettings = {

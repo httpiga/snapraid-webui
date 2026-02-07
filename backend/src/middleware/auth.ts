@@ -3,7 +3,7 @@ import session from "express-session"
 import bcrypt from "bcryptjs"
 import fs from "fs/promises"
 import { existsSync } from "fs"
-import { APP_CONFIG_FILE } from "../config.js"
+import { APP_CONFIG_FILE } from "../config"
 import type { AuthSettings } from "@snapraid-webui/shared"
 
 // Extend Express session

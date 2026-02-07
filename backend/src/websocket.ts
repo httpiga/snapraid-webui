@@ -1,18 +1,18 @@
 import { WebSocketServer, WebSocket } from "ws"
 import type { Server } from "http"
 import type { WSMessage, SnapRaidCommand } from "@snapraid-webui/shared"
-import { snapraidRunner } from "./services/snapraid-runner.js"
-import { SNAPRAID_CONF_FILE } from "./config.js"
-import { createLogFile, appendToLogFile } from "./routes/logs.js"
+import { snapraidRunner } from "./services/snapraid-runner"
+import { SNAPRAID_CONF_FILE } from "./config"
+import { createLogFile, appendToLogFile } from "./routes/logs"
 import {
   sendNotification,
   getOperationNotificationPayload,
-} from "./services/notifications/index.js"
-import { validateSyncSafetyWithNotification } from "./services/sync-safety.js"
+} from "./services/notifications/index"
+import { validateSyncSafetyWithNotification } from "./services/sync-safety"
 import {
   loadAdvancedSettings,
   getAdvancedArgsForCommand,
-} from "./services/advanced-settings.js"
+} from "./services/advanced-settings"
 
 // Connected clients
 const clients = new Set<WebSocket>()

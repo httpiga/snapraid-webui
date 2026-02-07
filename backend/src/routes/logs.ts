@@ -3,7 +3,7 @@ import fs from "fs/promises"
 import { existsSync, mkdirSync } from "fs"
 import path from "path"
 import type { LogFile, SnapRaidCommand } from "@snapraid-webui/shared"
-import { LOGS_DIR } from "../config.js"
+import { LOGS_DIR } from "../config"
 
 const router: IRouter = Router()
 

@@ -4,7 +4,7 @@ import { existsSync } from "fs"
 
 const TEST_APP_CONFIG = "/tmp/test-app-config-auth.json"
 
-mock.module("../config.js", () => ({
+mock.module("../config", () => ({
   APP_CONFIG_FILE: TEST_APP_CONFIG,
   SNAPRAID_CONF_FILE: "/tmp/test.conf",
   SCHEDULES_FILE: "/tmp/test-schedules.json",
@@ -20,7 +20,7 @@ const {
   isAuthEnabled,
   authMiddleware,
   hashPassword,
-} = await import("./auth.js")
+} = await import("./auth")
 
 describe("auth settings", () => {
   beforeEach(async () => {
