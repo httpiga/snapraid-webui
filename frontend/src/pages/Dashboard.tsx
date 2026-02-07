@@ -1,4 +1,5 @@
 import { useGetStatusQuery, useGetSchedulesQuery } from "@/store/api"
+import { getApiErrorMessage } from "@/lib/api-error"
 import { PageHeader } from "@/pages/components/PageHeader"
 import { PageLoading } from "@/pages/components/PageLoading"
 import { DashboardStatusCards } from "@/pages/components/dashboard/DashboardStatusCards"
@@ -21,14 +22,8 @@ export function Dashboard() {
 
   if (error) {
     const message =
-      error &&
-      typeof error === "object" &&
-      "data" in error &&
-      error.data &&
-      typeof error.data === "object" &&
-      "error" in error.data
-        ? (error.data as { error: string }).error
-        : "Failed to load status. Is the backend running?"
+      getApiErrorMessage(error) ||
+      "Failed to load status. Is the backend running?"
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-destructive">{message}</div>
