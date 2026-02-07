@@ -16,6 +16,7 @@ import {
   type CommandConfig,
 } from "@/lib/command-config"
 import type { SyncSafetyOptions } from "@/components/SyncSafetySettings"
+import { DEFAULT_SYNC_SAFETY_OPTIONS } from "@/lib/sync-safety-defaults"
 import type { SnapRaidCommand } from "@shared/types"
 import { PageHeader } from "@/pages/components/PageHeader"
 import { CommandSelectionCard } from "@/pages/components/operations/CommandSelectionCard"
@@ -29,16 +30,8 @@ export function Operations() {
     null,
   )
   const [options, setOptions] = useState<Record<string, unknown>>({})
-  const [syncSafetyOptions, setSyncSafetyOptions] = useState<SyncSafetyOptions>(
-    {
-      mode: "default",
-      preHash: false,
-      forceEmpty: false,
-      maxDeletedFiles: 100,
-      maxUpdatedFiles: 500,
-      maxAddedFiles: 10000,
-    },
-  )
+  const [syncSafetyOptions, setSyncSafetyOptions] =
+    useState<SyncSafetyOptions>(DEFAULT_SYNC_SAFETY_OPTIONS)
   const { data: defaultSyncSafetySettings } = useGetSyncSafetySettingsQuery()
 
   const {
@@ -130,27 +123,13 @@ export function Operations() {
     if (!value) {
       setSelectedCommand(null)
       setOptions({})
-      setSyncSafetyOptions({
-        mode: "default",
-        preHash: false,
-        forceEmpty: false,
-        maxDeletedFiles: 100,
-        maxUpdatedFiles: 500,
-        maxAddedFiles: 10000,
-      })
+      setSyncSafetyOptions(DEFAULT_SYNC_SAFETY_OPTIONS)
       return
     }
     const cmd = getCommandConfig(value as SnapRaidCommand)
     setSelectedCommand(cmd ?? null)
     setOptions({})
-    setSyncSafetyOptions({
-      mode: "default",
-      preHash: false,
-      forceEmpty: false,
-      maxDeletedFiles: 100,
-      maxUpdatedFiles: 500,
-      maxAddedFiles: 10000,
-    })
+    setSyncSafetyOptions(DEFAULT_SYNC_SAFETY_OPTIONS)
   }
 
   return (
