@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import React, { useState } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   useGetNotificationSettingsQuery,
@@ -20,7 +20,8 @@ import type {
 import { getEmptyChannelConfig } from "@/lib/notification-channel-utils"
 import { PageHeader } from "@/pages/components/PageHeader"
 import { PageLoading } from "@/pages/components/PageLoading"
-import { getApiErrorMessage } from "@/lib/api-error"
+import { useSyncedSettings } from "@/hooks/use-synced-settings"
+import { useMutationWithToast } from "@/hooks/use-mutation-with-toast"
 import { NotificationsSettingsTab } from "@/pages/components/settings/NotificationsSettingsTab"
 import { SyncSafetySettingsTab } from "@/pages/components/settings/SyncSafetySettingsTab"
 import { AdvancedSettingsTab } from "@/pages/components/settings/AdvancedSettingsTab"
@@ -38,45 +39,28 @@ export function Settings() {
   const [updateAdvancedSettings] = useUpdateAdvancedSettingsMutation()
   const [testNotification] = useTestNotificationMutation()
 
-  const [settings, setSettings] = useState<NotificationSettings | null>(null)
+  const [settings, setSettings] = useSyncedSettings(notificationSettings)
   const [safetySettings, setSafetySettings] =
-    useState<SyncSafetySettings | null>(null)
-  const [advanced, setAdvanced] = useState<AdvancedSettings | null>(null)
+    useSyncedSettings(syncSafetySettings)
+  const [advanced, setAdvanced] = useSyncedSettings(advancedSettings)
   const [editChannel, setEditChannel] = useState<NotificationChannel | null>(
     null,
   )
   const [removeChannel, setRemoveChannel] =
     useState<NotificationChannel | null>(null)
 
-  useEffect(() => {
-    if (notificationSettings) {
-      setSettings(notificationSettings)
-    }
-  }, [notificationSettings])
-
-  useEffect(() => {
-    if (syncSafetySettings) {
-      setSafetySettings(syncSafetySettings)
-    }
-  }, [syncSafetySettings])
-
-  useEffect(() => {
-    if (advancedSettings) {
-      setAdvanced(advancedSettings)
-    }
-  }, [advancedSettings])
+  const saveNotificationSettingsWithToast = useMutationWithToast(
+    updateNotificationSettings,
+    {
+      successMessage: "Notification settings saved",
+      errorMessage: "Failed to save settings",
+      rethrow: true,
+      onSuccess: setSettings,
+    },
+  )
 
   const handleSaveFromDialog = async (updated: NotificationSettings) => {
-    try {
-      await updateNotificationSettings(updated).unwrap()
-      setSettings(updated)
-      toast.success("Notification settings saved")
-    } catch (error) {
-      toast.error("Failed to save settings", {
-        description: getApiErrorMessage(error),
-      })
-      throw error
-    }
+    await saveNotificationSettingsWithToast(updated)
   }
 
   const handleTestNotification = async (channel: NotificationChannel) => {
@@ -84,50 +68,41 @@ export function Settings() {
     toast.success(`Test notification sent to ${channel}`)
   }
 
+  const saveSyncSafetyWithToast = useMutationWithToast(
+    updateSyncSafetySettings,
+    {
+      successMessage: "Sync safety settings saved",
+      errorMessage: "Failed to save sync safety settings",
+    },
+  )
+  const saveAdvancedWithToast = useMutationWithToast(
+    updateAdvancedSettings,
+    {
+      successMessage: "Advanced settings saved",
+      errorMessage: "Failed to save advanced settings",
+    },
+  )
+
   const handleRemoveConfig = async (channel: NotificationChannel) => {
     if (!settings) return
-    try {
-      const empty = getEmptyChannelConfig(channel)
-      const updated: NotificationSettings = {
-        ...settings,
-        channels: {
-          ...settings.channels,
-          [channel]: { ...empty, enabled: false },
-        },
-      }
-      await updateNotificationSettings(updated).unwrap()
-      setSettings(updated)
-      setRemoveChannel(null)
-      toast.success(`${channel} configuration removed`)
-    } catch (error) {
-      toast.error("Failed to remove configuration", {
-        description: getApiErrorMessage(error),
-      })
+    const empty = getEmptyChannelConfig(channel)
+    const updated: NotificationSettings = {
+      ...settings,
+      channels: {
+        ...settings.channels,
+        [channel]: { ...empty, enabled: false },
+      },
     }
+    await saveNotificationSettingsWithToast(updated)
+    setRemoveChannel(null)
   }
 
   const handleSaveSyncSafety = async () => {
-    if (!safetySettings) return
-    try {
-      await updateSyncSafetySettings(safetySettings).unwrap()
-      toast.success("Sync safety settings saved")
-    } catch (error) {
-      toast.error("Failed to save sync safety settings", {
-        description: getApiErrorMessage(error),
-      })
-    }
+    if (safetySettings) await saveSyncSafetyWithToast(safetySettings)
   }
 
   const handleSaveAdvanced = async () => {
-    if (!advanced) return
-    try {
-      await updateAdvancedSettings(advanced).unwrap()
-      toast.success("Advanced settings saved")
-    } catch (error) {
-      toast.error("Failed to save advanced settings", {
-        description: getApiErrorMessage(error),
-      })
-    }
+    if (advanced) await saveAdvancedWithToast(advanced)
   }
 
   if (
