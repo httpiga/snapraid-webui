@@ -213,24 +213,24 @@ export function parseDiskStatus(output: string): DiskStatusInfo[] {
       /^\s*(\d+)\s+(\d+)\s+(\d+)\s+([\d.]+|-)\s+(\d+)\s+(\d+|\s*-\s*)\s+(?:\d+%|-)\s+(\S+)$/
     );
     if (diskMatch) {
-      const [, files, fragmented, excess, _wasted, usedGB, freeStr, name] =
+      const [, files, fragmented, excess, wastedGB, usedGB, freeStr, name] =
         diskMatch;
       const freeGB =
         freeStr.trim() === "" || freeStr.trim() === "-"
           ? 0
           : parseFloat(freeStr.trim());
       const used = parseFloat(usedGB);
+      const wasted = parseFloat(wastedGB);
       const totalGB = used + freeGB;
       disks.push({
         name,
         files: parseInt(files, 10),
         fragmentedFiles: parseInt(fragmented, 10),
         excessFragments: parseInt(excess, 10),
-        wastedGB: 0,
+        wastedGB: wasted,
         usedGB: used,
         freeGB,
-        usePercent:
-          totalGB > 0 ? Math.round((used / totalGB) * 100) : 0,
+        usePercent: totalGB > 0 ? Math.round((used / totalGB) * 100) : 0,
       });
       continue;
     }

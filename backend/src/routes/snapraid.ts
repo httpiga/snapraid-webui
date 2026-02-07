@@ -69,7 +69,7 @@ async function getStatusWithDiff() {
     if (status.newFiles + status.modifiedFiles + status.deletedFiles > 0) {
       status.parityUpToDate = false;
     }
-  } catch (_) {
+  } catch {
     // Keep status defaults if diff fails
   }
   return status;
@@ -216,9 +216,8 @@ router.post("/command/:cmd", async (req, res) => {
     // Check sync safety before running sync command
     if (command === "sync") {
       // Validate sync safety before executing
-      const validation = await validateSyncSafetyWithNotification(
-        SNAPRAID_CONF_FILE
-      );
+      const validation =
+        await validateSyncSafetyWithNotification(SNAPRAID_CONF_FILE);
 
       if (!validation.safe) {
         res.status(400).json({

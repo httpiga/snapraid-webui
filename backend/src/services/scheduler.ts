@@ -3,11 +3,7 @@ import cronParser from "cron-parser";
 import fs from "fs/promises";
 import { existsSync } from "fs";
 import { v4 as uuidv4 } from "uuid";
-import type {
-  Schedule,
-  ScheduleConfig,
-  SnapRaidCommand,
-} from "@snapraid-webui/shared";
+import type { Schedule, ScheduleConfig } from "@snapraid-webui/shared";
 import { SCHEDULES_FILE, SNAPRAID_CONF_FILE } from "../config.js";
 import { snapraidRunner } from "./snapraid-runner.js";
 import { createLogFile, appendToLogFile } from "../routes/logs.js";
