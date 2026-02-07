@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from "uuid"
 import type { Schedule, ScheduleConfig } from "@snapraid-webui/shared"
 import { SCHEDULES_FILE, SNAPRAID_CONF_FILE } from "../config"
 import { snapraidRunner } from "./snapraid-runner"
-import { createLogFile, appendToLogFile } from "../routes/logs"
+import { createLogFile, appendToLogFile } from "./command-log"
 import {
   sendNotification,
   getOperationNotificationPayload,

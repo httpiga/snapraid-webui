@@ -3,7 +3,7 @@ import type { Server } from "http"
 import type { WSMessage, SnapRaidCommand } from "@snapraid-webui/shared"
 import { snapraidRunner } from "./services/snapraid-runner"
 import { SNAPRAID_CONF_FILE } from "./config"
-import { createLogFile, appendToLogFile } from "./routes/logs"
+import { createLogFile, appendToLogFile } from "./services/command-log"
 import {
   sendNotification,
   getOperationNotificationPayload,
