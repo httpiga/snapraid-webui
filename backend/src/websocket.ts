@@ -4,15 +4,11 @@ import type { WSMessage, SnapRaidCommand } from "@snapraid-webui/shared"
 import { snapraidRunner } from "./services/snapraid-runner"
 import { SNAPRAID_CONF_FILE } from "./config"
 import { createLogFile, appendToLogFile } from "./services/command-log"
-import {
-  sendNotification,
-  getOperationNotificationPayload,
-} from "./services/notifications/index"
 import { validateSyncSafetyWithNotification } from "./services/sync-safety"
 import {
-  loadAdvancedSettings,
-  getAdvancedArgsForCommand,
-} from "./services/advanced-settings"
+  prepareArgs,
+  executeWithNotification,
+} from "./services/command-execution"
 
 // Connected clients
 const clients = new Set<WebSocket>()
@@ -73,11 +69,11 @@ export async function executeCommandWithStreaming(
   }
 
   try {
-    const result = await snapraidRunner.executeCommand(
+    const result = await executeWithNotification(
       command,
       SNAPRAID_CONF_FILE,
-      handleOutput,
       args,
+      { onOutput: handleOutput, diffOutput: options?.diffOutput },
     )
 
     // Append completion to log
@@ -97,26 +93,6 @@ export async function executeCommandWithStreaming(
       exitCode: result.exitCode,
       timestamp: new Date().toISOString(),
     })
-
-    // Send notification for sync/scrub (manual run via WebSocket)
-    const payload = getOperationNotificationPayload(command, result.exitCode, {
-      diffOutput: options?.diffOutput,
-    })
-    if (payload) {
-      try {
-        await sendNotification(
-          payload.event,
-          payload.title,
-          payload.message,
-          payload.details,
-        )
-      } catch (err) {
-        console.error(
-          "[notifications] Failed to send operation notification:",
-          err,
-        )
-      }
-    }
 
     return result
   } catch (error) {
@@ -193,13 +169,7 @@ export function initializeWebSocket(server: Server): WebSocketServer {
             return
           }
 
-          // Load advanced settings and merge with user args
-          const advancedSettings = await loadAdvancedSettings()
-          const advancedArgs = getAdvancedArgsForCommand(
-            advancedSettings,
-            command,
-          )
-          const finalArgs = [...advancedArgs, ...args]
+          const finalArgs = await prepareArgs(command, args)
 
           let diffOutput = ""
           // Check sync safety before running sync command

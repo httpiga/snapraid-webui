@@ -3,10 +3,7 @@ import type { SnapRaidCommand } from "@snapraid-webui/shared"
 import { SNAPRAID_CONF_FILE } from "../config"
 import { snapraidRunner } from "../services/snapraid-runner"
 import { validateSyncSafetyWithNotification } from "../services/sync-safety"
-import {
-  loadAdvancedSettings,
-  getAdvancedArgsForCommand,
-} from "../services/advanced-settings"
+import { prepareArgs } from "../services/command-execution"
 import {
   handleSnapraidError,
   respondIfCommandRunning,
@@ -102,10 +99,7 @@ router.post("/command/:cmd", async (req, res) => {
   }
 
   try {
-    // Load advanced settings and merge with user args
-    const advancedSettings = await loadAdvancedSettings()
-    const advancedArgs = getAdvancedArgsForCommand(advancedSettings, command)
-    const finalArgs = [...advancedArgs, ...args]
+    const finalArgs = await prepareArgs(command, args)
 
     // Check sync safety before running sync command
     if (command === "sync") {
@@ -195,9 +189,7 @@ router.post("/fix", async (req, res) => {
   }
 
   try {
-    // Load advanced settings and merge with fix options
-    const advancedSettings = await loadAdvancedSettings()
-    const advancedArgs = getAdvancedArgsForCommand(advancedSettings, "fix")
+    const advancedArgs = await prepareArgs("fix", [])
 
     // Start fix command
     snapraidRunner

@@ -1,10 +1,7 @@
 import type { Response } from "express"
 import type { SnapRaidCommand } from "@snapraid-webui/shared"
 import { snapraidRunner } from "../services/snapraid-runner"
-import {
-  sendNotification,
-  getOperationNotificationPayload,
-} from "../services/notifications/index"
+import { executeWithNotification } from "../services/command-execution"
 
 export const SNAPRAID_NOT_FOUND_MESSAGE = "SnapRAID binary not found"
 export const SNAPRAID_NOT_FOUND_CODE = "SNAPRAID_NOT_FOUND"
@@ -78,26 +75,9 @@ export function queueLongRunningCommand(
   args: string[],
   configPath: string,
 ): void {
-  snapraidRunner
-    .executeCommand(command, configPath, undefined, args)
-    .then(async (result) => {
-      const payload = getOperationNotificationPayload(command, result.exitCode)
-      if (payload) {
-        try {
-          await sendNotification(
-            payload.event,
-            payload.title,
-            payload.message,
-            payload.details,
-          )
-        } catch (err) {
-          console.error("Failed to send operation notification:", err)
-        }
-      }
-    })
-    .catch((error) => {
-      console.error(`Command ${command} failed:`, error)
-    })
+  executeWithNotification(command, configPath, args).catch((error) => {
+    console.error(`Command ${command} failed:`, error)
+  })
 }
 
 export const VALID_COMMANDS: SnapRaidCommand[] = [
