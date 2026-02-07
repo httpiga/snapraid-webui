@@ -1,5 +1,5 @@
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertTriangle } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { AlertTriangle } from "lucide-react"
 
 export function RecoveryWarning() {
   return (
@@ -10,9 +10,10 @@ export function RecoveryWarning() {
       </div>
       <AlertDescription className="text-sm text-muted-foreground">
         File recovery will restore files to their state at the last sync. <br />
-        Any changes made to files after the last sync will be overwritten. <br />
+        Any changes made to files after the last sync will be overwritten.{" "}
+        <br />
         Make sure you have a backup of any important changes.
       </AlertDescription>
     </Alert>
-  );
+  )
 }

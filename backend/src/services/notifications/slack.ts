@@ -1,24 +1,24 @@
-import type { SlackSettings, NotificationEvent } from "@snapraid-webui/shared";
+import type { SlackSettings, NotificationEvent } from "@snapraid-webui/shared"
 
 interface SlackBlock {
-  type: string;
+  type: string
   text?: {
-    type: string;
-    text: string;
-    emoji?: boolean;
-  };
+    type: string
+    text: string
+    emoji?: boolean
+  }
   fields?: Array<{
-    type: string;
-    text: string;
-  }>;
+    type: string
+    text: string
+  }>
 }
 
 interface SlackMessage {
-  blocks?: SlackBlock[];
+  blocks?: SlackBlock[]
   attachments?: Array<{
-    color: string;
-    blocks: SlackBlock[];
-  }>;
+    color: string
+    blocks: SlackBlock[]
+  }>
 }
 
 /**
@@ -29,10 +29,10 @@ export async function sendSlackNotification(
   event: NotificationEvent,
   title: string,
   message: string,
-  details?: Record<string, string>
+  details?: Record<string, string>,
 ): Promise<boolean> {
   if (!settings.enabled || !settings.webhookUrl) {
-    return false;
+    return false
   }
 
   // Color based on event type
@@ -43,7 +43,7 @@ export async function sendSlackNotification(
     sync_safety_halt: "#ff9800", // Orange
     scrub_complete: "#36a64f", // Green
     scrub_error: "#ff0000", // Red
-  };
+  }
 
   // Emoji based on event type
   const emojis: Record<NotificationEvent, string> = {
@@ -53,9 +53,9 @@ export async function sendSlackNotification(
     sync_safety_halt: ":warning:",
     scrub_complete: ":white_check_mark:",
     scrub_error: ":x:",
-  };
+  }
 
-  const emoji = emojis[event] || ":bell:";
+  const emoji = emojis[event] || ":bell:"
 
   const blocks: SlackBlock[] = [
     {
@@ -73,18 +73,18 @@ export async function sendSlackNotification(
         text: message,
       },
     },
-  ];
+  ]
 
   if (details) {
     const fields = Object.entries(details).map(([key, value]) => ({
       type: "mrkdwn" as const,
       text: `*${key}:*\n${value}`,
-    }));
+    }))
 
     blocks.push({
       type: "section",
       fields,
-    });
+    })
   }
 
   const payload: SlackMessage = {
@@ -94,25 +94,25 @@ export async function sendSlackNotification(
         blocks,
       },
     ],
-  };
+  }
 
   try {
     const response = await fetch(settings.webhookUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
-    });
+    })
 
     if (!response.ok) {
       console.error(
-        `Slack webhook failed: ${response.status} ${response.statusText}`
-      );
-      return false;
+        `Slack webhook failed: ${response.status} ${response.statusText}`,
+      )
+      return false
     }
 
-    return true;
+    return true
   } catch (error) {
-    console.error("Slack notification error:", error);
-    return false;
+    console.error("Slack notification error:", error)
+    return false
   }
 }

@@ -1,40 +1,40 @@
-import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useLoginMutation } from "@/store/api";
-import { toast } from "sonner";
-import { getApiErrorMessage } from "@/lib/api-error";
+import { useState } from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { useLoginMutation } from "@/store/api"
+import { toast } from "sonner"
+import { getApiErrorMessage } from "@/lib/api-error"
 
 type LoginProps = {
-  onSuccess: () => void;
-};
+  onSuccess: () => void
+}
 
 export function Login({ onSuccess }: LoginProps) {
-  const [username, setUsername] = useState("admin");
-  const [password, setPassword] = useState("");
-  const [login, { isLoading }] = useLoginMutation();
+  const [username, setUsername] = useState("admin")
+  const [password, setPassword] = useState("")
+  const [login, { isLoading }] = useLoginMutation()
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+    event.preventDefault()
 
     if (!username.trim() || !password) {
-      toast.error("Username and password are required");
-      return;
+      toast.error("Username and password are required")
+      return
     }
 
     try {
-      await login({ username: username.trim(), password }).unwrap();
-      toast.success("Logged in");
-      setPassword("");
-      onSuccess();
+      await login({ username: username.trim(), password }).unwrap()
+      toast.success("Logged in")
+      setPassword("")
+      onSuccess()
     } catch (error) {
       toast.error("Login failed", {
         description: getApiErrorMessage(error),
-      });
+      })
     }
-  };
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -70,5 +70,5 @@ export function Login({ onSuccess }: LoginProps) {
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

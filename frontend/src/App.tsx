@@ -1,15 +1,15 @@
-import { Routes, Route } from "react-router-dom";
-import { Layout } from "./components/Layout";
-import { Dashboard } from "./pages/Dashboard";
-import { Disks } from "./pages/Disks";
-import { Operations } from "./pages/Operations";
-import { Schedules } from "./pages/Schedules";
-import { Recovery } from "./pages/Recovery";
-import { Logs } from "./pages/Logs";
-import { Settings } from "./pages/Settings";
-import { Toaster } from "./components/ui/sonner";
-import { ThemeProvider } from "./components/theme/ThemeProvider";
-import { AuthGate } from "./components/auth/AuthGate";
+import { Routes, Route } from "react-router-dom"
+import { Layout } from "./components/Layout"
+import { Dashboard } from "./pages/Dashboard"
+import { Disks } from "./pages/Disks"
+import { Operations } from "./pages/Operations"
+import { Schedules } from "./pages/Schedules"
+import { Recovery } from "./pages/Recovery"
+import { Logs } from "./pages/Logs"
+import { Settings } from "./pages/Settings"
+import { Toaster } from "./components/ui/sonner"
+import { ThemeProvider } from "./components/theme/ThemeProvider"
+import { AuthGate } from "./components/auth/AuthGate"
 
 function App() {
   return (
@@ -31,7 +31,7 @@ function App() {
         <Toaster />
       </ThemeProvider>
     </>
-  );
+  )
 }
 
-export default App;
+export default App

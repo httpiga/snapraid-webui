@@ -4,28 +4,28 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { CommandBadge } from "@/components/ui/command-badge";
-import { Calendar } from "lucide-react";
-import type { Schedule } from "@shared/types";
+} from "@/components/ui/card"
+import { CommandBadge } from "@/components/ui/command-badge"
+import { Calendar } from "lucide-react"
+import type { Schedule } from "@shared/types"
 
 function formatNextRun(isoString: string | undefined): string {
-  if (!isoString) return "—";
-  const date = new Date(isoString);
-  const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const tomorrow = new Date(today);
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  if (!isoString) return "—"
+  const date = new Date(isoString)
+  const now = new Date()
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  const tomorrow = new Date(today)
+  tomorrow.setDate(tomorrow.getDate() + 1)
+  const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate())
   const timeStr = date.toLocaleTimeString(undefined, {
     hour: "2-digit",
     minute: "2-digit",
-  });
+  })
   if (dateOnly.getTime() === today.getTime()) {
-    return `Today at ${timeStr}`;
+    return `Today at ${timeStr}`
   }
   if (dateOnly.getTime() === tomorrow.getTime()) {
-    return `Tomorrow at ${timeStr}`;
+    return `Tomorrow at ${timeStr}`
   }
   return (
     date.toLocaleDateString(undefined, {
@@ -33,20 +33,22 @@ function formatNextRun(isoString: string | undefined): string {
       day: "numeric",
       year: date.getFullYear() !== now.getFullYear() ? "numeric" : undefined,
     }) + ` at ${timeStr}`
-  );
+  )
 }
 
 interface DashboardScheduleCardProps {
-  schedules: Schedule[];
+  schedules: Schedule[]
 }
 
-export function DashboardScheduleCard({ schedules }: DashboardScheduleCardProps) {
-  const enabled = schedules.filter((schedule) => schedule.enabled);
+export function DashboardScheduleCard({
+  schedules,
+}: DashboardScheduleCardProps) {
+  const enabled = schedules.filter((schedule) => schedule.enabled)
   const sorted = [...enabled].sort((a, b) => {
-    const aTime = a.nextRun ? new Date(a.nextRun).getTime() : Infinity;
-    const bTime = b.nextRun ? new Date(b.nextRun).getTime() : Infinity;
-    return aTime - bTime;
-  });
+    const aTime = a.nextRun ? new Date(a.nextRun).getTime() : Infinity
+    const bTime = b.nextRun ? new Date(b.nextRun).getTime() : Infinity
+    return aTime - bTime
+  })
 
   return (
     <Card className="lg:col-span-4">
@@ -85,5 +87,5 @@ export function DashboardScheduleCard({ schedules }: DashboardScheduleCardProps)
         )}
       </CardContent>
     </Card>
-  );
+  )
 }

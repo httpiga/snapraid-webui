@@ -1,18 +1,19 @@
-import * as React from "react";
-import { Badge } from "@/components/ui/badge";
-import { badgeVariants } from "@/components/ui/badge-variants";
-import { COMMAND_ICONS, COMMAND_LABELS } from "@/lib/commands";
-import { cn } from "@/lib/utils";
-import type { SnapRaidCommand } from "@shared/types";
-import type { VariantProps } from "class-variance-authority";
+import * as React from "react"
+import { Badge } from "@/components/ui/badge"
+import { badgeVariants } from "@/components/ui/badge-variants"
+import { COMMAND_ICONS, COMMAND_LABELS } from "@/lib/commands"
+import { cn } from "@/lib/utils"
+import type { SnapRaidCommand } from "@shared/types"
+import type { VariantProps } from "class-variance-authority"
 
 export interface CommandBadgeProps
-  extends Omit<React.ComponentProps<typeof Badge>, "children" | "variant">,
+  extends
+    Omit<React.ComponentProps<typeof Badge>, "children" | "variant">,
     VariantProps<typeof badgeVariants> {
   /** The command enum value (e.g. Command.SYNC or "sync"). */
-  command: SnapRaidCommand;
+  command: SnapRaidCommand
   /** Optional: render icon on the right instead of left. Default is "start". */
-  iconPosition?: "start" | "end";
+  iconPosition?: "start" | "end"
 }
 
 /**
@@ -27,16 +28,16 @@ function CommandBadge({
   className,
   ...props
 }: CommandBadgeProps) {
-  const Icon = COMMAND_ICONS[command];
-  const label = COMMAND_LABELS[command];
-  const iconDataAttr = iconPosition === "end" ? "inline-end" : "inline-start";
+  const Icon = COMMAND_ICONS[command]
+  const label = COMMAND_LABELS[command]
+  const iconDataAttr = iconPosition === "end" ? "inline-end" : "inline-start"
 
   return (
     <Badge variant="outline" className={cn(className)} {...props}>
       <Icon data-icon={iconDataAttr} className="size-3" />
       {label}
     </Badge>
-  );
+  )
 }
 
-export { CommandBadge };
+export { CommandBadge }

@@ -1,12 +1,12 @@
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
-import type { CommandConfig } from "@/lib/command-config";
+import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
+import { Switch } from "@/components/ui/switch"
+import type { CommandConfig } from "@/lib/command-config"
 
 interface CommandOptionsProps {
-  commandConfig: CommandConfig | null;
-  value: Record<string, unknown>;
-  onChange: (value: Record<string, unknown>) => void;
+  commandConfig: CommandConfig | null
+  value: Record<string, unknown>
+  onChange: (value: Record<string, unknown>) => void
 }
 
 /**
@@ -23,7 +23,7 @@ export function CommandOptions({
       <p className="text-sm text-muted-foreground">
         Select a command to see options
       </p>
-    );
+    )
   }
 
   if (!commandConfig.options || commandConfig.options.length === 0) {
@@ -31,7 +31,7 @@ export function CommandOptions({
       <p className="text-sm text-muted-foreground">
         No additional options available
       </p>
-    );
+    )
   }
 
   return (
@@ -78,5 +78,5 @@ export function CommandOptions({
         </div>
       ))}
     </div>
-  );
+  )
 }

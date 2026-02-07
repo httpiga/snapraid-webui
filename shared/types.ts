@@ -6,42 +6,42 @@
 // ============================================================================
 
 export interface SnapRaidConfig {
-  name: string;
-  path: string;
-  enabled: boolean;
+  name: string
+  path: string
+  enabled: boolean
 }
 
 export interface ParsedSnapRaidConfig {
-  parity: string[];
-  "2-parity"?: string[];
-  "3-parity"?: string[];
-  "4-parity"?: string[];
-  "5-parity"?: string[];
-  "6-parity"?: string[];
-  content: string[];
-  data: Record<string, string>;
-  exclude: string[];
-  include: string[];
-  blocksize?: number;
-  hashsize?: number;
-  autosave?: number;
-  pool?: string;
-  nohidden?: boolean;
+  parity: string[]
+  "2-parity"?: string[]
+  "3-parity"?: string[]
+  "4-parity"?: string[]
+  "5-parity"?: string[]
+  "6-parity"?: string[]
+  content: string[]
+  data: Record<string, string>
+  exclude: string[]
+  include: string[]
+  blocksize?: number
+  hashsize?: number
+  autosave?: number
+  pool?: string
+  nohidden?: boolean
 }
 
 export interface AppConfig {
-  version: string;
-  snapraidConfigs: SnapRaidConfig[];
+  version: string
+  snapraidConfigs: SnapRaidConfig[]
   logs: {
-    maxHistoryEntries: number;
-    directory: string;
-    maxFiles: number;
-    maxAgeDays: number;
-  };
-  notifications: NotificationSettings;
-  syncSafety: SyncSafetySettings;
-  advanced?: AdvancedSettings;
-  auth: AuthSettings;
+    maxHistoryEntries: number
+    directory: string
+    maxFiles: number
+    maxAgeDays: number
+  }
+  notifications: NotificationSettings
+  syncSafety: SyncSafetySettings
+  advanced?: AdvancedSettings
+  auth: AuthSettings
 }
 
 // ============================================================================
@@ -49,26 +49,26 @@ export interface AppConfig {
 // ============================================================================
 
 export interface DiskInfo {
-  name: string;
-  path: string;
-  type: "data" | "parity";
+  name: string
+  path: string
+  type: "data" | "parity"
 }
 
 export interface DiskStatusInfo {
-  name: string;
-  files: number;
-  fragmentedFiles: number;
-  excessFragments: number;
-  wastedGB: number;
-  usedGB: number;
-  freeGB: number;
-  usePercent: number;
+  name: string
+  files: number
+  fragmentedFiles: number
+  excessFragments: number
+  wastedGB: number
+  usedGB: number
+  freeGB: number
+  usePercent: number
 }
 
 export interface DiskPowerStatus {
-  name: string;
-  device: string;
-  status: "Active" | "Standby" | "Idle" | "Unknown";
+  name: string
+  device: string
+  status: "Active" | "Standby" | "Idle" | "Unknown"
 }
 
 // ============================================================================
@@ -76,41 +76,41 @@ export interface DiskPowerStatus {
 // ============================================================================
 
 export interface ScrubHistoryPoint {
-  daysAgo: number;
-  percentage: number;
+  daysAgo: number
+  percentage: number
 }
 
 export interface SnapRaidStatus {
-  hasErrors: boolean;
-  hasWarnings?: boolean;
-  parityUpToDate: boolean;
-  newFiles: number;
-  modifiedFiles: number;
-  deletedFiles: number;
-  equalFiles?: number;
-  movedFiles?: number;
-  copiedFiles?: number;
-  restoredFiles?: number;
-  scrubPercentage?: number;
-  syncInProgress?: boolean;
-  oldestScrubDays?: number;
-  medianScrubDays?: number;
-  newestScrubDays?: number;
-  fragmentedFiles?: number;
-  wastedGB?: number;
-  freeSpaceGB?: number;
-  totalFiles?: number;
-  totalUsedGB?: number;
-  totalFreeGB?: number;
-  disks?: DiskStatusInfo[];
-  scrubHistory?: ScrubHistoryPoint[];
-  rawOutput: string;
+  hasErrors: boolean
+  hasWarnings?: boolean
+  parityUpToDate: boolean
+  newFiles: number
+  modifiedFiles: number
+  deletedFiles: number
+  equalFiles?: number
+  movedFiles?: number
+  copiedFiles?: number
+  restoredFiles?: number
+  scrubPercentage?: number
+  syncInProgress?: boolean
+  oldestScrubDays?: number
+  medianScrubDays?: number
+  newestScrubDays?: number
+  fragmentedFiles?: number
+  wastedGB?: number
+  freeSpaceGB?: number
+  totalFiles?: number
+  totalUsedGB?: number
+  totalFreeGB?: number
+  disks?: DiskStatusInfo[]
+  scrubHistory?: ScrubHistoryPoint[]
+  rawOutput: string
 }
 
 export interface ProbeReport {
-  disks: DiskPowerStatus[];
-  timestamp: string;
-  rawOutput: string;
+  disks: DiskPowerStatus[]
+  timestamp: string
+  rawOutput: string
 }
 
 export interface DiffFileInfo {
@@ -121,37 +121,37 @@ export interface DiffFileInfo {
     | "updated"
     | "moved"
     | "copied"
-    | "restored";
-  name: string;
-  size?: string;
+    | "restored"
+  name: string
+  size?: string
 }
 
 export interface DiffReport {
-  files: DiffFileInfo[];
-  totalFiles: number;
-  equalFiles: number;
-  newFiles: number;
-  modifiedFiles: number;
-  deletedFiles: number;
-  movedFiles: number;
-  copiedFiles: number;
-  restoredFiles: number;
-  timestamp: string;
-  rawOutput: string;
+  files: DiffFileInfo[]
+  totalFiles: number
+  equalFiles: number
+  newFiles: number
+  modifiedFiles: number
+  deletedFiles: number
+  movedFiles: number
+  copiedFiles: number
+  restoredFiles: number
+  timestamp: string
+  rawOutput: string
 }
 
 export interface DeviceInfo {
-  majorMinor: string;
-  device: string;
-  partMajorMinor: string;
-  partition: string;
-  diskName: string;
+  majorMinor: string
+  device: string
+  partMajorMinor: string
+  partition: string
+  diskName: string
 }
 
 export interface DevicesReport {
-  devices: DeviceInfo[];
-  timestamp: string;
-  rawOutput: string;
+  devices: DeviceInfo[]
+  timestamp: string
+  rawOutput: string
 }
 
 // ============================================================================
@@ -173,20 +173,20 @@ export type SnapRaidCommand =
   | "list"
   | "dup"
   | "touch"
-  | "rehash";
+  | "rehash"
 
 export interface CommandOutput {
-  command: string;
-  output: string;
-  timestamp: string;
-  exitCode: number | null;
+  command: string
+  output: string
+  timestamp: string
+  exitCode: number | null
 }
 
 export interface RunningJob {
-  command: SnapRaidCommand;
-  configPath: string;
-  startTime: string;
-  processId: string;
+  command: SnapRaidCommand
+  configPath: string
+  startTime: string
+  processId: string
 }
 
 // ============================================================================
@@ -198,18 +198,18 @@ export type WSMessageType =
   | "complete"
   | "error"
   | "status"
-  | "connected";
+  | "connected"
 
 export interface WSMessage {
-  type: WSMessageType;
-  command?: string;
-  args?: string[];
-  chunk?: string;
-  exitCode?: number;
-  timestamp?: string;
-  error?: string;
-  status?: SnapRaidStatus;
-  syncSafetySettings?: SyncSafetySettings;
+  type: WSMessageType
+  command?: string
+  args?: string[]
+  chunk?: string
+  exitCode?: number
+  timestamp?: string
+  error?: string
+  status?: SnapRaidStatus
+  syncSafetySettings?: SyncSafetySettings
 }
 
 // ============================================================================
@@ -217,28 +217,28 @@ export interface WSMessage {
 // ============================================================================
 
 export interface Schedule {
-  id: string;
-  name: string;
-  command: SnapRaidCommand;
-  configPath: string;
-  args?: string[];
-  cronExpression: string;
-  enabled: boolean;
-  lastRun?: string;
-  nextRun?: string;
-  createdAt: string;
-  updatedAt: string;
+  id: string
+  name: string
+  command: SnapRaidCommand
+  configPath: string
+  args?: string[]
+  cronExpression: string
+  enabled: boolean
+  lastRun?: string
+  nextRun?: string
+  createdAt: string
+  updatedAt: string
 }
 
 export interface ScheduleConfig {
-  schedules: Schedule[];
+  schedules: Schedule[]
 }
 
 // ============================================================================
 // Notification Types
 // ============================================================================
 
-export type NotificationChannel = "discord" | "telegram" | "email" | "slack";
+export type NotificationChannel = "discord" | "telegram" | "email" | "slack"
 
 export type NotificationEvent =
   | "sync_complete"
@@ -246,7 +246,7 @@ export type NotificationEvent =
   | "sync_aborted"
   | "sync_safety_halt"
   | "scrub_complete"
-  | "scrub_error";
+  | "scrub_error"
 
 export const NOTIFICATION_EVENTS: NotificationEvent[] = [
   "sync_complete",
@@ -255,43 +255,43 @@ export const NOTIFICATION_EVENTS: NotificationEvent[] = [
   "sync_safety_halt",
   "scrub_complete",
   "scrub_error",
-];
+]
 
 interface NotificationChannelSettingsBase {
-  enabled: boolean;
-  events: NotificationEvent[];
+  enabled: boolean
+  events: NotificationEvent[]
 }
 
 export interface DiscordSettings extends NotificationChannelSettingsBase {
-  webhookUrl: string;
+  webhookUrl: string
 }
 
 export interface TelegramSettings extends NotificationChannelSettingsBase {
-  botToken: string;
-  chatId: string;
+  botToken: string
+  chatId: string
 }
 
 export interface EmailSettings extends NotificationChannelSettingsBase {
-  smtpHost: string;
-  smtpPort: number;
-  smtpSecure: boolean;
-  smtpUser: string;
-  smtpPass: string;
-  fromAddress: string;
-  toAddresses: string[];
+  smtpHost: string
+  smtpPort: number
+  smtpSecure: boolean
+  smtpUser: string
+  smtpPass: string
+  fromAddress: string
+  toAddresses: string[]
 }
 
 export interface SlackSettings extends NotificationChannelSettingsBase {
-  webhookUrl: string;
+  webhookUrl: string
 }
 
 export interface NotificationSettings {
   channels: {
-    discord: DiscordSettings;
-    telegram: TelegramSettings;
-    email: EmailSettings;
-    slack: SlackSettings;
-  };
+    discord: DiscordSettings
+    telegram: TelegramSettings
+    email: EmailSettings
+    slack: SlackSettings
+  }
 }
 
 // ============================================================================
@@ -299,12 +299,12 @@ export interface NotificationSettings {
 // ============================================================================
 
 export interface SyncSafetySettings {
-  enabled: boolean;
-  maxDeletedFiles: number;
-  maxUpdatedFiles: number;
-  maxAddedFiles: number;
-  preHash: boolean;
-  forceEmpty: boolean;
+  enabled: boolean
+  maxDeletedFiles: number
+  maxUpdatedFiles: number
+  maxAddedFiles: number
+  preHash: boolean
+  forceEmpty: boolean
 }
 
 // ============================================================================
@@ -312,10 +312,10 @@ export interface SyncSafetySettings {
 // ============================================================================
 
 export interface AdvancedSettings {
-  spinDownOnError: boolean;
-  bwLimit: string;
-  forceUuid: boolean;
-  errorLimit: number;
+  spinDownOnError: boolean
+  bwLimit: string
+  forceUuid: boolean
+  errorLimit: number
 }
 
 // ============================================================================
@@ -323,28 +323,28 @@ export interface AdvancedSettings {
 // ============================================================================
 
 export interface AuthSettings {
-  enabled: boolean;
-  username: string;
-  passwordHash: string;
-  sessionSecret: string;
+  enabled: boolean
+  username: string
+  passwordHash: string
+  sessionSecret: string
 }
 
 export interface AuthStatus {
-  enabled: boolean;
-  authenticated: boolean;
-  username: string | null;
+  enabled: boolean
+  authenticated: boolean
+  username: string | null
 }
 
 export interface AuthSettingsResponse {
-  enabled: boolean;
-  username: string;
-  hasPassword: boolean;
+  enabled: boolean
+  username: string
+  hasPassword: boolean
 }
 
 export interface AuthSettingsUpdate {
-  enabled?: boolean;
-  username?: string;
-  password?: string;
+  enabled?: boolean
+  username?: string
+  password?: string
 }
 
 // ============================================================================
@@ -352,13 +352,13 @@ export interface AuthSettingsUpdate {
 // ============================================================================
 
 export interface LogFile {
-  filename: string;
-  path: string;
-  command: SnapRaidCommand;
-  timestamp: string;
-  size: number;
+  filename: string
+  path: string
+  command: SnapRaidCommand
+  timestamp: string
+  size: number
   /** True if the log is from a scheduled run, false if from a manual operation */
-  scheduled?: boolean;
+  scheduled?: boolean
 }
 
 // ============================================================================
@@ -366,33 +366,33 @@ export interface LogFile {
 // ============================================================================
 
 export interface FileSystemEntry {
-  name: string;
-  path: string;
-  isDirectory: boolean;
-  size?: number;
+  name: string
+  path: string
+  isDirectory: boolean
+  size?: number
 }
 
 export interface FileSystemResponse {
-  basePath: string;
-  path: string;
-  parentPath: string | null;
-  entries: FileSystemEntry[];
+  basePath: string
+  path: string
+  parentPath: string | null
+  entries: FileSystemEntry[]
 }
 
 export interface SnapRaidFileInfo {
-  size: number;
-  date: string;
-  time: string;
-  name: string;
+  size: number
+  date: string
+  time: string
+  name: string
 }
 
 export interface ListReport {
-  files: SnapRaidFileInfo[];
-  totalFiles: number;
-  totalSize: number;
-  totalLinks: number;
-  timestamp: string;
-  rawOutput: string;
+  files: SnapRaidFileInfo[]
+  totalFiles: number
+  totalSize: number
+  totalLinks: number
+  timestamp: string
+  rawOutput: string
 }
 
 // ============================================================================
@@ -400,15 +400,15 @@ export interface ListReport {
 // ============================================================================
 
 export interface ApiResponse<T = unknown> {
-  success: boolean;
-  data?: T;
-  error?: string;
+  success: boolean
+  data?: T
+  error?: string
 }
 
 export interface PaginatedResponse<T> {
-  items: T[];
-  total: number;
-  page: number;
-  pageSize: number;
-  totalPages: number;
+  items: T[]
+  total: number
+  page: number
+  pageSize: number
+  totalPages: number
 }

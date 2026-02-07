@@ -4,12 +4,12 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
+} from "@/components/ui/card"
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 interface RawConfigEditorProps {
-  value: string;
-  onChange: (value: string) => void;
+  value: string
+  onChange: (value: string) => void
 }
 
 export function RawConfigEditor({ value, onChange }: RawConfigEditorProps) {
@@ -30,5 +30,5 @@ export function RawConfigEditor({ value, onChange }: RawConfigEditorProps) {
         </ScrollArea>
       </CardContent>
     </Card>
-  );
+  )
 }

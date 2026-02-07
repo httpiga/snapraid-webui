@@ -1,9 +1,9 @@
-import { useGetStatusQuery, useGetSchedulesQuery } from "@/store/api";
-import { PageHeader } from "@/pages/components/PageHeader";
-import { PageLoading } from "@/pages/components/PageLoading";
-import { DashboardStatusCards } from "@/pages/components/dashboard/DashboardStatusCards";
-import { DashboardScheduleCard } from "@/pages/components/dashboard/DashboardScheduleCard";
-import { DashboardDiskStatusCard } from "@/pages/components/dashboard/DashboardDiskStatusCard";
+import { useGetStatusQuery, useGetSchedulesQuery } from "@/store/api"
+import { PageHeader } from "@/pages/components/PageHeader"
+import { PageLoading } from "@/pages/components/PageLoading"
+import { DashboardStatusCards } from "@/pages/components/dashboard/DashboardStatusCards"
+import { DashboardScheduleCard } from "@/pages/components/dashboard/DashboardScheduleCard"
+import { DashboardDiskStatusCard } from "@/pages/components/dashboard/DashboardDiskStatusCard"
 
 export function Dashboard() {
   const {
@@ -12,11 +12,11 @@ export function Dashboard() {
     error,
   } = useGetStatusQuery(undefined, {
     refetchOnMountOrArgChange: true,
-  });
-  const { data: schedules = [] } = useGetSchedulesQuery();
+  })
+  const { data: schedules = [] } = useGetSchedulesQuery()
 
   if (isLoading) {
-    return <PageLoading message="Loading status..." />;
+    return <PageLoading message="Loading status..." />
   }
 
   if (error) {
@@ -28,12 +28,12 @@ export function Dashboard() {
       typeof error.data === "object" &&
       "error" in error.data
         ? (error.data as { error: string }).error
-        : "Failed to load status. Is the backend running?";
+        : "Failed to load status. Is the backend running?"
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-destructive">{message}</div>
       </div>
-    );
+    )
   }
 
   return (
@@ -53,5 +53,5 @@ export function Dashboard() {
         <DashboardDiskStatusCard disks={status.disks} />
       ) : null}
     </div>
-  );
+  )
 }

@@ -1,4 +1,4 @@
-import { describe, test, expect } from "bun:test";
+import { describe, test, expect } from "bun:test"
 import {
   optionsToArgs,
   argsToOptions,
@@ -7,7 +7,7 @@ import {
   argsToSyncSafety,
   type CommandConfig,
   type CommandOption,
-} from "./command-config";
+} from "./command-config"
 
 /** Minimal command config for testing option conversion (no JSX) */
 function mockCommandConfig(options: CommandOption[]): CommandConfig {
@@ -17,14 +17,14 @@ function mockCommandConfig(options: CommandOption[]): CommandConfig {
     description: "Test command",
     longRunning: true,
     options,
-  };
+  }
 }
 
 describe("optionsToArgs", () => {
   test("returns empty array when no options", () => {
-    const config = mockCommandConfig([]);
-    expect(optionsToArgs(config, {})).toEqual([]);
-  });
+    const config = mockCommandConfig([])
+    expect(optionsToArgs(config, {})).toEqual([])
+  })
 
   test("omits false and undefined boolean options", () => {
     const config = mockCommandConfig([
@@ -34,10 +34,10 @@ describe("optionsToArgs", () => {
         type: "boolean",
         description: "Pre-hash",
       },
-    ]);
-    expect(optionsToArgs(config, { "pre-hash": false })).toEqual([]);
-    expect(optionsToArgs(config, {})).toEqual([]);
-  });
+    ])
+    expect(optionsToArgs(config, { "pre-hash": false })).toEqual([])
+    expect(optionsToArgs(config, {})).toEqual([])
+  })
 
   test("adds boolean flag when true", () => {
     const config = mockCommandConfig([
@@ -47,9 +47,9 @@ describe("optionsToArgs", () => {
         type: "boolean",
         description: "Pre-hash",
       },
-    ]);
-    expect(optionsToArgs(config, { "pre-hash": true })).toEqual(["--pre-hash"]);
-  });
+    ])
+    expect(optionsToArgs(config, { "pre-hash": true })).toEqual(["--pre-hash"])
+  })
 
   test("adds short flag and value for string option (plan as percentage)", () => {
     const config = mockCommandConfig([
@@ -60,9 +60,9 @@ describe("optionsToArgs", () => {
         description: "Plan",
         default: "8",
       },
-    ]);
-    expect(optionsToArgs(config, { plan: "10" })).toEqual(["-p", "10"]);
-  });
+    ])
+    expect(optionsToArgs(config, { plan: "10" })).toEqual(["-p", "10"])
+  })
 
   test("adds short flag and value for string option (plan as bad)", () => {
     const config = mockCommandConfig([
@@ -73,9 +73,9 @@ describe("optionsToArgs", () => {
         description: "Plan",
         default: "8",
       },
-    ]);
-    expect(optionsToArgs(config, { plan: "bad" })).toEqual(["-p", "bad"]);
-  });
+    ])
+    expect(optionsToArgs(config, { plan: "bad" })).toEqual(["-p", "bad"])
+  })
 
   test("adds short flag and value for string option (plan as new)", () => {
     const config = mockCommandConfig([
@@ -86,9 +86,9 @@ describe("optionsToArgs", () => {
         description: "Plan",
         default: "8",
       },
-    ]);
-    expect(optionsToArgs(config, { plan: "new" })).toEqual(["-p", "new"]);
-  });
+    ])
+    expect(optionsToArgs(config, { plan: "new" })).toEqual(["-p", "new"])
+  })
 
   test("adds short flag and value for string option (plan as full)", () => {
     const config = mockCommandConfig([
@@ -99,16 +99,16 @@ describe("optionsToArgs", () => {
         description: "Plan",
         default: "8",
       },
-    ]);
-    expect(optionsToArgs(config, { plan: "full" })).toEqual(["-p", "full"]);
-  });
+    ])
+    expect(optionsToArgs(config, { plan: "full" })).toEqual(["-p", "full"])
+  })
 
   test("skips empty string", () => {
     const config = mockCommandConfig([
       { name: "Filter", key: "filter", type: "string", description: "Filter" },
-    ]);
-    expect(optionsToArgs(config, { filter: "" })).toEqual([]);
-  });
+    ])
+    expect(optionsToArgs(config, { filter: "" })).toEqual([])
+  })
 
   test("multiple options", () => {
     const config = mockCommandConfig([
@@ -124,18 +124,18 @@ describe("optionsToArgs", () => {
         type: "boolean",
         description: "Force empty",
       },
-    ]);
+    ])
     expect(
-      optionsToArgs(config, { "pre-hash": true, "force-empty": true })
-    ).toEqual(["--pre-hash", "--force-empty"]);
-  });
-});
+      optionsToArgs(config, { "pre-hash": true, "force-empty": true }),
+    ).toEqual(["--pre-hash", "--force-empty"])
+  })
+})
 
 describe("argsToOptions", () => {
   test("returns empty object when no options", () => {
-    const config = mockCommandConfig([]);
-    expect(argsToOptions(config, [])).toEqual({});
-  });
+    const config = mockCommandConfig([])
+    expect(argsToOptions(config, [])).toEqual({})
+  })
 
   test("boolean: true when flag present", () => {
     const config = mockCommandConfig([
@@ -145,9 +145,9 @@ describe("argsToOptions", () => {
         type: "boolean",
         description: "Pre-hash",
       },
-    ]);
-    expect(argsToOptions(config, ["--pre-hash"])).toEqual({ "pre-hash": true });
-  });
+    ])
+    expect(argsToOptions(config, ["--pre-hash"])).toEqual({ "pre-hash": true })
+  })
 
   test("boolean: false when flag absent", () => {
     const config = mockCommandConfig([
@@ -157,9 +157,9 @@ describe("argsToOptions", () => {
         type: "boolean",
         description: "Pre-hash",
       },
-    ]);
-    expect(argsToOptions(config, [])).toEqual({ "pre-hash": false });
-  });
+    ])
+    expect(argsToOptions(config, [])).toEqual({ "pre-hash": false })
+  })
 
   test("string: parses value after short flag (plan as percentage)", () => {
     const config = mockCommandConfig([
@@ -170,9 +170,9 @@ describe("argsToOptions", () => {
         description: "Plan",
         default: "8",
       },
-    ]);
-    expect(argsToOptions(config, ["-p", "15"])).toEqual({ plan: "15" });
-  });
+    ])
+    expect(argsToOptions(config, ["-p", "15"])).toEqual({ plan: "15" })
+  })
 
   test("string: parses value after short flag (plan as bad)", () => {
     const config = mockCommandConfig([
@@ -183,9 +183,9 @@ describe("argsToOptions", () => {
         description: "Plan",
         default: "8",
       },
-    ]);
-    expect(argsToOptions(config, ["-p", "bad"])).toEqual({ plan: "bad" });
-  });
+    ])
+    expect(argsToOptions(config, ["-p", "bad"])).toEqual({ plan: "bad" })
+  })
 
   test("string: uses default when flag absent", () => {
     const config = mockCommandConfig([
@@ -196,18 +196,18 @@ describe("argsToOptions", () => {
         description: "Plan",
         default: "8",
       },
-    ]);
-    expect(argsToOptions(config, [])).toEqual({ plan: "8" });
-  });
+    ])
+    expect(argsToOptions(config, [])).toEqual({ plan: "8" })
+  })
 
   test("string: uses value after short flag", () => {
     const config = mockCommandConfig([
       { name: "Filter", key: "filter", type: "string", description: "Filter" },
-    ]);
+    ])
     expect(argsToOptions(config, ["-f", "/path/to/file"])).toEqual({
       filter: "/path/to/file",
-    });
-  });
+    })
+  })
 
   test("round-trip: optionsToArgs then argsToOptions", () => {
     const config = mockCommandConfig([
@@ -224,13 +224,13 @@ describe("argsToOptions", () => {
         description: "Plan",
         default: "8",
       },
-    ]);
-    const options = { "pre-hash": true, plan: "20" };
-    const args = optionsToArgs(config, options);
-    const back = argsToOptions(config, args);
-    expect(back["pre-hash"]).toBe(true);
-    expect(back.plan).toBe("20");
-  });
+    ])
+    const options = { "pre-hash": true, plan: "20" }
+    const args = optionsToArgs(config, options)
+    const back = argsToOptions(config, args)
+    expect(back["pre-hash"]).toBe(true)
+    expect(back.plan).toBe("20")
+  })
 
   test("filter-disk option for Fix: optionsToArgs", () => {
     const config = mockCommandConfig([
@@ -240,9 +240,9 @@ describe("argsToOptions", () => {
         type: "string",
         description: "Filter disk",
       },
-    ]);
-    expect(optionsToArgs(config, { "filter-disk": "d1" })).toEqual(["-d", "d1"]);
-  });
+    ])
+    expect(optionsToArgs(config, { "filter-disk": "d1" })).toEqual(["-d", "d1"])
+  })
 
   test("filter-disk option for Fix: argsToOptions", () => {
     const config = mockCommandConfig([
@@ -252,9 +252,11 @@ describe("argsToOptions", () => {
         type: "string",
         description: "Filter disk",
       },
-    ]);
-    expect(argsToOptions(config, ["-d", "d1"])).toEqual({ "filter-disk": "d1" });
-  });
+    ])
+    expect(argsToOptions(config, ["-d", "d1"])).toEqual({
+      "filter-disk": "d1",
+    })
+  })
 
   test("Check with all filter options: optionsToArgs", () => {
     const config = mockCommandConfig([
@@ -277,16 +279,16 @@ describe("argsToOptions", () => {
         type: "boolean",
         description: "Errors only",
       },
-    ]);
+    ])
     expect(
       optionsToArgs(config, {
         filter: "/path",
         "filter-disk": "d1",
         "filter-missing": true,
         "filter-error": true,
-      })
-    ).toEqual(["-f", "/path", "-d", "d1", "--filter-missing", "--filter-error"]);
-  });
+      }),
+    ).toEqual(["-f", "/path", "-d", "d1", "--filter-missing", "--filter-error"])
+  })
 
   test("Check with all filter options: argsToOptions", () => {
     const config = mockCommandConfig([
@@ -309,7 +311,7 @@ describe("argsToOptions", () => {
         type: "boolean",
         description: "Errors only",
       },
-    ]);
+    ])
     expect(
       argsToOptions(config, [
         "-f",
@@ -318,43 +320,43 @@ describe("argsToOptions", () => {
         "d1",
         "--filter-missing",
         "--filter-error",
-      ])
+      ]),
     ).toEqual({
       filter: "/path",
       "filter-disk": "d1",
       "filter-missing": true,
       "filter-error": true,
-    });
-  });
-});
+    })
+  })
+})
 
 describe("getCommandConfig", () => {
   test("returns config for sync", () => {
-    const config = getCommandConfig("sync");
-    expect(config).toBeDefined();
-    expect(config!.command).toBe("sync");
-    expect(config!.name).toBe("Sync");
-    expect(config!.options).toBeDefined();
-  });
+    const config = getCommandConfig("sync")
+    expect(config).toBeDefined()
+    expect(config!.command).toBe("sync")
+    expect(config!.name).toBe("Sync")
+    expect(config!.options).toBeDefined()
+  })
 
   test("returns config for scrub", () => {
-    const config = getCommandConfig("scrub");
-    expect(config).toBeDefined();
-    expect(config!.command).toBe("scrub");
-  });
+    const config = getCommandConfig("scrub")
+    expect(config).toBeDefined()
+    expect(config!.command).toBe("scrub")
+  })
 
   test("returns undefined for unknown command", () => {
-    expect(getCommandConfig("unknown" as never)).toBeUndefined();
-  });
-});
+    expect(getCommandConfig("unknown" as never)).toBeUndefined()
+  })
+})
 
 describe("Sync safety options", () => {
   test("sync command config has no options (handled by SyncSafetySettings)", () => {
-    const config = getCommandConfig("sync");
-    expect(config).toBeDefined();
-    expect(config!.options).toEqual([]);
-  });
-});
+    const config = getCommandConfig("sync")
+    expect(config).toBeDefined()
+    expect(config!.options).toEqual([])
+  })
+})
 
 describe("syncSafetyToArgs and argsToSyncSafety", () => {
   test("syncSafetyToArgs with mode disabled returns only flags when enabled", () => {
@@ -364,11 +366,11 @@ describe("syncSafetyToArgs and argsToSyncSafety", () => {
         preHash: true,
         forceEmpty: true,
       },
-      null
-    );
-    expect(args).toContain("--pre-hash");
-    expect(args).toContain("--force-empty");
-  });
+      null,
+    )
+    expect(args).toContain("--pre-hash")
+    expect(args).toContain("--force-empty")
+  })
 
   test("syncSafetyToArgs with mode default uses default settings", () => {
     const args = syncSafetyToArgs(
@@ -380,11 +382,11 @@ describe("syncSafetyToArgs and argsToSyncSafety", () => {
       {
         preHash: true,
         forceEmpty: false,
-      }
-    );
-    expect(args).toContain("--pre-hash");
-    expect(args).not.toContain("--force-empty");
-  });
+      },
+    )
+    expect(args).toContain("--pre-hash")
+    expect(args).not.toContain("--force-empty")
+  })
 
   test("syncSafetyToArgs with mode custom uses custom values", () => {
     const args = syncSafetyToArgs(
@@ -393,44 +395,44 @@ describe("syncSafetyToArgs and argsToSyncSafety", () => {
         preHash: false,
         forceEmpty: true,
       },
-      null
-    );
-    expect(args).not.toContain("--pre-hash");
-    expect(args).toContain("--force-empty");
-  });
+      null,
+    )
+    expect(args).not.toContain("--pre-hash")
+    expect(args).toContain("--force-empty")
+  })
 
   test("argsToSyncSafety with no flags returns disabled mode", () => {
-    const result = argsToSyncSafety([]);
-    expect(result.mode).toBe("disabled");
-    expect(result.preHash).toBe(false);
-    expect(result.forceEmpty).toBe(false);
-  });
+    const result = argsToSyncSafety([])
+    expect(result.mode).toBe("disabled")
+    expect(result.preHash).toBe(false)
+    expect(result.forceEmpty).toBe(false)
+  })
 
   test("argsToSyncSafety with only pre-hash returns default mode", () => {
-    const result = argsToSyncSafety(["--pre-hash"]);
-    expect(result.mode).toBe("default");
-    expect(result.preHash).toBe(true);
-    expect(result.forceEmpty).toBe(false);
-  });
+    const result = argsToSyncSafety(["--pre-hash"])
+    expect(result.mode).toBe("default")
+    expect(result.preHash).toBe(true)
+    expect(result.forceEmpty).toBe(false)
+  })
 
   test("argsToSyncSafety with force-empty returns default mode", () => {
-    const result = argsToSyncSafety(["--force-empty"]);
-    expect(result.mode).toBe("default");
-    expect(result.preHash).toBe(false);
-    expect(result.forceEmpty).toBe(true);
-  });
+    const result = argsToSyncSafety(["--force-empty"])
+    expect(result.mode).toBe("default")
+    expect(result.preHash).toBe(false)
+    expect(result.forceEmpty).toBe(true)
+  })
 
   test("round-trip: syncSafetyToArgs then argsToSyncSafety", () => {
     const original = {
       mode: "custom" as const,
       preHash: true,
       forceEmpty: false,
-    };
-    const args = syncSafetyToArgs(original.mode, original, null);
-    const parsed = argsToSyncSafety(args);
+    }
+    const args = syncSafetyToArgs(original.mode, original, null)
+    const parsed = argsToSyncSafety(args)
     // Mode detection is simpler now: disabled if no flags, default otherwise
-    expect(parsed.mode).toBe("default");
-    expect(parsed.preHash).toBe(true);
-    expect(parsed.forceEmpty).toBe(false);
-  });
-});
+    expect(parsed.mode).toBe("default")
+    expect(parsed.preHash).toBe(true)
+    expect(parsed.forceEmpty).toBe(false)
+  })
+})

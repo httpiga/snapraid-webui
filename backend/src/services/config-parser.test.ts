@@ -1,42 +1,42 @@
-import { describe, test, expect } from "bun:test";
-import fs from "fs/promises";
-import { mkdtempSync } from "fs";
-import path from "path";
-import { tmpdir } from "os";
+import { describe, test, expect } from "bun:test"
+import fs from "fs/promises"
+import { mkdtempSync } from "fs"
+import path from "path"
+import { tmpdir } from "os"
 import {
   parseConfigFromContent,
   parseSnapRaidConfig,
   serializeSnapRaidConfig,
   validateSnapRaidConfig,
-} from "./config-parser";
+} from "./config-parser"
 
 describe("parseConfigFromContent", () => {
   test("returns empty config for empty content", () => {
-    const config = parseConfigFromContent("");
-    expect(config.parity).toEqual([]);
-    expect(config.content).toEqual([]);
-    expect(config.data).toEqual({});
-    expect(config.exclude).toEqual([]);
-    expect(config.include).toEqual([]);
-  });
+    const config = parseConfigFromContent("")
+    expect(config.parity).toEqual([])
+    expect(config.content).toEqual([])
+    expect(config.data).toEqual({})
+    expect(config.exclude).toEqual([])
+    expect(config.include).toEqual([])
+  })
 
   test("skips empty lines and comments", () => {
-    const content = "\n# comment\n\n  \n# another\n";
-    const config = parseConfigFromContent(content);
-    expect(config.parity).toEqual([]);
-    expect(config.content).toEqual([]);
-  });
+    const content = "\n# comment\n\n  \n# another\n"
+    const config = parseConfigFromContent(content)
+    expect(config.parity).toEqual([])
+    expect(config.content).toEqual([])
+  })
 
   test("parses parity and content", () => {
     const content = [
       "parity /path/to/parity",
       "content /path/to/content",
       "parity /path/to/parity2",
-    ].join("\n");
-    const config = parseConfigFromContent(content);
-    expect(config.parity).toEqual(["/path/to/parity", "/path/to/parity2"]);
-    expect(config.content).toEqual(["/path/to/content"]);
-  });
+    ].join("\n")
+    const config = parseConfigFromContent(content)
+    expect(config.parity).toEqual(["/path/to/parity", "/path/to/parity2"])
+    expect(config.content).toEqual(["/path/to/content"])
+  })
 
   test("parses 2-parity through 6-parity", () => {
     const content = [
@@ -46,37 +46,37 @@ describe("parseConfigFromContent", () => {
       "4-parity /p/4p",
       "5-parity /p/5p",
       "6-parity /p/6p",
-    ].join("\n");
-    const config = parseConfigFromContent(content);
-    expect(config["2-parity"]).toEqual(["/p/2p", "/p/2p2"]);
-    expect(config["3-parity"]).toEqual(["/p/3p"]);
-    expect(config["4-parity"]).toEqual(["/p/4p"]);
-    expect(config["5-parity"]).toEqual(["/p/5p"]);
-    expect(config["6-parity"]).toEqual(["/p/6p"]);
-  });
+    ].join("\n")
+    const config = parseConfigFromContent(content)
+    expect(config["2-parity"]).toEqual(["/p/2p", "/p/2p2"])
+    expect(config["3-parity"]).toEqual(["/p/3p"])
+    expect(config["4-parity"]).toEqual(["/p/4p"])
+    expect(config["5-parity"]).toEqual(["/p/5p"])
+    expect(config["6-parity"]).toEqual(["/p/6p"])
+  })
 
   test("parses data diskname path", () => {
-    const content = "data d1 /mnt/disk1/";
-    const config = parseConfigFromContent(content);
-    expect(config.data).toEqual({ d1: "/mnt/disk1/" });
-  });
+    const content = "data d1 /mnt/disk1/"
+    const config = parseConfigFromContent(content)
+    expect(config.data).toEqual({ d1: "/mnt/disk1/" })
+  })
 
   test("parses multiple data disks", () => {
-    const content = ["data d1 /mnt/disk1/", "data d2 /mnt/disk2/"].join("\n");
-    const config = parseConfigFromContent(content);
-    expect(config.data).toEqual({ d1: "/mnt/disk1/", d2: "/mnt/disk2/" });
-  });
+    const content = ["data d1 /mnt/disk1/", "data d2 /mnt/disk2/"].join("\n")
+    const config = parseConfigFromContent(content)
+    expect(config.data).toEqual({ d1: "/mnt/disk1/", d2: "/mnt/disk2/" })
+  })
 
   test("parses exclude and include", () => {
     const content = [
       "exclude *.tmp",
       "include *.important",
       "exclude /cache/",
-    ].join("\n");
-    const config = parseConfigFromContent(content);
-    expect(config.exclude).toEqual(["*.tmp", "/cache/"]);
-    expect(config.include).toEqual(["*.important"]);
-  });
+    ].join("\n")
+    const config = parseConfigFromContent(content)
+    expect(config.exclude).toEqual(["*.tmp", "/cache/"])
+    expect(config.include).toEqual(["*.important"])
+  })
 
   test("parses numeric and string options", () => {
     const content = [
@@ -85,20 +85,20 @@ describe("parseConfigFromContent", () => {
       "autosave 500",
       "pool /pool/",
       "nohidden 1",
-    ].join("\n");
-    const config = parseConfigFromContent(content);
-    expect(config.blocksize).toBe(256);
-    expect(config.hashsize).toBe(16);
-    expect(config.autosave).toBe(500);
-    expect(config.pool).toBe("/pool/");
-    expect(config.nohidden).toBe(true);
-  });
+    ].join("\n")
+    const config = parseConfigFromContent(content)
+    expect(config.blocksize).toBe(256)
+    expect(config.hashsize).toBe(16)
+    expect(config.autosave).toBe(500)
+    expect(config.pool).toBe("/pool/")
+    expect(config.nohidden).toBe(true)
+  })
 
   test("trims whitespace around lines", () => {
-    const config = parseConfigFromContent("  parity   /path/parity  ");
-    expect(config.parity).toEqual(["/path/parity"]);
-  });
-});
+    const config = parseConfigFromContent("  parity   /path/parity  ")
+    expect(config.parity).toEqual(["/path/parity"])
+  })
+})
 
 describe("serializeSnapRaidConfig", () => {
   test("serializes empty config with header", () => {
@@ -108,11 +108,11 @@ describe("serializeSnapRaidConfig", () => {
       data: {},
       exclude: [],
       include: [],
-    };
-    const out = serializeSnapRaidConfig(config);
-    expect(out).toContain("# SnapRAID configuration file");
-    expect(out).toContain("# Generated by SnapRAID Web UI");
-  });
+    }
+    const out = serializeSnapRaidConfig(config)
+    expect(out).toContain("# SnapRAID configuration file")
+    expect(out).toContain("# Generated by SnapRAID Web UI")
+  })
 
   test("serializes parity, content, and data", () => {
     const config = {
@@ -121,12 +121,12 @@ describe("serializeSnapRaidConfig", () => {
       data: { d1: "/mnt/d1/" },
       exclude: [],
       include: [],
-    };
-    const out = serializeSnapRaidConfig(config);
-    expect(out).toContain("parity /p/parity");
-    expect(out).toContain("content /p/content");
-    expect(out).toContain("data d1 /mnt/d1/");
-  });
+    }
+    const out = serializeSnapRaidConfig(config)
+    expect(out).toContain("parity /p/parity")
+    expect(out).toContain("content /p/content")
+    expect(out).toContain("data d1 /mnt/d1/")
+  })
 
   test("serializes 2-parity and options", () => {
     const config = {
@@ -138,12 +138,12 @@ describe("serializeSnapRaidConfig", () => {
       "2-parity": ["/p/2p"],
       blocksize: 256,
       nohidden: true,
-    };
-    const out = serializeSnapRaidConfig(config);
-    expect(out).toContain("2-parity /p/2p");
-    expect(out).toContain("blocksize 256");
-    expect(out).toContain("nohidden");
-  });
+    }
+    const out = serializeSnapRaidConfig(config)
+    expect(out).toContain("2-parity /p/2p")
+    expect(out).toContain("blocksize 256")
+    expect(out).toContain("nohidden")
+  })
 
   test("serializes hashsize, autosave, pool, and includes", () => {
     const config = {
@@ -155,14 +155,14 @@ describe("serializeSnapRaidConfig", () => {
       hashsize: 16,
       autosave: 500,
       pool: "/pool/",
-    };
-    const out = serializeSnapRaidConfig(config);
-    expect(out).toContain("hashsize 16");
-    expect(out).toContain("autosave 500");
-    expect(out).toContain("pool /pool/");
-    expect(out).toContain("include *.important");
-    expect(out).toContain("include /keep/");
-  });
+    }
+    const out = serializeSnapRaidConfig(config)
+    expect(out).toContain("hashsize 16")
+    expect(out).toContain("autosave 500")
+    expect(out).toContain("pool /pool/")
+    expect(out).toContain("include *.important")
+    expect(out).toContain("include /keep/")
+  })
 
   test("round-trip: parse then serialize preserves key content", () => {
     const content = [
@@ -171,16 +171,16 @@ describe("serializeSnapRaidConfig", () => {
       "data d1 /mnt/d1/",
       "exclude *.tmp",
       "blocksize 256",
-    ].join("\n");
-    const config = parseConfigFromContent(content);
-    const serialized = serializeSnapRaidConfig(config);
-    expect(serialized).toContain("parity /p/parity");
-    expect(serialized).toContain("content /c/content");
-    expect(serialized).toContain("data d1 /mnt/d1/");
-    expect(serialized).toContain("exclude *.tmp");
-    expect(serialized).toContain("blocksize 256");
-  });
-});
+    ].join("\n")
+    const config = parseConfigFromContent(content)
+    const serialized = serializeSnapRaidConfig(config)
+    expect(serialized).toContain("parity /p/parity")
+    expect(serialized).toContain("content /c/content")
+    expect(serialized).toContain("data d1 /mnt/d1/")
+    expect(serialized).toContain("exclude *.tmp")
+    expect(serialized).toContain("blocksize 256")
+  })
+})
 
 describe("validateSnapRaidConfig", () => {
   test("valid config has no errors", () => {
@@ -190,11 +190,11 @@ describe("validateSnapRaidConfig", () => {
       data: { d1: "/mnt/d1/" },
       exclude: [],
       include: [],
-    };
-    const { valid, errors } = validateSnapRaidConfig(config);
-    expect(valid).toBe(true);
-    expect(errors).toHaveLength(0);
-  });
+    }
+    const { valid, errors } = validateSnapRaidConfig(config)
+    expect(valid).toBe(true)
+    expect(errors).toHaveLength(0)
+  })
 
   test("missing parity", () => {
     const config = {
@@ -203,11 +203,11 @@ describe("validateSnapRaidConfig", () => {
       data: { d1: "/mnt/d1/" },
       exclude: [],
       include: [],
-    };
-    const { valid, errors } = validateSnapRaidConfig(config);
-    expect(valid).toBe(false);
-    expect(errors).toContain("At least one parity file must be defined");
-  });
+    }
+    const { valid, errors } = validateSnapRaidConfig(config)
+    expect(valid).toBe(false)
+    expect(errors).toContain("At least one parity file must be defined")
+  })
 
   test("missing content", () => {
     const config = {
@@ -216,11 +216,11 @@ describe("validateSnapRaidConfig", () => {
       data: { d1: "/mnt/d1/" },
       exclude: [],
       include: [],
-    };
-    const { valid, errors } = validateSnapRaidConfig(config);
-    expect(valid).toBe(false);
-    expect(errors).toContain("At least one content file must be defined");
-  });
+    }
+    const { valid, errors } = validateSnapRaidConfig(config)
+    expect(valid).toBe(false)
+    expect(errors).toContain("At least one content file must be defined")
+  })
 
   test("missing data disk", () => {
     const config = {
@@ -229,11 +229,11 @@ describe("validateSnapRaidConfig", () => {
       data: {},
       exclude: [],
       include: [],
-    };
-    const { valid, errors } = validateSnapRaidConfig(config);
-    expect(valid).toBe(false);
-    expect(errors).toContain("At least one data disk must be defined");
-  });
+    }
+    const { valid, errors } = validateSnapRaidConfig(config)
+    expect(valid).toBe(false)
+    expect(errors).toContain("At least one data disk must be defined")
+  })
 
   test("single content file adds warning but valid is still true for critical errors", () => {
     const config = {
@@ -242,31 +242,31 @@ describe("validateSnapRaidConfig", () => {
       data: { d1: "/mnt/d1/" },
       exclude: [],
       include: [],
-    };
-    const { valid, errors } = validateSnapRaidConfig(config);
-    expect(errors.some((e) => e.startsWith("Warning"))).toBe(true);
-    expect(valid).toBe(true);
-  });
-});
+    }
+    const { valid, errors } = validateSnapRaidConfig(config)
+    expect(errors.some((e) => e.startsWith("Warning"))).toBe(true)
+    expect(valid).toBe(true)
+  })
+})
 
 describe("parseSnapRaidConfig", () => {
   test("returns empty config when file does not exist", async () => {
-    const tmp = mkdtempSync(path.join(tmpdir(), "config-test-"));
-    const configPath = path.join(tmp, "nonexistent.conf");
-    const config = await parseSnapRaidConfig(configPath);
-    expect(config.parity).toEqual([]);
-    expect(config.content).toEqual([]);
-    expect(config.data).toEqual({});
-  });
+    const tmp = mkdtempSync(path.join(tmpdir(), "config-test-"))
+    const configPath = path.join(tmp, "nonexistent.conf")
+    const config = await parseSnapRaidConfig(configPath)
+    expect(config.parity).toEqual([])
+    expect(config.content).toEqual([])
+    expect(config.data).toEqual({})
+  })
 
   test("reads and parses file when it exists", async () => {
-    const tmp = mkdtempSync(path.join(tmpdir(), "config-test-"));
-    const configPath = path.join(tmp, "snapraid.conf");
-    const content = "parity /p/parity\ncontent /c/content\ndata d1 /mnt/d1/";
-    await fs.writeFile(configPath, content, "utf-8");
-    const config = await parseSnapRaidConfig(configPath);
-    expect(config.parity).toEqual(["/p/parity"]);
-    expect(config.content).toEqual(["/c/content"]);
-    expect(config.data).toEqual({ d1: "/mnt/d1/" });
-  });
-});
+    const tmp = mkdtempSync(path.join(tmpdir(), "config-test-"))
+    const configPath = path.join(tmp, "snapraid.conf")
+    const content = "parity /p/parity\ncontent /c/content\ndata d1 /mnt/d1/"
+    await fs.writeFile(configPath, content, "utf-8")
+    const config = await parseSnapRaidConfig(configPath)
+    expect(config.parity).toEqual(["/p/parity"])
+    expect(config.content).toEqual(["/c/content"])
+    expect(config.data).toEqual({ d1: "/mnt/d1/" })
+  })
+})

@@ -1,18 +1,18 @@
-import type { AuthStatus } from "@shared/types";
+import type { AuthStatus } from "@shared/types"
 
-export type AuthGateState = "loading" | "login" | "app";
+export type AuthGateState = "loading" | "login" | "app"
 
 export const getAuthGateState = (
   isLoading: boolean,
-  status?: AuthStatus | null
+  status?: AuthStatus | null,
 ): AuthGateState => {
   if (isLoading || !status) {
-    return "loading";
+    return "loading"
   }
 
   if (status.enabled && !status.authenticated) {
-    return "login";
+    return "login"
   }
 
-  return "app";
-};
+  return "app"
+}

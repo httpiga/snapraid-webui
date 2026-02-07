@@ -1,34 +1,34 @@
-import { useState } from "react";
-import { useDispatch } from "react-redux";
-import { Badge } from "@/components/ui/badge";
-import { toast } from "sonner";
+import { useState } from "react"
+import { useDispatch } from "react-redux"
+import { Badge } from "@/components/ui/badge"
+import { toast } from "sonner"
 import {
   api,
   useExecuteCommandMutation,
   useAbortCommandMutation,
   useGetSyncSafetySettingsQuery,
-} from "@/store/api";
-import { useWebSocket } from "@/hooks/use-websocket";
+} from "@/store/api"
+import { useWebSocket } from "@/hooks/use-websocket"
 import {
   getCommandConfig,
   optionsToArgs,
   syncSafetyToArgs,
   type CommandConfig,
-} from "@/lib/command-config";
-import type { SyncSafetyOptions } from "@/components/SyncSafetySettings";
-import type { SnapRaidCommand } from "@shared/types";
-import { PageHeader } from "@/pages/components/PageHeader";
-import { CommandSelectionCard } from "@/pages/components/operations/CommandSelectionCard";
-import { CommandOptionsCard } from "@/pages/components/operations/CommandOptionsCard";
-import { CommandOutputCard } from "@/pages/components/operations/CommandOutputCard";
-import { getApiErrorMessage } from "@/lib/api-error";
+} from "@/lib/command-config"
+import type { SyncSafetyOptions } from "@/components/SyncSafetySettings"
+import type { SnapRaidCommand } from "@shared/types"
+import { PageHeader } from "@/pages/components/PageHeader"
+import { CommandSelectionCard } from "@/pages/components/operations/CommandSelectionCard"
+import { CommandOptionsCard } from "@/pages/components/operations/CommandOptionsCard"
+import { CommandOutputCard } from "@/pages/components/operations/CommandOutputCard"
+import { getApiErrorMessage } from "@/lib/api-error"
 
 export function Operations() {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch()
   const [selectedCommand, setSelectedCommand] = useState<CommandConfig | null>(
-    null
-  );
-  const [options, setOptions] = useState<Record<string, unknown>>({});
+    null,
+  )
+  const [options, setOptions] = useState<Record<string, unknown>>({})
   const [syncSafetyOptions, setSyncSafetyOptions] = useState<SyncSafetyOptions>(
     {
       mode: "default",
@@ -37,9 +37,9 @@ export function Operations() {
       maxDeletedFiles: 100,
       maxUpdatedFiles: 500,
       maxAddedFiles: 10000,
-    }
-  );
-  const { data: defaultSyncSafetySettings } = useGetSyncSafetySettingsQuery();
+    },
+  )
+  const { data: defaultSyncSafetySettings } = useGetSyncSafetySettingsQuery()
 
   const {
     isConnected,
@@ -52,40 +52,40 @@ export function Operations() {
     clearOutput,
   } = useWebSocket({
     onComplete: (exitCode) => {
-      dispatch(api.util.invalidateTags(["Status"]));
+      dispatch(api.util.invalidateTags(["Status"]))
       if (exitCode === 0) {
         toast.success("Command completed", {
           description: `Exit code: ${exitCode}`,
-        });
+        })
       } else {
         toast.error("Command failed", {
           description: `Exit code: ${exitCode}`,
-        });
+        })
       }
     },
     onError: (error) => {
-      toast.error("Command error", { description: error });
+      toast.error("Command error", { description: error })
     },
-  });
+  })
 
-  const [executeCommand] = useExecuteCommandMutation();
-  const [abortCommand] = useAbortCommandMutation();
+  const [executeCommand] = useExecuteCommandMutation()
+  const [abortCommand] = useAbortCommandMutation()
 
   const handleRunCommand = async (cmd: CommandConfig) => {
-    let args: string[];
+    let args: string[]
 
     // For sync commands, use sync safety settings
     if (cmd.command === "sync") {
       args = syncSafetyToArgs(
         syncSafetyOptions.mode,
         syncSafetyOptions,
-        defaultSyncSafetySettings
-      );
+        defaultSyncSafetySettings,
+      )
     } else {
-      args = optionsToArgs(cmd, options);
+      args = optionsToArgs(cmd, options)
     }
 
-    clearOutput();
+    clearOutput()
 
     if (cmd.longRunning) {
       // For sync commands, pass the actual safety settings to backend
@@ -97,39 +97,39 @@ export function Operations() {
           maxAddedFiles: syncSafetyOptions.maxAddedFiles ?? 10000,
           preHash: syncSafetyOptions.preHash,
           forceEmpty: syncSafetyOptions.forceEmpty,
-        };
-        sendCommand(cmd.command, args, safetySettings);
+        }
+        sendCommand(cmd.command, args, safetySettings)
       } else {
-        sendCommand(cmd.command, args);
+        sendCommand(cmd.command, args)
       }
     } else {
       try {
         const result = await executeCommand({
           command: cmd.command,
           args,
-        }).unwrap();
-        const response = result as { output?: string };
-        setOutput(response.output ?? "");
+        }).unwrap()
+        const response = result as { output?: string }
+        setOutput(response.output ?? "")
         toast.success("Command completed", {
           description: `${cmd.name} executed successfully`,
-        });
+        })
       } catch (error) {
         toast.error("Command failed", {
           description: getApiErrorMessage(error),
-        });
+        })
       }
     }
-  };
+  }
 
   const handleAbort = async () => {
-    abort();
-    await abortCommand();
-  };
+    abort()
+    await abortCommand()
+  }
 
   const handleSelectCommand = (value: SnapRaidCommand | "") => {
     if (!value) {
-      setSelectedCommand(null);
-      setOptions({});
+      setSelectedCommand(null)
+      setOptions({})
       setSyncSafetyOptions({
         mode: "default",
         preHash: false,
@@ -137,12 +137,12 @@ export function Operations() {
         maxDeletedFiles: 100,
         maxUpdatedFiles: 500,
         maxAddedFiles: 10000,
-      });
-      return;
+      })
+      return
     }
-    const cmd = getCommandConfig(value as SnapRaidCommand);
-    setSelectedCommand(cmd ?? null);
-    setOptions({});
+    const cmd = getCommandConfig(value as SnapRaidCommand)
+    setSelectedCommand(cmd ?? null)
+    setOptions({})
     setSyncSafetyOptions({
       mode: "default",
       preHash: false,
@@ -150,8 +150,8 @@ export function Operations() {
       maxDeletedFiles: 100,
       maxUpdatedFiles: 500,
       maxAddedFiles: 10000,
-    });
-  };
+    })
+  }
 
   return (
     <div className="space-y-6">
@@ -192,5 +192,5 @@ export function Operations() {
         onClear={clearOutput}
       />
     </div>
-  );
+  )
 }

@@ -1,17 +1,17 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
-import { CommandBadge } from "@/components/ui/command-badge";
-import { Calendar, Clock, Edit, Trash2 } from "lucide-react";
-import type { Schedule } from "@shared/types";
+import { Card, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Switch } from "@/components/ui/switch"
+import { CommandBadge } from "@/components/ui/command-badge"
+import { Calendar, Clock, Edit, Trash2 } from "lucide-react"
+import type { Schedule } from "@shared/types"
 
 interface ScheduleListProps {
-  schedules: Schedule[];
-  onEdit: (schedule: Schedule) => void;
-  onDelete: (id: string) => void;
-  onToggleEnabled: (schedule: Schedule) => void;
-  formatDate: (dateString?: string) => string;
+  schedules: Schedule[]
+  onEdit: (schedule: Schedule) => void
+  onDelete: (id: string) => void
+  onToggleEnabled: (schedule: Schedule) => void
+  formatDate: (dateString?: string) => string
 }
 
 export function ScheduleList({
@@ -28,7 +28,7 @@ export function ScheduleList({
           No schedules configured. Create one to automate SnapRAID operations.
         </CardContent>
       </Card>
-    );
+    )
   }
 
   return (
@@ -84,5 +84,5 @@ export function ScheduleList({
         </Card>
       ))}
     </div>
-  );
+  )
 }

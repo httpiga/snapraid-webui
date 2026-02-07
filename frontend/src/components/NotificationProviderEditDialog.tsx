@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from "react"
 import {
   Dialog,
   DialogContent,
@@ -6,12 +6,12 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { Send } from "lucide-react";
+} from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
+import { Send } from "lucide-react"
 import type {
   NotificationChannel,
   NotificationEvent,
@@ -20,30 +20,30 @@ import type {
   TelegramSettings,
   EmailSettings,
   SlackSettings,
-} from "@shared/types";
-import type { ChannelConfig } from "@/lib/notification-channel-utils";
-import { NOTIFICATION_EVENTS } from "@shared/types";
+} from "@shared/types"
+import type { ChannelConfig } from "@/lib/notification-channel-utils"
+import { NOTIFICATION_EVENTS } from "@shared/types"
 
 interface NotificationProviderEditDialogProps {
-  channel: NotificationChannel;
-  settings: NotificationSettings;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onSave: (updated: NotificationSettings) => Promise<void>;
-  onTest: (channel: NotificationChannel) => Promise<void>;
+  channel: NotificationChannel
+  settings: NotificationSettings
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onSave: (updated: NotificationSettings) => Promise<void>
+  onTest: (channel: NotificationChannel) => Promise<void>
 }
 
 function getChannelConfig(
   settings: NotificationSettings,
-  channel: NotificationChannel
+  channel: NotificationChannel,
 ): ChannelConfig {
-  return settings.channels[channel];
+  return settings.channels[channel]
 }
 
 function mergeChannelIntoSettings(
   settings: NotificationSettings,
   channel: NotificationChannel,
-  config: ChannelConfig
+  config: ChannelConfig,
 ): NotificationSettings {
   return {
     ...settings,
@@ -51,7 +51,7 @@ function mergeChannelIntoSettings(
       ...settings.channels,
       [channel]: config,
     },
-  };
+  }
 }
 
 export function NotificationProviderEditDialog({
@@ -62,10 +62,10 @@ export function NotificationProviderEditDialog({
   onSave,
   onTest,
 }: NotificationProviderEditDialogProps) {
-  const current = getChannelConfig(settings, channel);
-  const [draft, setDraft] = useState<ChannelConfig>(current);
-  const [saving, setSaving] = useState(false);
-  const [testing, setTesting] = useState(false);
+  const current = getChannelConfig(settings, channel)
+  const [draft, setDraft] = useState<ChannelConfig>(current)
+  const [saving, setSaving] = useState(false)
+  const [testing, setTesting] = useState(false)
   const eventLabels: Record<NotificationEvent, string> = {
     sync_complete: "Sync complete",
     sync_error: "Sync error",
@@ -73,33 +73,33 @@ export function NotificationProviderEditDialog({
     sync_safety_halt: "Sync safety halt",
     scrub_complete: "Scrub complete",
     scrub_error: "Scrub error",
-  };
+  }
 
   useEffect(() => {
     if (open) {
-      const currentConfig = getChannelConfig(settings, channel);
+      const currentConfig = getChannelConfig(settings, channel)
       setDraft({
         ...currentConfig,
         events:
           currentConfig.events?.length > 0
             ? currentConfig.events
             : [...NOTIFICATION_EVENTS],
-      });
+      })
     }
-  }, [open, settings, channel]);
+  }, [open, settings, channel])
 
   const handleSave = async () => {
-    setSaving(true);
+    setSaving(true)
     try {
-      await onSave(mergeChannelIntoSettings(settings, channel, draft));
-      onOpenChange(false);
+      await onSave(mergeChannelIntoSettings(settings, channel, draft))
+      onOpenChange(false)
     } finally {
-      setSaving(false);
+      setSaving(false)
     }
-  };
+  }
 
   const handleTest = async () => {
-    setTesting(true);
+    setTesting(true)
     try {
       // Force enable the channel before testing
       const enabledSettings = {
@@ -108,30 +108,30 @@ export function NotificationProviderEditDialog({
           ...settings.channels,
           [channel]: { ...draft, enabled: true },
         },
-      };
-      await onSave(enabledSettings);
-      await onTest(channel);
+      }
+      await onSave(enabledSettings)
+      await onTest(channel)
     } finally {
-      setTesting(false);
+      setTesting(false)
     }
-  };
+  }
 
   const title =
     channel === "discord"
       ? "Discord"
       : channel === "telegram"
-      ? "Telegram"
-      : channel === "email"
-      ? "Email"
-      : "Slack";
+        ? "Telegram"
+        : channel === "email"
+          ? "Email"
+          : "Slack"
 
   const toggleEvent = (event: NotificationEvent) => {
-    const currentEvents = draft.events ?? [];
+    const currentEvents = draft.events ?? []
     const nextEvents = currentEvents.includes(event)
       ? currentEvents.filter((value) => value !== event)
-      : [...currentEvents, event];
-    setDraft({ ...draft, events: nextEvents });
-  };
+      : [...currentEvents, event]
+    setDraft({ ...draft, events: nextEvents })
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -219,15 +219,15 @@ export function NotificationProviderEditDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  );
+  )
 }
 
 function DiscordForm({
   config,
   onChange,
 }: {
-  config: DiscordSettings;
-  onChange: (c: DiscordSettings) => void;
+  config: DiscordSettings
+  onChange: (c: DiscordSettings) => void
 }) {
   return (
     <div className="space-y-2">
@@ -239,15 +239,15 @@ function DiscordForm({
         placeholder="https://discord.com/api/webhooks/..."
       />
     </div>
-  );
+  )
 }
 
 function TelegramForm({
   config,
   onChange,
 }: {
-  config: TelegramSettings;
-  onChange: (c: TelegramSettings) => void;
+  config: TelegramSettings
+  onChange: (c: TelegramSettings) => void
 }) {
   return (
     <div className="space-y-4">
@@ -270,15 +270,15 @@ function TelegramForm({
         />
       </div>
     </div>
-  );
+  )
 }
 
 function EmailForm({
   config,
   onChange,
 }: {
-  config: EmailSettings;
-  onChange: (c: EmailSettings) => void;
+  config: EmailSettings
+  onChange: (c: EmailSettings) => void
 }) {
   return (
     <div className="space-y-4">
@@ -368,15 +368,15 @@ function EmailForm({
         <Label htmlFor="edit-smtp-secure">Use SSL/TLS</Label>
       </div>
     </div>
-  );
+  )
 }
 
 function SlackForm({
   config,
   onChange,
 }: {
-  config: SlackSettings;
-  onChange: (c: SlackSettings) => void;
+  config: SlackSettings
+  onChange: (c: SlackSettings) => void
 }) {
   return (
     <div className="space-y-2">
@@ -388,5 +388,5 @@ function SlackForm({
         placeholder="https://hooks.slack.com/services/..."
       />
     </div>
-  );
+  )
 }

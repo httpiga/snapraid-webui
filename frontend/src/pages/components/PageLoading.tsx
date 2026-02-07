@@ -1,5 +1,5 @@
 interface PageLoadingProps {
-  message: string;
+  message: string
 }
 
 export function PageLoading({ message }: PageLoadingProps) {
@@ -7,5 +7,5 @@ export function PageLoading({ message }: PageLoadingProps) {
     <div className="flex items-center justify-center h-64">
       <div className="text-muted-foreground">{message}</div>
     </div>
-  );
+  )
 }

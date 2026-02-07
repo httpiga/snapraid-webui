@@ -4,15 +4,15 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { CommandSelect } from "@/components/ui/command-select";
-import type { CommandConfig } from "@/lib/command-config";
-import type { SnapRaidCommand } from "@shared/types";
+} from "@/components/ui/card"
+import { CommandSelect } from "@/components/ui/command-select"
+import type { CommandConfig } from "@/lib/command-config"
+import type { SnapRaidCommand } from "@shared/types"
 
 interface CommandSelectionCardProps {
-  selectedCommand: CommandConfig | null;
-  isCommandRunning: boolean;
-  onSelectCommand: (command: SnapRaidCommand | "") => void;
+  selectedCommand: CommandConfig | null
+  isCommandRunning: boolean
+  onSelectCommand: (command: SnapRaidCommand | "") => void
 }
 
 export function CommandSelectionCard({
@@ -38,5 +38,5 @@ export function CommandSelectionCard({
         />
       </CardContent>
     </Card>
-  );
+  )
 }

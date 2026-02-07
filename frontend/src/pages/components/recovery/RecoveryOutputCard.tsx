@@ -4,15 +4,15 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Badge } from "@/components/ui/badge";
+} from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Badge } from "@/components/ui/badge"
 
 interface RecoveryOutputCardProps {
-  isRecovering: boolean;
-  output: string;
-  onClear: () => void;
+  isRecovering: boolean
+  output: string
+  onClear: () => void
 }
 
 export function RecoveryOutputCard({
@@ -52,5 +52,5 @@ export function RecoveryOutputCard({
         </ScrollArea>
       </CardContent>
     </Card>
-  );
+  )
 }

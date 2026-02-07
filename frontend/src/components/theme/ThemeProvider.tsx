@@ -1,19 +1,19 @@
-import { useEffect, useState } from "react";
-import { Theme, ThemeProviderContext, ThemeProviderProps } from "./useTheme";
+import { useEffect, useState } from "react"
+import { Theme, ThemeProviderContext, ThemeProviderProps } from "./useTheme"
 
-const VALID_THEMES = new Set<Theme>(["light", "dark", "system"]);
+const VALID_THEMES = new Set<Theme>(["light", "dark", "system"])
 
 function readStoredTheme(storageKey: string, fallback: Theme): Theme {
   if (typeof window === "undefined") {
-    return fallback;
+    return fallback
   }
   try {
-    const stored = window.localStorage.getItem(storageKey);
+    const stored = window.localStorage.getItem(storageKey)
     return stored && VALID_THEMES.has(stored as Theme)
       ? (stored as Theme)
-      : fallback;
+      : fallback
   } catch {
-    return fallback;
+    return fallback
   }
 }
 
@@ -23,46 +23,46 @@ export function ThemeProvider({
   storageKey = "vite-ui-theme",
   ...props
 }: ThemeProviderProps) {
-  const [theme, setTheme] = useState<Theme>(defaultTheme);
+  const [theme, setTheme] = useState<Theme>(defaultTheme)
 
   useEffect(() => {
-    const stored = readStoredTheme(storageKey, defaultTheme);
-    setTheme((current) => (current === stored ? current : stored));
-  }, [defaultTheme, storageKey]);
+    const stored = readStoredTheme(storageKey, defaultTheme)
+    setTheme((current) => (current === stored ? current : stored))
+  }, [defaultTheme, storageKey])
 
   useEffect(() => {
-    const root = window.document.documentElement;
+    const root = window.document.documentElement
 
-    root.classList.remove("light", "dark");
+    root.classList.remove("light", "dark")
 
     if (theme === "system") {
       const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
         .matches
         ? "dark"
-        : "light";
+        : "light"
 
-      root.classList.add(systemTheme);
-      return;
+      root.classList.add(systemTheme)
+      return
     }
 
-    root.classList.add(theme);
-  }, [theme]);
+    root.classList.add(theme)
+  }, [theme])
 
   const value = {
     theme,
     setTheme: (theme: Theme) => {
       try {
-        window.localStorage.setItem(storageKey, theme);
+        window.localStorage.setItem(storageKey, theme)
       } catch {
         // Ignore storage write failures (e.g., privacy mode).
       }
-      setTheme(theme);
+      setTheme(theme)
     },
-  };
+  }
 
   return (
     <ThemeProviderContext.Provider {...props} value={value}>
       {children}
     </ThemeProviderContext.Provider>
-  );
+  )
 }

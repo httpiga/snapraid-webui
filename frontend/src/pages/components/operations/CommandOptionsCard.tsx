@@ -1,29 +1,24 @@
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { CommandOptions } from "@/components/CommandOptions";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { CommandOptions } from "@/components/CommandOptions"
 import {
   SyncSafetySettings,
   type SyncSafetyOptions,
-} from "@/components/SyncSafetySettings";
-import { useGetSyncSafetySettingsQuery } from "@/store/api";
-import { Play, Square } from "lucide-react";
-import type { CommandConfig } from "@/lib/command-config";
+} from "@/components/SyncSafetySettings"
+import { useGetSyncSafetySettingsQuery } from "@/store/api"
+import { Play, Square } from "lucide-react"
+import type { CommandConfig } from "@/lib/command-config"
 
 interface CommandOptionsCardProps {
-  selectedCommand: CommandConfig | null;
-  options: Record<string, unknown>;
-  syncSafetyOptions?: SyncSafetyOptions;
-  isCommandRunning: boolean;
-  currentCommand: string | null;
-  onOptionsChange: (value: Record<string, unknown>) => void;
-  onSyncSafetyOptionsChange?: (value: SyncSafetyOptions) => void;
-  onRun: (command: CommandConfig) => void;
-  onAbort: () => void;
+  selectedCommand: CommandConfig | null
+  options: Record<string, unknown>
+  syncSafetyOptions?: SyncSafetyOptions
+  isCommandRunning: boolean
+  currentCommand: string | null
+  onOptionsChange: (value: Record<string, unknown>) => void
+  onSyncSafetyOptionsChange?: (value: SyncSafetyOptions) => void
+  onRun: (command: CommandConfig) => void
+  onAbort: () => void
 }
 
 export function CommandOptionsCard({
@@ -37,8 +32,8 @@ export function CommandOptionsCard({
   onRun,
   onAbort,
 }: CommandOptionsCardProps) {
-  const { data: defaultSyncSafetySettings } = useGetSyncSafetySettingsQuery();
-  const isSyncCommand = selectedCommand?.command === "sync";
+  const { data: defaultSyncSafetySettings } = useGetSyncSafetySettingsQuery()
+  const isSyncCommand = selectedCommand?.command === "sync"
 
   return (
     <Card>
@@ -82,5 +77,5 @@ export function CommandOptionsCard({
         )}
       </CardContent>
     </Card>
-  );
+  )
 }

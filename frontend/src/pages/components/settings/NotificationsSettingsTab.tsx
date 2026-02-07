@@ -7,24 +7,21 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import type {
-  NotificationSettings,
-  NotificationChannel,
-} from "@shared/types";
-import { NotificationProviderEditDialog } from "@/components/NotificationProviderEditDialog";
-import { NotificationProviderCard } from "@/pages/components/settings/NotificationProviderCard";
+} from "@/components/ui/alert-dialog"
+import type { NotificationSettings, NotificationChannel } from "@shared/types"
+import { NotificationProviderEditDialog } from "@/components/NotificationProviderEditDialog"
+import { NotificationProviderCard } from "@/pages/components/settings/NotificationProviderCard"
 
 interface NotificationsSettingsTabProps {
-  settings: NotificationSettings;
-  setSettings: React.Dispatch<React.SetStateAction<NotificationSettings>>;
-  editChannel: NotificationChannel | null;
-  setEditChannel: (channel: NotificationChannel | null) => void;
-  removeChannel: NotificationChannel | null;
-  setRemoveChannel: (channel: NotificationChannel | null) => void;
-  onSaveFromDialog: (updated: NotificationSettings) => Promise<void>;
-  onTestNotification: (channel: NotificationChannel) => Promise<void>;
-  onRemoveConfig: (channel: NotificationChannel) => Promise<void>;
+  settings: NotificationSettings
+  setSettings: React.Dispatch<React.SetStateAction<NotificationSettings>>
+  editChannel: NotificationChannel | null
+  setEditChannel: (channel: NotificationChannel | null) => void
+  removeChannel: NotificationChannel | null
+  setRemoveChannel: (channel: NotificationChannel | null) => void
+  onSaveFromDialog: (updated: NotificationSettings) => Promise<void>
+  onTestNotification: (channel: NotificationChannel) => Promise<void>
+  onRemoveConfig: (channel: NotificationChannel) => Promise<void>
 }
 
 export function NotificationsSettingsTab({
@@ -72,8 +69,8 @@ export function NotificationsSettingsTab({
           <AlertDialogHeader>
             <AlertDialogTitle>Remove configuration?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will clear the {removeChannel} notification configuration. You
-              can add it again later.
+              This will clear the {removeChannel} notification configuration.
+              You can add it again later.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -88,5 +85,5 @@ export function NotificationsSettingsTab({
         </AlertDialogContent>
       </AlertDialog>
     </div>
-  );
+  )
 }

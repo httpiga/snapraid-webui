@@ -1,33 +1,33 @@
-import { WebSocketServer, WebSocket } from "ws";
-import type { Server } from "http";
-import type { WSMessage, SnapRaidCommand } from "@snapraid-webui/shared";
-import { snapraidRunner } from "./services/snapraid-runner.js";
-import { SNAPRAID_CONF_FILE } from "./config.js";
-import { createLogFile, appendToLogFile } from "./routes/logs.js";
+import { WebSocketServer, WebSocket } from "ws"
+import type { Server } from "http"
+import type { WSMessage, SnapRaidCommand } from "@snapraid-webui/shared"
+import { snapraidRunner } from "./services/snapraid-runner.js"
+import { SNAPRAID_CONF_FILE } from "./config.js"
+import { createLogFile, appendToLogFile } from "./routes/logs.js"
 import {
   sendNotification,
   getOperationNotificationPayload,
-} from "./services/notifications/index.js";
-import { validateSyncSafetyWithNotification } from "./services/sync-safety.js";
+} from "./services/notifications/index.js"
+import { validateSyncSafetyWithNotification } from "./services/sync-safety.js"
 import {
   loadAdvancedSettings,
   getAdvancedArgsForCommand,
-} from "./services/advanced-settings.js";
+} from "./services/advanced-settings.js"
 
 // Connected clients
-const clients = new Set<WebSocket>();
+const clients = new Set<WebSocket>()
 
 // Current command state
-let currentLogFile: string | null = null;
+let currentLogFile: string | null = null
 
 /**
  * Broadcast a message to all connected clients
  */
 function broadcast(message: WSMessage): void {
-  const data = JSON.stringify(message);
+  const data = JSON.stringify(message)
   for (const client of clients) {
     if (client.readyState === WebSocket.OPEN) {
-      client.send(data);
+      client.send(data)
     }
   }
 }
@@ -41,11 +41,11 @@ async function handleOutput(chunk: string): Promise<void> {
     type: "output",
     chunk,
     timestamp: new Date().toISOString(),
-  });
+  })
 
   // Append to log file
   if (currentLogFile) {
-    await appendToLogFile(currentLogFile, chunk).catch(console.error);
+    await appendToLogFile(currentLogFile, chunk).catch(console.error)
   }
 }
 
@@ -55,21 +55,21 @@ async function handleOutput(chunk: string): Promise<void> {
 export async function executeCommandWithStreaming(
   command: SnapRaidCommand,
   args: string[] = [],
-  options?: { diffOutput?: string }
+  options?: { diffOutput?: string },
 ): Promise<{ exitCode: number; output: string }> {
   // Create log file if not already created (e.g., by sync safety validation)
   if (!currentLogFile) {
     currentLogFile = await createLogFile(
       command,
-      `=== SnapRAID ${command} started at ${new Date().toISOString()} ===\n`
-    );
+      `=== SnapRAID ${command} started at ${new Date().toISOString()} ===\n`,
+    )
 
     // Notify clients that command started
     broadcast({
       type: "status",
       command,
       timestamp: new Date().toISOString(),
-    });
+    })
   }
 
   try {
@@ -77,8 +77,8 @@ export async function executeCommandWithStreaming(
       command,
       SNAPRAID_CONF_FILE,
       handleOutput,
-      args
-    );
+      args,
+    )
 
     // Append completion to log
     if (currentLogFile) {
@@ -86,8 +86,8 @@ export async function executeCommandWithStreaming(
         currentLogFile,
         `\n=== Command completed with exit code ${
           result.exitCode
-        } at ${new Date().toISOString()} ===\n`
-      );
+        } at ${new Date().toISOString()} ===\n`,
+      )
     }
 
     // Notify clients that command completed
@@ -96,39 +96,39 @@ export async function executeCommandWithStreaming(
       command,
       exitCode: result.exitCode,
       timestamp: new Date().toISOString(),
-    });
+    })
 
     // Send notification for sync/scrub (manual run via WebSocket)
     const payload = getOperationNotificationPayload(command, result.exitCode, {
       diffOutput: options?.diffOutput,
-    });
+    })
     if (payload) {
       try {
         await sendNotification(
           payload.event,
           payload.title,
           payload.message,
-          payload.details
-        );
+          payload.details,
+        )
       } catch (err) {
         console.error(
           "[notifications] Failed to send operation notification:",
-          err
-        );
+          err,
+        )
       }
     }
 
-    return result;
+    return result
   } catch (error) {
     const errorMessage =
-      error instanceof Error ? error.message : "Unknown error";
+      error instanceof Error ? error.message : "Unknown error"
 
     // Append error to log
     if (currentLogFile) {
       await appendToLogFile(
         currentLogFile,
-        `\n=== ERROR: ${errorMessage} ===\n`
-      );
+        `\n=== ERROR: ${errorMessage} ===\n`,
+      )
     }
 
     // Notify clients of error
@@ -136,11 +136,11 @@ export async function executeCommandWithStreaming(
       type: "error",
       error: errorMessage,
       timestamp: new Date().toISOString(),
-    });
+    })
 
-    throw error;
+    throw error
   } finally {
-    currentLogFile = null;
+    currentLogFile = null
   }
 }
 
@@ -148,39 +148,39 @@ export async function executeCommandWithStreaming(
  * Initialize WebSocket server
  */
 export function initializeWebSocket(server: Server): WebSocketServer {
-  const wss = new WebSocketServer({ server, path: "/ws" });
+  const wss = new WebSocketServer({ server, path: "/ws" })
 
   wss.on("connection", (ws) => {
-    console.log("WebSocket client connected");
-    clients.add(ws);
+    console.log("WebSocket client connected")
+    clients.add(ws)
 
     // Send connected message
     ws.send(
       JSON.stringify({
         type: "connected",
         timestamp: new Date().toISOString(),
-      } satisfies WSMessage)
-    );
+      } satisfies WSMessage),
+    )
 
     // Send current job status if any
-    const currentJob = snapraidRunner.getCurrentJob();
+    const currentJob = snapraidRunner.getCurrentJob()
     if (currentJob) {
       ws.send(
         JSON.stringify({
           type: "status",
           command: currentJob.command,
           timestamp: currentJob.startTime,
-        } satisfies WSMessage)
-      );
+        } satisfies WSMessage),
+      )
     }
 
     ws.on("message", async (data) => {
       try {
-        const message = JSON.parse(data.toString());
+        const message = JSON.parse(data.toString())
 
         // Handle incoming commands from clients
         if (message.type === "command") {
-          const { command, args = [], syncSafetySettings } = message;
+          const { command, args = [], syncSafetySettings } = message
 
           if (snapraidRunner.isRunning()) {
             ws.send(
@@ -188,52 +188,55 @@ export function initializeWebSocket(server: Server): WebSocketServer {
                 type: "error",
                 error: "Another command is already running",
                 timestamp: new Date().toISOString(),
-              } satisfies WSMessage)
-            );
-            return;
+              } satisfies WSMessage),
+            )
+            return
           }
 
           // Load advanced settings and merge with user args
-          const advancedSettings = await loadAdvancedSettings();
-          const advancedArgs = getAdvancedArgsForCommand(advancedSettings, command);
-          const finalArgs = [...advancedArgs, ...args];
+          const advancedSettings = await loadAdvancedSettings()
+          const advancedArgs = getAdvancedArgsForCommand(
+            advancedSettings,
+            command,
+          )
+          const finalArgs = [...advancedArgs, ...args]
 
-          let diffOutput = "";
+          let diffOutput = ""
           // Check sync safety before running sync command
           if (command === "sync") {
             // Create log file before validation so diff output is captured
             currentLogFile = await createLogFile(
               command,
-              `=== SnapRAID ${command} started at ${new Date().toISOString()} ===\n`
-            );
+              `=== SnapRAID ${command} started at ${new Date().toISOString()} ===\n`,
+            )
 
             // Notify clients that command started
             broadcast({
               type: "status",
               command,
               timestamp: new Date().toISOString(),
-            });
+            })
 
             // Validate sync safety with output streaming; capture diff output for notification
             // If explicit settings provided (from Operations page), use them
             // Otherwise load from config (for scheduled syncs)
             const outputWithCapture = (chunk: string) => {
-              handleOutput(chunk);
-              diffOutput += chunk;
-            };
+              handleOutput(chunk)
+              diffOutput += chunk
+            }
             const validation = await validateSyncSafetyWithNotification(
               SNAPRAID_CONF_FILE,
               outputWithCapture,
-              syncSafetySettings
-            );
+              syncSafetySettings,
+            )
 
             if (!validation.safe) {
               // Append failure to log
               if (currentLogFile) {
                 await appendToLogFile(
                   currentLogFile,
-                  `\n=== Sync halted by safety checks at ${new Date().toISOString()} ===\n`
-                );
+                  `\n=== Sync halted by safety checks at ${new Date().toISOString()} ===\n`,
+                )
               }
 
               // Notify clients that command completed with error
@@ -241,57 +244,54 @@ export function initializeWebSocket(server: Server): WebSocketServer {
                 type: "error",
                 error: `Sync halted: ${validation.violations.join("; ")}`,
                 timestamp: new Date().toISOString(),
-              });
+              })
 
-              currentLogFile = null;
-              return;
+              currentLogFile = null
+              return
             }
           }
 
           // Execute command in background (include diff output for sync notification)
-          const streamOptions =
-            command === "sync" ? { diffOutput } : undefined;
-          executeCommandWithStreaming(
-            command,
-            finalArgs,
-            streamOptions
-          ).catch(console.error);
+          const streamOptions = command === "sync" ? { diffOutput } : undefined
+          executeCommandWithStreaming(command, finalArgs, streamOptions).catch(
+            console.error,
+          )
         }
 
         // Handle abort request
         if (message.type === "abort") {
-          const aborted = snapraidRunner.abort();
+          const aborted = snapraidRunner.abort()
           ws.send(
             JSON.stringify({
               type: aborted ? "status" : "error",
               error: aborted ? undefined : "No command is running",
               timestamp: new Date().toISOString(),
-            } satisfies WSMessage)
-          );
+            } satisfies WSMessage),
+          )
         }
       } catch (error) {
-        console.error("Error handling WebSocket message:", error);
+        console.error("Error handling WebSocket message:", error)
       }
-    });
+    })
 
     ws.on("close", () => {
-      console.log("WebSocket client disconnected");
-      clients.delete(ws);
-    });
+      console.log("WebSocket client disconnected")
+      clients.delete(ws)
+    })
 
     ws.on("error", (error) => {
-      console.error("WebSocket error:", error);
-      clients.delete(ws);
-    });
-  });
+      console.error("WebSocket error:", error)
+      clients.delete(ws)
+    })
+  })
 
-  console.log("WebSocket server initialized at /ws");
-  return wss;
+  console.log("WebSocket server initialized at /ws")
+  return wss
 }
 
 /**
  * Get the number of connected clients
  */
 export function getConnectedClientCount(): number {
-  return clients.size;
+  return clients.size
 }

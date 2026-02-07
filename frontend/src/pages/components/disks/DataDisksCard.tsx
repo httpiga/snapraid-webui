@@ -4,18 +4,18 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { FolderOpen, HardDrive, Plus, Trash2 } from "lucide-react";
-import { useState } from "react";
-import { FileSystemDialog } from "@/components/FileSystemDialog";
+} from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { FolderOpen, HardDrive, Plus, Trash2 } from "lucide-react"
+import { useState } from "react"
+import { FileSystemDialog } from "@/components/FileSystemDialog"
 
 interface DataDisksCardProps {
-  data: Record<string, string>;
-  onAdd: () => void;
-  onRemove: (name: string) => void;
-  onUpdate: (oldName: string, newName: string, path: string) => void;
+  data: Record<string, string>
+  onAdd: () => void
+  onRemove: (name: string) => void
+  onUpdate: (oldName: string, newName: string, path: string) => void
 }
 
 export function DataDisksCard({
@@ -24,9 +24,9 @@ export function DataDisksCard({
   onRemove,
   onUpdate,
 }: DataDisksCardProps) {
-  const entries = Object.entries(data);
-  const [isBrowserOpen, setIsBrowserOpen] = useState(false);
-  const [browserTarget, setBrowserTarget] = useState<string | null>(null);
+  const entries = Object.entries(data)
+  const [isBrowserOpen, setIsBrowserOpen] = useState(false)
+  const [browserTarget, setBrowserTarget] = useState<string | null>(null)
   return (
     <Card>
       <CardHeader>
@@ -62,8 +62,8 @@ export function DataDisksCard({
                 variant="outline"
                 size="icon"
                 onClick={() => {
-                  setBrowserTarget(name);
-                  setIsBrowserOpen(true);
+                  setBrowserTarget(name)
+                  setIsBrowserOpen(true)
                 }}
               >
                 <FolderOpen className="h-4 w-4" />
@@ -95,10 +95,10 @@ export function DataDisksCard({
         description="Choose the folder that contains the disk data."
         onSelect={(path) => {
           if (browserTarget !== null) {
-            onUpdate(browserTarget, browserTarget, path);
+            onUpdate(browserTarget, browserTarget, path)
           }
         }}
       />
     </Card>
-  );
+  )
 }

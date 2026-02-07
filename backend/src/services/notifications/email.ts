@@ -1,5 +1,5 @@
-import nodemailer from "nodemailer";
-import type { EmailSettings, NotificationEvent } from "@snapraid-webui/shared";
+import nodemailer from "nodemailer"
+import type { EmailSettings, NotificationEvent } from "@snapraid-webui/shared"
 
 /**
  * Send a notification via email
@@ -9,14 +9,14 @@ export async function sendEmailNotification(
   event: NotificationEvent,
   title: string,
   message: string,
-  details?: Record<string, string>
+  details?: Record<string, string>,
 ): Promise<boolean> {
   if (
     !settings.enabled ||
     !settings.smtpHost ||
     settings.toAddresses.length === 0
   ) {
-    return false;
+    return false
   }
 
   const transporter = nodemailer.createTransport({
@@ -29,7 +29,7 @@ export async function sendEmailNotification(
           pass: settings.smtpPass,
         }
       : undefined,
-  });
+  })
 
   // Subject prefix based on event type
   const prefixes: Record<NotificationEvent, string> = {
@@ -39,10 +39,10 @@ export async function sendEmailNotification(
     sync_safety_halt: "[WARNING]",
     scrub_complete: "[OK]",
     scrub_error: "[ERROR]",
-  };
+  }
 
-  const prefix = prefixes[event] || "[INFO]";
-  const subject = `${prefix} SnapRAID: ${title}`;
+  const prefix = prefixes[event] || "[INFO]"
+  const subject = `${prefix} SnapRAID: ${title}`
 
   // Build HTML body
   let html = `
@@ -53,13 +53,13 @@ export async function sendEmailNotification(
       <p style="color: #666; font-size: 14px; line-height: 1.6;">
         ${message.replace(/\n/g, "<br>")}
       </p>
-  `;
+  `
 
   if (details) {
     html += `
       <h3 style="color: #333; margin-top: 20px;">Details</h3>
       <table style="width: 100%; border-collapse: collapse;">
-    `;
+    `
 
     for (const [key, value] of Object.entries(details)) {
       html += `
@@ -67,10 +67,10 @@ export async function sendEmailNotification(
           <td style="padding: 8px; border-bottom: 1px solid #ddd; font-weight: bold; width: 30%;">${key}</td>
           <td style="padding: 8px; border-bottom: 1px solid #ddd;">${value}</td>
         </tr>
-      `;
+      `
     }
 
-    html += "</table>";
+    html += "</table>"
   }
 
   html += `
@@ -78,14 +78,14 @@ export async function sendEmailNotification(
         This notification was sent by SnapRAID Web UI at ${new Date().toISOString()}
       </p>
     </div>
-  `;
+  `
 
   // Plain text version
-  let text = `${title}\n\n${message}`;
+  let text = `${title}\n\n${message}`
   if (details) {
-    text += "\n\nDetails:";
+    text += "\n\nDetails:"
     for (const [key, value] of Object.entries(details)) {
-      text += `\n- ${key}: ${value}`;
+      text += `\n- ${key}: ${value}`
     }
   }
 
@@ -96,11 +96,11 @@ export async function sendEmailNotification(
       subject,
       text,
       html,
-    });
+    })
 
-    return true;
+    return true
   } catch (error) {
-    console.error("Email notification error:", error);
-    return false;
+    console.error("Email notification error:", error)
+    return false
   }
 }

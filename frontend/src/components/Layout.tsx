@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link, Outlet, useLocation } from "react-router-dom";
+import { useState } from "react"
+import { Link, Outlet, useLocation } from "react-router-dom"
 import {
   LayoutDashboard,
   HardDrive,
@@ -11,10 +11,10 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   Cross,
-} from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { ModeToggle } from "@/components/theme/ModeToggle";
+} from "lucide-react"
+import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
+import { ModeToggle } from "@/components/theme/ModeToggle"
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
@@ -24,14 +24,14 @@ const navigation = [
   { name: "Recovery", href: "/recovery", icon: Cross },
   { name: "Logs", href: "/logs", icon: FileText },
   { name: "Settings", href: "/settings", icon: Settings },
-];
+]
 
-const SIDEBAR_WIDTH_EXPANDED = "16rem"; /* 256px / w-64 */
-const SIDEBAR_WIDTH_COLLAPSED = "4rem"; /* 64px / w-16 */
+const SIDEBAR_WIDTH_EXPANDED = "16rem" /* 256px / w-64 */
+const SIDEBAR_WIDTH_COLLAPSED = "4rem" /* 64px / w-16 */
 
 export function Layout() {
-  const location = useLocation();
-  const [collapsed, setCollapsed] = useState(false);
+  const location = useLocation()
+  const [collapsed, setCollapsed] = useState(false)
 
   return (
     <div className="min-h-screen bg-background">
@@ -45,7 +45,7 @@ export function Layout() {
         <div
           className={cn(
             "flex h-16 shrink-0 items-center border-b transition-[padding] duration-200",
-            collapsed ? "px-2 justify-center" : "px-4 justify-between"
+            collapsed ? "px-2 justify-center" : "px-4 justify-between",
           )}
         >
           {!collapsed && (
@@ -77,7 +77,7 @@ export function Layout() {
             const isActive =
               item.href === "/"
                 ? location.pathname === "/"
-                : location.pathname.startsWith(item.href);
+                : location.pathname.startsWith(item.href)
             return (
               <Link
                 key={item.name}
@@ -88,17 +88,22 @@ export function Layout() {
                   collapsed ? "justify-center px-0" : "gap-3 px-3",
                   isActive
                     ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                    : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
                 )}
               >
                 <item.icon className="h-4 w-4 shrink-0" />
                 {!collapsed && item.name}
               </Link>
-            );
+            )
           })}
         </nav>
         <div className="mt-auto border-t p-2">
-          <div className={cn("flex", collapsed ? "justify-center" : "justify-start")}>
+          <div
+            className={cn(
+              "flex",
+              collapsed ? "justify-center" : "justify-start",
+            )}
+          >
             <ModeToggle />
           </div>
         </div>
@@ -121,5 +126,5 @@ export function Layout() {
         </div>
       </main>
     </div>
-  );
+  )
 }

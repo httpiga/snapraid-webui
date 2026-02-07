@@ -4,26 +4,24 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import type { ReactNode } from "react";
-import { toast } from "sonner";
-import { Pencil, Plus, Trash2 } from "lucide-react";
-import type { NotificationChannel, NotificationSettings } from "@shared/types";
-import {
-  getChannelConfigSummary,
-} from "@/lib/notification-channel-utils";
-import { useUpdateNotificationSettingsMutation } from "@/store/api";
-import { getApiErrorMessage } from "@/lib/api-error";
+} from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
+import type { ReactNode } from "react"
+import { toast } from "sonner"
+import { Pencil, Plus, Trash2 } from "lucide-react"
+import type { NotificationChannel, NotificationSettings } from "@shared/types"
+import { getChannelConfigSummary } from "@/lib/notification-channel-utils"
+import { useUpdateNotificationSettingsMutation } from "@/store/api"
+import { getApiErrorMessage } from "@/lib/api-error"
 
 interface NotificationProviderCardProps {
-  channel: NotificationChannel;
-  settings: NotificationSettings;
-  setSettings: (s: NotificationSettings) => void;
-  onEdit: () => void;
-  onRemove: () => void;
+  channel: NotificationChannel
+  settings: NotificationSettings
+  setSettings: (s: NotificationSettings) => void
+  onEdit: () => void
+  onRemove: () => void
 }
 
 export function NotificationProviderCard({
@@ -33,11 +31,11 @@ export function NotificationProviderCard({
   onEdit,
   onRemove,
 }: NotificationProviderCardProps) {
-  const [updateNotificationSettings] = useUpdateNotificationSettingsMutation();
-  const channelSettings = settings.channels[channel];
-  const summary = getChannelConfigSummary(channel, settings);
+  const [updateNotificationSettings] = useUpdateNotificationSettingsMutation()
+  const channelSettings = settings.channels[channel]
+  const summary = getChannelConfigSummary(channel, settings)
   const hasConfig =
-    summary !== "No configuration set" && summary !== "No webhook set";
+    summary !== "No configuration set" && summary !== "No webhook set"
 
   const handleToggleEnabled = async (checked: boolean) => {
     const updated: NotificationSettings = {
@@ -46,22 +44,22 @@ export function NotificationProviderCard({
         ...settings.channels,
         [channel]: { ...channelSettings, enabled: checked },
       },
-    };
-    setSettings(updated);
+    }
+    setSettings(updated)
     try {
-      await updateNotificationSettings(updated).unwrap();
+      await updateNotificationSettings(updated).unwrap()
       toast.success(
         checked
           ? `${channel} notifications enabled`
-          : `${channel} notifications disabled`
-      );
+          : `${channel} notifications disabled`,
+      )
     } catch (error) {
-      setSettings(settings);
+      setSettings(settings)
       toast.error("Failed to update", {
         description: getApiErrorMessage(error),
-      });
+      })
     }
-  };
+  }
 
   const labels: Record<NotificationChannel, { title: string; desc: string }> = {
     discord: {
@@ -80,7 +78,7 @@ export function NotificationProviderCard({
       title: "Slack",
       desc: "Send notifications to Slack",
     },
-  };
+  }
 
   const icons: Record<NotificationChannel, ReactNode> = {
     discord: (
@@ -127,7 +125,7 @@ export function NotificationProviderCard({
         <path d="M3.362 10.11c0 .926-.756 1.681-1.681 1.681S0 11.036 0 10.111.756 8.43 1.68 8.43h1.682zm.846 0c0-.924.756-1.68 1.681-1.68s1.681.756 1.681 1.68v4.21c0 .924-.756 1.68-1.68 1.68a1.685 1.685 0 0 1-1.682-1.68zM5.89 3.362c-.926 0-1.682-.756-1.682-1.681S4.964 0 5.89 0s1.68.756 1.68 1.68v1.682zm0 .846c.924 0 1.68.756 1.68 1.681S6.814 7.57 5.89 7.57H1.68C.757 7.57 0 6.814 0 5.89c0-.926.756-1.682 1.68-1.682zm6.749 1.682c0-.926.755-1.682 1.68-1.682S16 4.964 16 5.889s-.756 1.681-1.68 1.681h-1.681zm-.848 0c0 .924-.755 1.68-1.68 1.68A1.685 1.685 0 0 1 8.43 5.89V1.68C8.43.757 9.186 0 10.11 0c.926 0 1.681.756 1.681 1.68zm-1.681 6.748c.926 0 1.682.756 1.682 1.681S11.036 16 10.11 16s-1.681-.756-1.681-1.68v-1.682h1.68zm0-.847c-.924 0-1.68-.755-1.68-1.68s.756-1.681 1.68-1.681h4.21c.924 0 1.68.756 1.68 1.68 0 .926-.756 1.681-1.68 1.681z" />
       </svg>
     ),
-  };
+  }
 
   return (
     <Card>
@@ -181,5 +179,5 @@ export function NotificationProviderCard({
         </div>
       </CardContent>
     </Card>
-  );
+  )
 }

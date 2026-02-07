@@ -1,67 +1,67 @@
-import { useState } from "react";
-import { toast } from "sonner";
-import type { LogFile } from "@shared/types";
+import { useState } from "react"
+import { toast } from "sonner"
+import type { LogFile } from "@shared/types"
 import {
   useGetLogsQuery,
   useGetLogContentQuery,
   useDeleteAllLogsMutation,
   useDeleteLogsOlderThanMutation,
-} from "@/store/api";
-import { PageHeader } from "@/pages/components/PageHeader";
-import { PageLoading } from "@/pages/components/PageLoading";
-import { LogListCard } from "@/pages/components/logs/LogListCard";
-import { LogContentCard } from "@/pages/components/logs/LogContentCard";
-import { DeleteLogsDialog } from "@/pages/components/logs/DeleteLogsDialog";
+} from "@/store/api"
+import { PageHeader } from "@/pages/components/PageHeader"
+import { PageLoading } from "@/pages/components/PageLoading"
+import { LogListCard } from "@/pages/components/logs/LogListCard"
+import { LogContentCard } from "@/pages/components/logs/LogContentCard"
+import { DeleteLogsDialog } from "@/pages/components/logs/DeleteLogsDialog"
 
-type DeleteConfirmMode = "all" | "olderThan" | null;
+type DeleteConfirmMode = "all" | "olderThan" | null
 
 export function Logs() {
-  const { data: logs, isLoading } = useGetLogsQuery();
-  const [selectedLog, setSelectedLog] = useState<LogFile | null>(null);
+  const { data: logs, isLoading } = useGetLogsQuery()
+  const [selectedLog, setSelectedLog] = useState<LogFile | null>(null)
   const [deleteConfirmMode, setDeleteConfirmMode] =
-    useState<DeleteConfirmMode>(null);
+    useState<DeleteConfirmMode>(null)
 
   const [deleteAllLogs, { isLoading: isDeletingAll }] =
-    useDeleteAllLogsMutation();
+    useDeleteAllLogsMutation()
   const [deleteLogsOlderThan, { isLoading: isDeletingOlderThan }] =
-    useDeleteLogsOlderThanMutation();
+    useDeleteLogsOlderThanMutation()
 
   const { data: logContent, isLoading: isLoadingContent } =
-    useGetLogContentQuery(selectedLog?.filename || "", { skip: !selectedLog });
+    useGetLogContentQuery(selectedLog?.filename || "", { skip: !selectedLog })
 
   const handleConfirmDelete = async () => {
-    if (!deleteConfirmMode) return;
+    if (!deleteConfirmMode) return
     try {
       if (deleteConfirmMode === "all") {
-        const result = await deleteAllLogs().unwrap();
-        toast.success(`Deleted ${result.deleted} log file(s)`);
+        const result = await deleteAllLogs().unwrap()
+        toast.success(`Deleted ${result.deleted} log file(s)`)
       } else {
-        const result = await deleteLogsOlderThan(30).unwrap();
+        const result = await deleteLogsOlderThan(30).unwrap()
         toast.success(
-          `Deleted ${result.deleted} log file(s) older than 30 days`
-        );
+          `Deleted ${result.deleted} log file(s) older than 30 days`,
+        )
       }
-      setDeleteConfirmMode(null);
-      setSelectedLog(null);
+      setDeleteConfirmMode(null)
+      setSelectedLog(null)
     } catch {
-      toast.error("Failed to delete logs");
+      toast.error("Failed to delete logs")
     }
-  };
+  }
 
-  const isDeleting = isDeletingAll || isDeletingOlderThan;
+  const isDeleting = isDeletingAll || isDeletingOlderThan
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString();
-  };
+    return new Date(dateString).toLocaleString()
+  }
 
   const formatSize = (bytes: number) => {
-    if (bytes < 1024) return `${bytes} B`;
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-  };
+    if (bytes < 1024) return `${bytes} B`
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+  }
 
   if (isLoading) {
-    return <PageLoading message="Loading logs..." />;
+    return <PageLoading message="Loading logs..." />
   }
 
   return (
@@ -98,5 +98,5 @@ export function Logs() {
         onConfirm={handleConfirmDelete}
       />
     </div>
-  );
+  )
 }

@@ -1,30 +1,30 @@
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
+import { Switch } from "@/components/ui/switch"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import type { SyncSafetySettings as SyncSafetySettingsType } from "@shared/types";
+} from "@/components/ui/select"
+import type { SyncSafetySettings as SyncSafetySettingsType } from "@shared/types"
 
-export type SyncSafetyMode = "disabled" | "default" | "custom";
+export type SyncSafetyMode = "disabled" | "default" | "custom"
 
 export interface SyncSafetyOptions {
-  mode: SyncSafetyMode;
-  preHash: boolean;
-  forceEmpty: boolean;
-  maxDeletedFiles?: number;
-  maxUpdatedFiles?: number;
-  maxAddedFiles?: number;
+  mode: SyncSafetyMode
+  preHash: boolean
+  forceEmpty: boolean
+  maxDeletedFiles?: number
+  maxUpdatedFiles?: number
+  maxAddedFiles?: number
 }
 
 interface SyncSafetySettingsProps {
-  value: SyncSafetyOptions;
-  onChange: (value: SyncSafetyOptions) => void;
-  defaultSettings?: SyncSafetySettingsType | null;
+  value: SyncSafetyOptions
+  onChange: (value: SyncSafetyOptions) => void
+  defaultSettings?: SyncSafetySettingsType | null
 }
 
 /**
@@ -44,8 +44,8 @@ export function SyncSafetySettings({
   onChange,
   defaultSettings,
 }: SyncSafetySettingsProps) {
-  const showCustomFields = value.mode === "custom";
-  const showAdvancedOptions = value.mode !== "default";
+  const showCustomFields = value.mode === "custom"
+  const showAdvancedOptions = value.mode !== "default"
 
   return (
     <div className="space-y-4">
@@ -180,5 +180,5 @@ export function SyncSafetySettings({
         </>
       )}
     </div>
-  );
+  )
 }

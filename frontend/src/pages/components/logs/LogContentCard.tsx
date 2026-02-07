@@ -4,17 +4,17 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Download } from "lucide-react";
-import type { LogFile } from "@shared/types";
+} from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Download } from "lucide-react"
+import type { LogFile } from "@shared/types"
 
 interface LogContentCardProps {
-  selectedLog: LogFile | null;
-  logContent?: string;
-  isLoadingContent: boolean;
-  formatDate: (dateString: string) => string;
+  selectedLog: LogFile | null
+  logContent?: string
+  isLoadingContent: boolean
+  formatDate: (dateString: string) => string
 }
 
 export function LogContentCard({
@@ -66,13 +66,13 @@ export function LogContentCard({
             {isLoadingContent
               ? "Loading..."
               : logContent
-              ? logContent
-              : selectedLog
-              ? "Failed to load log content"
-              : "Select a log file from the list to view its content"}
+                ? logContent
+                : selectedLog
+                  ? "Failed to load log content"
+                  : "Select a log file from the list to view its content"}
           </pre>
         </ScrollArea>
       </CardContent>
     </Card>
-  );
+  )
 }

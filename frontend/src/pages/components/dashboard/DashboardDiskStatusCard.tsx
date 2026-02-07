@@ -4,18 +4,18 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import type { DiskStatusInfo } from "@shared/types";
+} from "@/components/ui/card"
+import type { DiskStatusInfo } from "@shared/types"
 
 interface DashboardDiskStatusCardProps {
-  disks: DiskStatusInfo[];
+  disks: DiskStatusInfo[]
 }
 
 export function DashboardDiskStatusCard({
   disks,
 }: DashboardDiskStatusCardProps) {
   if (disks.length === 0) {
-    return null;
+    return null
   }
 
   return (
@@ -38,12 +38,13 @@ export function DashboardDiskStatusCard({
                 </div>
               </div>
               <div className="w-32 text-right text-sm text-muted-foreground">
-                {disk.usedGB.toFixed(1)} / {(disk.usedGB + disk.freeGB).toFixed(1)} GB
+                {disk.usedGB.toFixed(1)} /{" "}
+                {(disk.usedGB + disk.freeGB).toFixed(1)} GB
               </div>
             </div>
           ))}
         </div>
       </CardContent>
     </Card>
-  );
+  )
 }

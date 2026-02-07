@@ -1,4 +1,4 @@
-import type { LucideIcon } from "lucide-react";
+import type { LucideIcon } from "lucide-react"
 import {
   RefreshCw,
   GitCompare,
@@ -15,8 +15,8 @@ import {
   Hash,
   Activity,
   SearchCheck,
-} from "lucide-react";
-import type { SnapRaidCommand } from "@shared/types";
+} from "lucide-react"
+import type { SnapRaidCommand } from "@shared/types"
 
 /**
  * Enum of every SnapRAID command, shared across pages.
@@ -37,14 +37,14 @@ export const Command = {
   DUP: "dup",
   TOUCH: "touch",
   REHASH: "rehash",
-} as const satisfies Record<string, SnapRaidCommand>;
+} as const satisfies Record<string, SnapRaidCommand>
 
-export type CommandEnum = (typeof Command)[keyof typeof Command];
+export type CommandEnum = (typeof Command)[keyof typeof Command]
 
 /** All command values in a single array. */
 export const COMMAND_VALUES: readonly SnapRaidCommand[] = Object.values(
-  Command
-) as SnapRaidCommand[];
+  Command,
+) as SnapRaidCommand[]
 
 /**
  * Maps every command to a unique Lucide icon.
@@ -66,7 +66,7 @@ export const COMMAND_ICONS: Record<SnapRaidCommand, LucideIcon> = {
   [Command.DUP]: Copy,
   [Command.TOUCH]: Hand,
   [Command.REHASH]: Hash,
-};
+}
 
 /**
  * Maps every command to a display name (for badges, labels, etc.).
@@ -87,18 +87,18 @@ export const COMMAND_LABELS: Record<SnapRaidCommand, string> = {
   [Command.DUP]: "Dup",
   [Command.TOUCH]: "Touch",
   [Command.REHASH]: "Rehash",
-};
+}
 
 /**
  * Get the icon component for a command.
  */
 export function getCommandIcon(command: SnapRaidCommand): LucideIcon {
-  return COMMAND_ICONS[command];
+  return COMMAND_ICONS[command]
 }
 
 /**
  * Get the display name for a command.
  */
 export function getCommandLabel(command: SnapRaidCommand): string {
-  return COMMAND_LABELS[command];
+  return COMMAND_LABELS[command]
 }

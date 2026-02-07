@@ -1,4 +1,4 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
 import type {
   SnapRaidStatus,
   ParsedSnapRaidConfig,
@@ -14,7 +14,7 @@ import type {
   AuthStatus,
   AuthSettingsResponse,
   AuthSettingsUpdate,
-} from "@shared/types";
+} from "@shared/types"
 
 export const api = createApi({
   reducerPath: "api",
@@ -177,17 +177,16 @@ export const api = createApi({
       query: () => "/sync-safety/settings",
       providesTags: ["SyncSafety"],
     }),
-    updateSyncSafetySettings: builder.mutation<
-      ApiResponse,
-      SyncSafetySettings
-    >({
-      query: (settings) => ({
-        url: "/sync-safety/settings",
-        method: "PUT",
-        body: settings,
-      }),
-      invalidatesTags: ["SyncSafety"],
-    }),
+    updateSyncSafetySettings: builder.mutation<ApiResponse, SyncSafetySettings>(
+      {
+        query: (settings) => ({
+          url: "/sync-safety/settings",
+          method: "PUT",
+          body: settings,
+        }),
+        invalidatesTags: ["SyncSafety"],
+      },
+    ),
 
     // Advanced Settings
     getAdvancedSettings: builder.query<AdvancedSettings, void>({
@@ -221,16 +220,17 @@ export const api = createApi({
       query: () => "/auth/status",
       providesTags: ["Auth"],
     }),
-    login: builder.mutation<ApiResponse, { username: string; password: string }>(
-      {
-        query: (body) => ({
-          url: "/auth/login",
-          method: "POST",
-          body,
-        }),
-        invalidatesTags: ["Auth"],
-      }
-    ),
+    login: builder.mutation<
+      ApiResponse,
+      { username: string; password: string }
+    >({
+      query: (body) => ({
+        url: "/auth/login",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Auth"],
+    }),
     logout: builder.mutation<ApiResponse, void>({
       query: () => ({
         url: "/auth/logout",
@@ -251,7 +251,7 @@ export const api = createApi({
       invalidatesTags: ["Auth"],
     }),
   }),
-});
+})
 
 export const {
   useGetStatusQuery,
@@ -284,4 +284,4 @@ export const {
   useLogoutMutation,
   useGetAuthSettingsQuery,
   useUpdateAuthSettingsMutation,
-} = api;
+} = api

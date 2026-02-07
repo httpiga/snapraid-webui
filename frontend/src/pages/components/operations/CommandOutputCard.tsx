@@ -4,16 +4,16 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Terminal } from "lucide-react";
+} from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Terminal } from "lucide-react"
 
 interface CommandOutputCardProps {
-  output: string;
-  isCommandRunning: boolean;
-  currentCommand: string | null;
-  onClear: () => void;
+  output: string
+  isCommandRunning: boolean
+  currentCommand: string | null
+  onClear: () => void
 }
 
 export function CommandOutputCard({
@@ -50,5 +50,5 @@ export function CommandOutputCard({
         </ScrollArea>
       </CardContent>
     </Card>
-  );
+  )
 }

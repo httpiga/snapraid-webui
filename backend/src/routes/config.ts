@@ -1,15 +1,15 @@
-import { Router, type IRouter } from "express";
-import fs from "fs/promises";
-import { existsSync } from "fs";
-import { SNAPRAID_CONF_FILE } from "../config.js";
+import { Router, type IRouter } from "express"
+import fs from "fs/promises"
+import { existsSync } from "fs"
+import { SNAPRAID_CONF_FILE } from "../config.js"
 import {
   parseSnapRaidConfig,
   serializeSnapRaidConfig,
   validateSnapRaidConfig,
-} from "../services/config-parser.js";
-import type { ParsedSnapRaidConfig } from "@snapraid-webui/shared";
+} from "../services/config-parser.js"
+import type { ParsedSnapRaidConfig } from "@snapraid-webui/shared"
 
-const router: IRouter = Router();
+const router: IRouter = Router()
 
 /**
  * GET /api/config
@@ -17,13 +17,13 @@ const router: IRouter = Router();
  */
 router.get("/", async (_req, res) => {
   try {
-    const config = await parseSnapRaidConfig(SNAPRAID_CONF_FILE);
-    res.json(config);
+    const config = await parseSnapRaidConfig(SNAPRAID_CONF_FILE)
+    res.json(config)
   } catch (error) {
-    console.error("Error reading config:", error);
-    res.status(500).json({ error: "Failed to read configuration" });
+    console.error("Error reading config:", error)
+    res.status(500).json({ error: "Failed to read configuration" })
   }
-});
+})
 
 /**
  * GET /api/config/raw
@@ -32,16 +32,16 @@ router.get("/", async (_req, res) => {
 router.get("/raw", async (_req, res) => {
   try {
     if (!existsSync(SNAPRAID_CONF_FILE)) {
-      res.json("");
-      return;
+      res.json("")
+      return
     }
-    const content = await fs.readFile(SNAPRAID_CONF_FILE, "utf-8");
-    res.json(content);
+    const content = await fs.readFile(SNAPRAID_CONF_FILE, "utf-8")
+    res.json(content)
   } catch (error) {
-    console.error("Error reading raw config:", error);
-    res.status(500).json({ error: "Failed to read configuration file" });
+    console.error("Error reading raw config:", error)
+    res.status(500).json({ error: "Failed to read configuration file" })
   }
-});
+})
 
 /**
  * PUT /api/config
@@ -49,34 +49,34 @@ router.get("/raw", async (_req, res) => {
  */
 router.put("/", async (req, res) => {
   try {
-    const config = req.body as ParsedSnapRaidConfig;
+    const config = req.body as ParsedSnapRaidConfig
 
     // Validate configuration
-    const validation = validateSnapRaidConfig(config);
+    const validation = validateSnapRaidConfig(config)
     if (!validation.valid) {
       res.status(400).json({
         success: false,
         error: "Invalid configuration",
         details: validation.errors,
-      });
-      return;
+      })
+      return
     }
 
     // Serialize and write
-    const content = serializeSnapRaidConfig(config);
-    await fs.writeFile(SNAPRAID_CONF_FILE, content, "utf-8");
+    const content = serializeSnapRaidConfig(config)
+    await fs.writeFile(SNAPRAID_CONF_FILE, content, "utf-8")
 
     res.json({
       success: true,
       warnings: validation.errors.filter((e) => e.startsWith("Warning")),
-    });
+    })
   } catch (error) {
-    console.error("Error writing config:", error);
+    console.error("Error writing config:", error)
     res
       .status(500)
-      .json({ success: false, error: "Failed to write configuration" });
+      .json({ success: false, error: "Failed to write configuration" })
   }
-});
+})
 
 /**
  * PUT /api/config/raw
@@ -84,24 +84,24 @@ router.put("/", async (req, res) => {
  */
 router.put("/raw", async (req, res) => {
   try {
-    const { content } = req.body as { content: string };
+    const { content } = req.body as { content: string }
 
     if (typeof content !== "string") {
       res
         .status(400)
-        .json({ success: false, error: "Content must be a string" });
-      return;
+        .json({ success: false, error: "Content must be a string" })
+      return
     }
 
-    await fs.writeFile(SNAPRAID_CONF_FILE, content, "utf-8");
-    res.json({ success: true });
+    await fs.writeFile(SNAPRAID_CONF_FILE, content, "utf-8")
+    res.json({ success: true })
   } catch (error) {
-    console.error("Error writing raw config:", error);
+    console.error("Error writing raw config:", error)
     res
       .status(500)
-      .json({ success: false, error: "Failed to write configuration file" });
+      .json({ success: false, error: "Failed to write configuration file" })
   }
-});
+})
 
 /**
  * POST /api/config/validate
@@ -109,15 +109,15 @@ router.put("/raw", async (req, res) => {
  */
 router.post("/validate", async (req, res) => {
   try {
-    const config = req.body as ParsedSnapRaidConfig;
-    const validation = validateSnapRaidConfig(config);
-    res.json(validation);
+    const config = req.body as ParsedSnapRaidConfig
+    const validation = validateSnapRaidConfig(config)
+    res.json(validation)
   } catch (error) {
-    console.error("Error validating config:", error);
+    console.error("Error validating config:", error)
     res
       .status(500)
-      .json({ valid: false, errors: ["Failed to validate configuration"] });
+      .json({ valid: false, errors: ["Failed to validate configuration"] })
   }
-});
+})
 
-export default router;
+export default router

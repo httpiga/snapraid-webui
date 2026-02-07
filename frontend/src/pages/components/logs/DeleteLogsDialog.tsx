@@ -7,13 +7,13 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+} from "@/components/ui/alert-dialog"
 
 interface DeleteLogsDialogProps {
-  mode: "all" | "olderThan" | null;
-  isDeleting: boolean;
-  onOpenChange: (open: boolean) => void;
-  onConfirm: () => void;
+  mode: "all" | "olderThan" | null
+  isDeleting: boolean
+  onOpenChange: (open: boolean) => void
+  onConfirm: () => void
 }
 
 export function DeleteLogsDialog({
@@ -49,5 +49,5 @@ export function DeleteLogsDialog({
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-  );
+  )
 }

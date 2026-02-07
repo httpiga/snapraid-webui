@@ -4,40 +4,40 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
+} from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { FieldDescription } from "@/components/ui/field";
-import { Bug, FolderOpen, Play, RotateCcw, Square, Trash } from "lucide-react";
-import { useState } from "react";
-import { FileSystemDialog } from "@/components/FileSystemDialog";
+} from "@/components/ui/select"
+import { FieldDescription } from "@/components/ui/field"
+import { Bug, FolderOpen, Play, RotateCcw, Square, Trash } from "lucide-react"
+import { useState } from "react"
+import { FileSystemDialog } from "@/components/FileSystemDialog"
 
 interface RecoveryOptionsCardProps {
-  filterPath: string;
-  filterMissing: boolean;
-  filterError: boolean;
-  filterDisk: string;
-  diskNames: string[];
-  isRecovering: boolean;
-  isConnected: boolean;
-  onFilterPathChange: (value: string) => void;
-  onFilterMissingChange: (value: boolean) => void;
-  onFilterErrorChange: (value: boolean) => void;
-  onFilterDiskChange: (value: string) => void;
-  onRecoverDeleted: () => void;
-  onFixErrors: () => void;
-  onFullRecovery: () => void;
-  onStartRecovery: () => void;
-  onStopRecovery: () => void;
+  filterPath: string
+  filterMissing: boolean
+  filterError: boolean
+  filterDisk: string
+  diskNames: string[]
+  isRecovering: boolean
+  isConnected: boolean
+  onFilterPathChange: (value: string) => void
+  onFilterMissingChange: (value: boolean) => void
+  onFilterErrorChange: (value: boolean) => void
+  onFilterDiskChange: (value: string) => void
+  onRecoverDeleted: () => void
+  onFixErrors: () => void
+  onFullRecovery: () => void
+  onStartRecovery: () => void
+  onStopRecovery: () => void
 }
 
 export function RecoveryOptionsCard({
@@ -58,7 +58,7 @@ export function RecoveryOptionsCard({
   onStartRecovery,
   onStopRecovery,
 }: RecoveryOptionsCardProps) {
-  const [isBrowserOpen, setIsBrowserOpen] = useState(false);
+  const [isBrowserOpen, setIsBrowserOpen] = useState(false)
   return (
     <Card>
       <CardHeader>
@@ -126,7 +126,7 @@ export function RecoveryOptionsCard({
               variant="outline"
               size="icon"
               onClick={() => {
-                setIsBrowserOpen(true);
+                setIsBrowserOpen(true)
               }}
             >
               <FolderOpen className="h-4 w-4" />
@@ -217,9 +217,9 @@ export function RecoveryOptionsCard({
         title="Select disk folder"
         description="Choose the folder that contains the disk data."
         onSelect={(path) => {
-          onFilterPathChange(path);
+          onFilterPathChange(path)
         }}
       />
     </Card>
-  );
+  )
 }

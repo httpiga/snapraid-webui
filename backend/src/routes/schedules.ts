@@ -1,32 +1,31 @@
-import { Router, type IRouter } from "express";
+import { Router, type IRouter } from "express"
 import {
   getSchedules,
   getSchedule,
   createSchedule,
   updateSchedule,
   deleteSchedule,
-} from "../services/scheduler.js";
+} from "../services/scheduler.js"
 
-const router: IRouter = Router();
-type ExpressResponse = import("express").Response;
+const router: IRouter = Router()
+type ExpressResponse = import("express").Response
 
 function handleScheduleMutationError(
   res: ExpressResponse,
   error: unknown,
   logMessage: string,
   defaultStatus: number,
-  fallbackMessage: string
+  fallbackMessage: string,
 ) {
-  const message =
-    error instanceof Error ? error.message : fallbackMessage;
-  console.error(logMessage, error);
+  const message = error instanceof Error ? error.message : fallbackMessage
+  console.error(logMessage, error)
 
   if (message.includes("not found")) {
-    res.status(404).json({ error: message });
-    return;
+    res.status(404).json({ error: message })
+    return
   }
 
-  res.status(defaultStatus).json({ error: message });
+  res.status(defaultStatus).json({ error: message })
 }
 
 /**
@@ -35,13 +34,13 @@ function handleScheduleMutationError(
  */
 router.get("/", async (_req, res) => {
   try {
-    const schedules = await getSchedules();
-    res.json(schedules);
+    const schedules = await getSchedules()
+    res.json(schedules)
   } catch (error) {
-    console.error("Error getting schedules:", error);
-    res.status(500).json({ error: "Failed to get schedules" });
+    console.error("Error getting schedules:", error)
+    res.status(500).json({ error: "Failed to get schedules" })
   }
-});
+})
 
 /**
  * GET /api/schedules/:id
@@ -49,19 +48,19 @@ router.get("/", async (_req, res) => {
  */
 router.get("/:id", async (req, res) => {
   try {
-    const schedule = await getSchedule(req.params.id);
+    const schedule = await getSchedule(req.params.id)
 
     if (!schedule) {
-      res.status(404).json({ error: "Schedule not found" });
-      return;
+      res.status(404).json({ error: "Schedule not found" })
+      return
     }
 
-    res.json(schedule);
+    res.json(schedule)
   } catch (error) {
-    console.error("Error getting schedule:", error);
-    res.status(500).json({ error: "Failed to get schedule" });
+    console.error("Error getting schedule:", error)
+    res.status(500).json({ error: "Failed to get schedule" })
   }
-});
+})
 
 /**
  * POST /api/schedules
@@ -76,14 +75,14 @@ router.post("/", async (req, res) => {
       args,
       cronExpression,
       enabled = true,
-    } = req.body;
+    } = req.body
 
     // Validate required fields
     if (!name || !command || !cronExpression) {
       res.status(400).json({
         error: "Missing required fields: name, command, cronExpression",
-      });
-      return;
+      })
+      return
     }
 
     const schedule = await createSchedule({
@@ -93,16 +92,16 @@ router.post("/", async (req, res) => {
       args,
       cronExpression,
       enabled,
-    });
+    })
 
-    res.status(201).json(schedule);
+    res.status(201).json(schedule)
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : "Failed to create schedule";
-    console.error("Error creating schedule:", error);
-    res.status(400).json({ error: message });
+      error instanceof Error ? error.message : "Failed to create schedule"
+    console.error("Error creating schedule:", error)
+    res.status(400).json({ error: message })
   }
-});
+})
 
 /**
  * PUT /api/schedules/:id
@@ -110,18 +109,18 @@ router.post("/", async (req, res) => {
  */
 router.put("/:id", async (req, res) => {
   try {
-    const schedule = await updateSchedule(req.params.id, req.body);
-    res.json(schedule);
+    const schedule = await updateSchedule(req.params.id, req.body)
+    res.json(schedule)
   } catch (error) {
     handleScheduleMutationError(
       res,
       error,
       "Error updating schedule:",
       400,
-      "Failed to update schedule"
-    );
+      "Failed to update schedule",
+    )
   }
-});
+})
 
 /**
  * DELETE /api/schedules/:id
@@ -129,17 +128,17 @@ router.put("/:id", async (req, res) => {
  */
 router.delete("/:id", async (req, res) => {
   try {
-    await deleteSchedule(req.params.id);
-    res.json({ success: true });
+    await deleteSchedule(req.params.id)
+    res.json({ success: true })
   } catch (error) {
     handleScheduleMutationError(
       res,
       error,
       "Error deleting schedule:",
       500,
-      "Failed to delete schedule"
-    );
+      "Failed to delete schedule",
+    )
   }
-});
+})
 
-export default router;
+export default router

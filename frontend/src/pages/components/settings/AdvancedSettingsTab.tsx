@@ -4,17 +4,17 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import type { AdvancedSettings } from "@shared/types";
+} from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
+import type { AdvancedSettings } from "@shared/types"
 
 interface AdvancedSettingsTabProps {
-  advanced: AdvancedSettings;
-  setAdvanced: React.Dispatch<React.SetStateAction<AdvancedSettings>>;
-  onSave: () => Promise<void>;
+  advanced: AdvancedSettings
+  setAdvanced: React.Dispatch<React.SetStateAction<AdvancedSettings>>
+  onSave: () => Promise<void>
 }
 
 export function AdvancedSettingsTab({
@@ -106,5 +106,5 @@ export function AdvancedSettingsTab({
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

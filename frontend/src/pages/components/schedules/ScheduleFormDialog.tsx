@@ -1,62 +1,65 @@
-import type { FormEvent } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import type { FormEvent } from "react"
+import { Card, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@/components/ui/dialog";
+} from "@/components/ui/dialog"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { CommandSelect } from "@/components/ui/command-select";
-import { CommandOptions } from "@/components/CommandOptions";
+} from "@/components/ui/select"
+import { CommandSelect } from "@/components/ui/command-select"
+import { CommandOptions } from "@/components/CommandOptions"
 import {
   SyncSafetySettings,
   type SyncSafetyOptions,
-} from "@/components/SyncSafetySettings";
-import type { SnapRaidCommand, SyncSafetySettings as SyncSafetySettingsType } from "@shared/types";
-import type { CommandConfig } from "@/lib/command-config";
+} from "@/components/SyncSafetySettings"
+import type {
+  SnapRaidCommand,
+  SyncSafetySettings as SyncSafetySettingsType,
+} from "@shared/types"
+import type { CommandConfig } from "@/lib/command-config"
 
 export interface ScheduleFormData {
-  name: string;
-  command: SnapRaidCommand;
-  cronExpression: string;
-  enabled: boolean;
+  name: string
+  command: SnapRaidCommand
+  cronExpression: string
+  enabled: boolean
 }
 
 interface CronPreset {
-  label: string;
-  value: string;
+  label: string
+  value: string
 }
 
 interface ScheduleFormDialogProps {
-  open: boolean;
-  editingLabel: string;
-  submitLabel: string;
-  formData: ScheduleFormData;
-  cronPreset: string;
-  cronPresets: CronPreset[];
-  commands: CommandConfig[];
-  optionValues: Record<string, unknown>;
-  syncSafetyOptions: SyncSafetyOptions;
-  selectedCommandConfig: CommandConfig | null;
-  defaultSyncSafetySettings?: SyncSafetySettingsType | null;
-  onOpenChange: (open: boolean) => void;
-  onSubmit: (e: FormEvent) => void;
-  onCancel: () => void;
-  onFormDataChange: (data: ScheduleFormData) => void;
-  onCronPresetChange: (value: string) => void;
-  onOptionValuesChange: (value: Record<string, unknown>) => void;
-  onSyncSafetyOptionsChange: (value: SyncSafetyOptions) => void;
+  open: boolean
+  editingLabel: string
+  submitLabel: string
+  formData: ScheduleFormData
+  cronPreset: string
+  cronPresets: CronPreset[]
+  commands: CommandConfig[]
+  optionValues: Record<string, unknown>
+  syncSafetyOptions: SyncSafetyOptions
+  selectedCommandConfig: CommandConfig | null
+  defaultSyncSafetySettings?: SyncSafetySettingsType | null
+  onOpenChange: (open: boolean) => void
+  onSubmit: (e: FormEvent) => void
+  onCancel: () => void
+  onFormDataChange: (data: ScheduleFormData) => void
+  onCronPresetChange: (value: string) => void
+  onOptionValuesChange: (value: Record<string, unknown>) => void
+  onSyncSafetyOptionsChange: (value: SyncSafetyOptions) => void
 }
 
 export function ScheduleFormDialog({
@@ -79,7 +82,7 @@ export function ScheduleFormDialog({
   onOptionValuesChange,
   onSyncSafetyOptionsChange,
 }: ScheduleFormDialogProps) {
-  const isSyncCommand = formData.command === "sync";
+  const isSyncCommand = formData.command === "sync"
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
@@ -93,9 +96,9 @@ export function ScheduleFormDialog({
               <CommandSelect
                 value={formData.command}
                 onValueChange={(value) => {
-                  const cmd = value as SnapRaidCommand;
-                  onFormDataChange({ ...formData, command: cmd });
-                  onOptionValuesChange({});
+                  const cmd = value as SnapRaidCommand
+                  onFormDataChange({ ...formData, command: cmd })
+                  onOptionValuesChange({})
                 }}
                 commands={commands}
                 placeholder="Select command"
@@ -120,9 +123,9 @@ export function ScheduleFormDialog({
               <Select
                 value={cronPreset}
                 onValueChange={(value) => {
-                  onCronPresetChange(value);
+                  onCronPresetChange(value)
                   if (value !== "custom") {
-                    onFormDataChange({ ...formData, cronExpression: value });
+                    onFormDataChange({ ...formData, cronExpression: value })
                   }
                 }}
               >
@@ -191,5 +194,5 @@ export function ScheduleFormDialog({
         </form>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

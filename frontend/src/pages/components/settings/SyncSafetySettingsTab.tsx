@@ -4,19 +4,17 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import type { SyncSafetySettings } from "@shared/types";
+} from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
+import type { SyncSafetySettings } from "@shared/types"
 
 interface SyncSafetySettingsTabProps {
-  safetySettings: SyncSafetySettings;
-  setSafetySettings: React.Dispatch<
-    React.SetStateAction<SyncSafetySettings>
-  >;
-  onSave: () => Promise<void>;
+  safetySettings: SyncSafetySettings
+  setSafetySettings: React.Dispatch<React.SetStateAction<SyncSafetySettings>>
+  onSave: () => Promise<void>
 }
 
 export function SyncSafetySettingsTab({
@@ -143,5 +141,5 @@ export function SyncSafetySettingsTab({
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

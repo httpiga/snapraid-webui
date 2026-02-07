@@ -1,15 +1,15 @@
-import { useState, type FormEvent } from "react";
-import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
-import { Plus } from "lucide-react";
+import { useState, type FormEvent } from "react"
+import { Button } from "@/components/ui/button"
+import { toast } from "sonner"
+import { Plus } from "lucide-react"
 import {
   useGetSchedulesQuery,
   useCreateScheduleMutation,
   useUpdateScheduleMutation,
   useDeleteScheduleMutation,
   useGetSyncSafetySettingsQuery,
-} from "@/store/api";
-import type { Schedule } from "@shared/types";
+} from "@/store/api"
+import type { Schedule } from "@shared/types"
 import {
   schedulableCommands,
   getCommandConfig,
@@ -17,16 +17,16 @@ import {
   argsToOptions,
   syncSafetyToArgs,
   argsToSyncSafety,
-} from "@/lib/command-config";
-import type { SyncSafetyOptions } from "@/components/SyncSafetySettings";
-import { PageHeader } from "@/pages/components/PageHeader";
-import { PageLoading } from "@/pages/components/PageLoading";
+} from "@/lib/command-config"
+import type { SyncSafetyOptions } from "@/components/SyncSafetySettings"
+import { PageHeader } from "@/pages/components/PageHeader"
+import { PageLoading } from "@/pages/components/PageLoading"
 import {
   ScheduleFormDialog,
   type ScheduleFormData,
-} from "@/pages/components/schedules/ScheduleFormDialog";
-import { ScheduleList } from "@/pages/components/schedules/ScheduleList";
-import { getApiErrorMessage } from "@/lib/api-error";
+} from "@/pages/components/schedules/ScheduleFormDialog"
+import { ScheduleList } from "@/pages/components/schedules/ScheduleList"
+import { getApiErrorMessage } from "@/lib/api-error"
 
 const CRON_PRESETS = [
   { label: "Every day at 2 AM", value: "0 2 * * *" },
@@ -36,28 +36,28 @@ const CRON_PRESETS = [
   { label: "Every 6 hours", value: "0 */6 * * *" },
   { label: "Every 12 hours", value: "0 */12 * * *" },
   { label: "Custom", value: "custom" },
-];
+]
 
 /** Option values for the selected command (key -> value) */
-type OptionValues = Record<string, unknown>;
+type OptionValues = Record<string, unknown>
 
 export function Schedules() {
-  const { data: schedules, isLoading } = useGetSchedulesQuery();
-  const { data: defaultSyncSafetySettings } = useGetSyncSafetySettingsQuery();
-  const [createSchedule] = useCreateScheduleMutation();
-  const [updateSchedule] = useUpdateScheduleMutation();
-  const [deleteSchedule] = useDeleteScheduleMutation();
+  const { data: schedules, isLoading } = useGetSchedulesQuery()
+  const { data: defaultSyncSafetySettings } = useGetSyncSafetySettingsQuery()
+  const [createSchedule] = useCreateScheduleMutation()
+  const [updateSchedule] = useUpdateScheduleMutation()
+  const [deleteSchedule] = useDeleteScheduleMutation()
 
-  const [showForm, setShowForm] = useState(false);
-  const [editingSchedule, setEditingSchedule] = useState<Schedule | null>(null);
-  const [cronPreset, setCronPreset] = useState("custom");
+  const [showForm, setShowForm] = useState(false)
+  const [editingSchedule, setEditingSchedule] = useState<Schedule | null>(null)
+  const [cronPreset, setCronPreset] = useState("custom")
   const [formData, setFormData] = useState<ScheduleFormData>({
     name: "",
     command: "sync",
     cronExpression: "0 2 * * *",
     enabled: true,
-  });
-  const [optionValues, setOptionValues] = useState<OptionValues>({});
+  })
+  const [optionValues, setOptionValues] = useState<OptionValues>({})
   const [syncSafetyOptions, setSyncSafetyOptions] = useState<SyncSafetyOptions>(
     {
       mode: "default",
@@ -66,10 +66,10 @@ export function Schedules() {
       maxDeletedFiles: 100,
       maxUpdatedFiles: 500,
       maxAddedFiles: 10000,
-    }
-  );
+    },
+  )
 
-  const selectedCommandConfig = getCommandConfig(formData.command) ?? null;
+  const selectedCommandConfig = getCommandConfig(formData.command) ?? null
 
   const resetForm = () => {
     setFormData({
@@ -77,8 +77,8 @@ export function Schedules() {
       command: "sync",
       cronExpression: "0 2 * * *",
       enabled: true,
-    });
-    setOptionValues({});
+    })
+    setOptionValues({})
     setSyncSafetyOptions({
       mode: "default",
       preHash: false,
@@ -86,54 +86,54 @@ export function Schedules() {
       maxDeletedFiles: 100,
       maxUpdatedFiles: 500,
       maxAddedFiles: 10000,
-    });
-    setCronPreset("0 2 * * *");
-    setEditingSchedule(null);
-    setShowForm(false);
-  };
+    })
+    setCronPreset("0 2 * * *")
+    setEditingSchedule(null)
+    setShowForm(false)
+  }
 
   const handleEdit = (schedule: Schedule) => {
-    setEditingSchedule(schedule);
+    setEditingSchedule(schedule)
     setFormData({
       name: schedule.name,
       command: schedule.command,
       cronExpression: schedule.cronExpression,
       enabled: schedule.enabled,
-    });
+    })
 
     if (schedule.command === "sync") {
       // Parse sync safety options from args
-      setSyncSafetyOptions(argsToSyncSafety(schedule.args ?? []));
+      setSyncSafetyOptions(argsToSyncSafety(schedule.args ?? []))
     } else {
-      const cmdConfig = getCommandConfig(schedule.command);
+      const cmdConfig = getCommandConfig(schedule.command)
       setOptionValues(
-        cmdConfig ? argsToOptions(cmdConfig, schedule.args ?? []) : {}
-      );
+        cmdConfig ? argsToOptions(cmdConfig, schedule.args ?? []) : {},
+      )
     }
 
     const preset = CRON_PRESETS.find(
-      (presetOption) => presetOption.value === schedule.cronExpression
-    );
-    setCronPreset(preset ? preset.value : "custom");
-    setShowForm(true);
-  };
+      (presetOption) => presetOption.value === schedule.cronExpression,
+    )
+    setCronPreset(preset ? preset.value : "custom")
+    setShowForm(true)
+  }
 
   const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
 
-    let args: string[];
+    let args: string[]
 
     // For sync commands, use sync safety settings
     if (formData.command === "sync") {
       args = syncSafetyToArgs(
         syncSafetyOptions.mode,
         syncSafetyOptions,
-        defaultSyncSafetySettings
-      );
+        defaultSyncSafetySettings,
+      )
     } else {
       args = selectedCommandConfig
         ? optionsToArgs(selectedCommandConfig, optionValues)
-        : [];
+        : []
     }
 
     try {
@@ -141,52 +141,52 @@ export function Schedules() {
         await updateSchedule({
           id: editingSchedule.id,
           updates: { ...formData, args },
-        }).unwrap();
-        toast.success("Schedule updated");
+        }).unwrap()
+        toast.success("Schedule updated")
       } else {
         await createSchedule({
           ...formData,
           enabled: true,
           configPath: "",
           args,
-        }).unwrap();
-        toast.success("Schedule created");
+        }).unwrap()
+        toast.success("Schedule created")
       }
-      resetForm();
+      resetForm()
     } catch (error) {
-      toast.error("Error", { description: getApiErrorMessage(error) });
+      toast.error("Error", { description: getApiErrorMessage(error) })
     }
-  };
+  }
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this schedule?")) return;
+    if (!confirm("Are you sure you want to delete this schedule?")) return
 
     try {
-      await deleteSchedule(id).unwrap();
-      toast.success("Schedule deleted");
+      await deleteSchedule(id).unwrap()
+      toast.success("Schedule deleted")
     } catch (error) {
-      toast.error("Error", { description: getApiErrorMessage(error) });
+      toast.error("Error", { description: getApiErrorMessage(error) })
     }
-  };
+  }
 
   const handleToggleEnabled = async (schedule: Schedule) => {
     try {
       await updateSchedule({
         id: schedule.id,
         updates: { enabled: !schedule.enabled },
-      }).unwrap();
+      }).unwrap()
     } catch (error) {
-      toast.error("Error", { description: getApiErrorMessage(error) });
+      toast.error("Error", { description: getApiErrorMessage(error) })
     }
-  };
+  }
 
   const formatDate = (dateString?: string) => {
-    if (!dateString) return "—";
-    return new Date(dateString).toLocaleString();
-  };
+    if (!dateString) return "—"
+    return new Date(dateString).toLocaleString()
+  }
 
   if (isLoading) {
-    return <PageLoading message="Loading schedules..." />;
+    return <PageLoading message="Loading schedules..." />
   }
 
   return (
@@ -215,7 +215,7 @@ export function Schedules() {
         selectedCommandConfig={selectedCommandConfig}
         defaultSyncSafetySettings={defaultSyncSafetySettings}
         onOpenChange={(open) => {
-          if (!open) resetForm();
+          if (!open) resetForm()
         }}
         onSubmit={handleSubmit}
         onCancel={resetForm}
@@ -233,5 +233,5 @@ export function Schedules() {
         formatDate={formatDate}
       />
     </div>
-  );
+  )
 }

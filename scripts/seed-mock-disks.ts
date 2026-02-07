@@ -1,11 +1,11 @@
-import { mkdir, readFile, writeFile } from "fs/promises";
-import { dirname, join } from "path";
-import { fileURLToPath } from "url";
+import { mkdir, readFile, writeFile } from "fs/promises"
+import { dirname, join } from "path"
+import { fileURLToPath } from "url"
 
-const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const MOCK_DISKS = join(ROOT, "mock-disks");
-const CONFIG_EXAMPLE = join(ROOT, "config.example", "snapraid.conf");
-const CONFIG_OUT = join(ROOT, "config", "snapraid.conf");
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..")
+const MOCK_DISKS = join(ROOT, "mock-disks")
+const CONFIG_EXAMPLE = join(ROOT, "config.example", "snapraid.conf")
+const CONFIG_OUT = join(ROOT, "config", "snapraid.conf")
 
 const SEED_FILES: Array<{ path: string; content: string }> = [
   {
@@ -32,7 +32,7 @@ Used by local development and tests.
 `,
   },
   { path: "parity/here-goes-the-parity-file.txt", content: "" },
-];
+]
 
 const SNAPRAID_CONF = `# SnapRAID config for local development with mock disks
 # Paths are relative to the repo root (backend cwd when running dev).
@@ -49,35 +49,35 @@ data d1 mock-disks/disk1/
 data d2 mock-disks/disk2/
 
 exclude /.Trashes/
-`;
+`
 
 async function seedMockDisks() {
-  console.log("Seeding mock disks at", MOCK_DISKS);
+  console.log("Seeding mock disks at", MOCK_DISKS)
 
   for (const { path: relativePath, content } of SEED_FILES) {
-    const fullPath = join(MOCK_DISKS, relativePath);
-    await mkdir(dirname(fullPath), { recursive: true });
-    await writeFile(fullPath, content, "utf-8");
-    console.log("  wrote", relativePath);
+    const fullPath = join(MOCK_DISKS, relativePath)
+    await mkdir(dirname(fullPath), { recursive: true })
+    await writeFile(fullPath, content, "utf-8")
+    console.log("  wrote", relativePath)
   }
 
-  await mkdir(dirname(CONFIG_OUT), { recursive: true });
+  await mkdir(dirname(CONFIG_OUT), { recursive: true })
   try {
     await writeFile(
       CONFIG_OUT,
       await readFile(CONFIG_EXAMPLE, "utf-8"),
-      "utf-8"
-    );
-    console.log("  wrote config/snapraid.conf from config.example");
+      "utf-8",
+    )
+    console.log("  wrote config/snapraid.conf from config.example")
   } catch (err) {
-    await writeFile(CONFIG_OUT, SNAPRAID_CONF, "utf-8");
-    console.log("  wrote config/snapraid.conf (embedded)");
+    await writeFile(CONFIG_OUT, SNAPRAID_CONF, "utf-8")
+    console.log("  wrote config/snapraid.conf (embedded)")
   }
 
-  console.log("Done.");
+  console.log("Done.")
 }
 
 seedMockDisks().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+  console.error(err)
+  process.exit(1)
+})

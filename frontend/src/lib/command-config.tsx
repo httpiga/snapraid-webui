@@ -1,19 +1,19 @@
-import type { SnapRaidCommand } from "@shared/types";
+import type { SnapRaidCommand } from "@shared/types"
 
 export interface CommandOption {
-  name: string;
-  key: string;
-  type: "boolean" | "number" | "string";
-  description: string;
-  default?: unknown;
+  name: string
+  key: string
+  type: "boolean" | "number" | "string"
+  description: string
+  default?: unknown
 }
 
 export interface CommandConfig {
-  name: string;
-  command: SnapRaidCommand;
-  description: string;
-  longRunning: boolean;
-  options?: CommandOption[];
+  name: string
+  command: SnapRaidCommand
+  description: string
+  longRunning: boolean
+  options?: CommandOption[]
 }
 
 export const commands: CommandConfig[] = [
@@ -129,12 +129,12 @@ export const commands: CommandConfig[] = [
       },
     ],
   },
-];
+]
 
 /** Commands that can be scheduled (sync, scrub, check, status) */
 export const schedulableCommands = commands.filter((c) =>
-  ["sync", "scrub", "check", "status"].includes(c.command)
-);
+  ["sync", "scrub", "check", "status"].includes(c.command),
+)
 
 // Map option keys to their CLI argument flags
 const optionKeyToCliFlag: Record<string, string> = {
@@ -142,31 +142,31 @@ const optionKeyToCliFlag: Record<string, string> = {
   plan: "-p",
   filter: "-f",
   "filter-disk": "-d",
-};
+}
 
 /**
  * Convert options state to SnapRAID CLI args
  */
 export function optionsToArgs(
   commandConfig: CommandConfig,
-  options: Record<string, unknown>
+  options: Record<string, unknown>,
 ): string[] {
-  const args: string[] = [];
-  if (!commandConfig.options) return args;
+  const args: string[] = []
+  if (!commandConfig.options) return args
 
   for (const opt of commandConfig.options) {
-    const value = options[opt.key];
-    if (value === undefined || value === false || value === "") continue;
+    const value = options[opt.key]
+    if (value === undefined || value === false || value === "") continue
 
     if (opt.type === "boolean") {
-      args.push(`--${opt.key}`);
+      args.push(`--${opt.key}`)
     } else {
       // Use mapped flag or fallback to first character
-      const flag = optionKeyToCliFlag[opt.key] || `-${opt.key.charAt(0)}`;
-      args.push(flag, String(value));
+      const flag = optionKeyToCliFlag[opt.key] || `-${opt.key.charAt(0)}`
+      args.push(flag, String(value))
     }
   }
-  return args;
+  return args
 }
 
 /**
@@ -174,34 +174,34 @@ export function optionsToArgs(
  */
 export function argsToOptions(
   commandConfig: CommandConfig,
-  args: string[] = []
+  args: string[] = [],
 ): Record<string, unknown> {
-  const result: Record<string, unknown> = {};
-  if (!commandConfig.options) return result;
+  const result: Record<string, unknown> = {}
+  if (!commandConfig.options) return result
 
   for (const opt of commandConfig.options) {
     if (opt.type === "boolean") {
-      result[opt.key] = args.includes(`--${opt.key}`);
+      result[opt.key] = args.includes(`--${opt.key}`)
     } else {
       // Use mapped flag or fallback to first character
-      const flag = optionKeyToCliFlag[opt.key] || `-${opt.key.charAt(0)}`;
-      const idx = args.indexOf(flag);
+      const flag = optionKeyToCliFlag[opt.key] || `-${opt.key.charAt(0)}`
+      const idx = args.indexOf(flag)
       if (idx !== -1 && idx + 1 < args.length) {
-        const raw = args[idx + 1];
+        const raw = args[idx + 1]
         result[opt.key] =
-          opt.type === "number" ? parseInt(raw, 10) || opt.default : raw;
+          opt.type === "number" ? parseInt(raw, 10) || opt.default : raw
       } else if (opt.default !== undefined) {
-        result[opt.key] = opt.default;
+        result[opt.key] = opt.default
       }
     }
   }
-  return result;
+  return result
 }
 
 export function getCommandConfig(
-  command: SnapRaidCommand
+  command: SnapRaidCommand,
 ): CommandConfig | undefined {
-  return commands.find((c) => c.command === command);
+  return commands.find((c) => c.command === command)
 }
 
 /**
@@ -216,37 +216,37 @@ export function getCommandConfig(
 export function syncSafetyToArgs(
   mode: "disabled" | "default" | "custom",
   options: {
-    preHash?: boolean;
-    forceEmpty?: boolean;
+    preHash?: boolean
+    forceEmpty?: boolean
   },
   defaultSettings?: {
-    preHash?: boolean;
-    forceEmpty?: boolean;
-  } | null
+    preHash?: boolean
+    forceEmpty?: boolean
+  } | null,
 ): string[] {
-  const args: string[] = [];
+  const args: string[] = []
 
   // Use options for custom/disabled modes, or default settings for default mode
   const usePreHash =
     mode === "default" && defaultSettings
       ? defaultSettings.preHash
-      : options.preHash;
+      : options.preHash
   const useForceEmpty =
     mode === "default" && defaultSettings
       ? defaultSettings.forceEmpty
-      : options.forceEmpty;
+      : options.forceEmpty
 
   // Pre-hash
   if (usePreHash) {
-    args.push("--pre-hash");
+    args.push("--pre-hash")
   }
 
   // Force empty
   if (useForceEmpty) {
-    args.push("--force-empty");
+    args.push("--force-empty")
   }
 
-  return args;
+  return args
 }
 
 /**
@@ -254,26 +254,26 @@ export function syncSafetyToArgs(
  * This is the inverse of syncSafetyToArgs.
  */
 export function argsToSyncSafety(args: string[] = []): {
-  mode: "disabled" | "default" | "custom";
-  preHash: boolean;
-  forceEmpty: boolean;
+  mode: "disabled" | "default" | "custom"
+  preHash: boolean
+  forceEmpty: boolean
 } {
-  const preHash = args.includes("--pre-hash");
-  const forceEmpty = args.includes("--force-empty");
+  const preHash = args.includes("--pre-hash")
+  const forceEmpty = args.includes("--force-empty")
 
   // Determine mode: if no flags at all, it's disabled; otherwise default
   // (custom mode can't be determined from args alone since safety limits
   // are now enforced by backend, not via CLI flags)
-  let mode: "disabled" | "default" | "custom";
+  let mode: "disabled" | "default" | "custom"
   if (!preHash && !forceEmpty) {
-    mode = "disabled";
+    mode = "disabled"
   } else {
-    mode = "default";
+    mode = "default"
   }
 
   return {
     mode,
     preHash,
     forceEmpty,
-  };
+  }
 }

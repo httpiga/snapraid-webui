@@ -4,18 +4,18 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { FolderOpen, Plus, Shield, Trash2 } from "lucide-react";
-import { FileSystemDialog } from "@/components/FileSystemDialog";
-import { useState } from "react";
+} from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { FolderOpen, Plus, Shield, Trash2 } from "lucide-react"
+import { FileSystemDialog } from "@/components/FileSystemDialog"
+import { useState } from "react"
 
 interface ParityDisksCardProps {
-  parity: string[];
-  onAdd: () => void;
-  onRemove: (index: number) => void;
-  onUpdate: (index: number, value: string) => void;
+  parity: string[]
+  onAdd: () => void
+  onRemove: (index: number) => void
+  onUpdate: (index: number, value: string) => void
 }
 
 export function ParityDisksCard({
@@ -24,8 +24,8 @@ export function ParityDisksCard({
   onRemove,
   onUpdate,
 }: ParityDisksCardProps) {
-  const [isBrowserOpen, setIsBrowserOpen] = useState(false);
-  const [browserTarget, setBrowserTarget] = useState<number | null>(null);
+  const [isBrowserOpen, setIsBrowserOpen] = useState(false)
+  const [browserTarget, setBrowserTarget] = useState<number | null>(null)
   return (
     <Card>
       <CardHeader>
@@ -61,8 +61,8 @@ export function ParityDisksCard({
                 variant="outline"
                 size="icon"
                 onClick={() => {
-                  setBrowserTarget(index);
-                  setIsBrowserOpen(true);
+                  setBrowserTarget(index)
+                  setIsBrowserOpen(true)
                 }}
               >
                 <FolderOpen className="h-4 w-4" />
@@ -94,10 +94,10 @@ export function ParityDisksCard({
         description="Choose the folder that contains the disk data."
         onSelect={(path) => {
           if (browserTarget !== null) {
-            onUpdate(browserTarget, path);
+            onUpdate(browserTarget, path)
           }
         }}
       />
     </Card>
-  );
+  )
 }

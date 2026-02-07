@@ -1,10 +1,10 @@
-import { Router, type IRouter } from "express";
+import { Router, type IRouter } from "express"
 import {
   loadAdvancedSettings,
   saveAdvancedSettings,
-} from "../services/advanced-settings.js";
+} from "../services/advanced-settings.js"
 
-const router: IRouter = Router();
+const router: IRouter = Router()
 
 /**
  * GET /api/advanced/settings
@@ -12,13 +12,13 @@ const router: IRouter = Router();
  */
 router.get("/settings", async (_req, res) => {
   try {
-    const settings = await loadAdvancedSettings();
-    res.json(settings);
+    const settings = await loadAdvancedSettings()
+    res.json(settings)
   } catch (error) {
-    console.error("Error getting advanced settings:", error);
-    res.status(500).json({ error: "Failed to get advanced settings" });
+    console.error("Error getting advanced settings:", error)
+    res.status(500).json({ error: "Failed to get advanced settings" })
   }
-});
+})
 
 /**
  * PUT /api/advanced/settings
@@ -26,14 +26,14 @@ router.get("/settings", async (_req, res) => {
  */
 router.put("/settings", async (req, res) => {
   try {
-    await saveAdvancedSettings(req.body);
-    res.json({ success: true });
+    await saveAdvancedSettings(req.body)
+    res.json({ success: true })
   } catch (error) {
-    console.error("Error saving advanced settings:", error);
+    console.error("Error saving advanced settings:", error)
     res
       .status(500)
-      .json({ success: false, error: "Failed to save advanced settings" });
+      .json({ success: false, error: "Failed to save advanced settings" })
   }
-});
+})
 
-export default router;
+export default router

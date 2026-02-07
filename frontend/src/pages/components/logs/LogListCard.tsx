@@ -4,28 +4,28 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { CommandBadge } from "@/components/ui/command-badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
+} from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { CommandBadge } from "@/components/ui/command-badge"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Calendar, ChevronDown, Clock, Trash2, User } from "lucide-react";
-import type { LogFile } from "@shared/types";
+} from "@/components/ui/dropdown-menu"
+import { Calendar, ChevronDown, Clock, Trash2, User } from "lucide-react"
+import type { LogFile } from "@shared/types"
 
 interface LogListCardProps {
-  logs: LogFile[];
-  selectedLog: LogFile | null;
-  isDeleting: boolean;
-  onSelect: (log: LogFile) => void;
-  onDeleteAll: () => void;
-  onDeleteOlder: () => void;
-  formatDate: (dateString: string) => string;
-  formatSize: (bytes: number) => string;
+  logs: LogFile[]
+  selectedLog: LogFile | null
+  isDeleting: boolean
+  onSelect: (log: LogFile) => void
+  onDeleteAll: () => void
+  onDeleteOlder: () => void
+  formatDate: (dateString: string) => string
+  formatSize: (bytes: number) => string
 }
 
 export function LogListCard({
@@ -116,5 +116,5 @@ export function LogListCard({
         </ScrollArea>
       </CardContent>
     </Card>
-  );
+  )
 }

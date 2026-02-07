@@ -4,27 +4,27 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { COMMAND_ICONS } from "@/lib/commands";
+} from "@/components/ui/select"
+import { COMMAND_ICONS } from "@/lib/commands"
 import {
   commands as allCommands,
   type CommandConfig,
-} from "@/lib/command-config";
-import type { SnapRaidCommand } from "@shared/types";
+} from "@/lib/command-config"
+import type { SnapRaidCommand } from "@shared/types"
 
 export interface CommandSelectProps {
   /** The selected command value (or empty string for none). */
-  value: SnapRaidCommand | "";
+  value: SnapRaidCommand | ""
   /** Callback when selection changes. */
-  onValueChange: (value: SnapRaidCommand | "") => void;
+  onValueChange: (value: SnapRaidCommand | "") => void
   /** Optional: list of commands to show. Defaults to all commands. */
-  commands?: CommandConfig[];
+  commands?: CommandConfig[]
   /** Whether the select is disabled. */
-  disabled?: boolean;
+  disabled?: boolean
   /** Placeholder text when no command is selected. */
-  placeholder?: string;
+  placeholder?: string
   /** Optional className for the SelectTrigger. */
-  className?: string;
+  className?: string
 }
 
 /**
@@ -50,7 +50,7 @@ export function CommandSelect({
       </SelectTrigger>
       <SelectContent>
         {commands.map((cmd) => {
-          const CommandIcon = COMMAND_ICONS[cmd.command];
+          const CommandIcon = COMMAND_ICONS[cmd.command]
           return (
             <SelectItem key={cmd.command} value={cmd.command}>
               <div className="flex items-center gap-2 min-w-0 w-full">
@@ -64,9 +64,9 @@ export function CommandSelect({
                 </span>
               </div>
             </SelectItem>
-          );
+          )
         })}
       </SelectContent>
     </Select>
-  );
+  )
 }

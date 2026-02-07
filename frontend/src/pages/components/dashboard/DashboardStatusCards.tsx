@@ -1,19 +1,9 @@
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  AlertCircle,
-  CheckCircle,
-  FileText,
-  HardDrive,
-} from "lucide-react";
-import type { SnapRaidStatus } from "@shared/types";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { AlertCircle, CheckCircle, FileText, HardDrive } from "lucide-react"
+import type { SnapRaidStatus } from "@shared/types"
 
 interface DashboardStatusCardsProps {
-  status?: SnapRaidStatus;
+  status?: SnapRaidStatus
 }
 
 export function DashboardStatusCards({ status }: DashboardStatusCardsProps) {
@@ -55,8 +45,8 @@ export function DashboardStatusCards({ status }: DashboardStatusCardsProps) {
             {status?.hasErrors
               ? "Errors Found"
               : status?.hasWarnings
-              ? "Warnings"
-              : "Healthy"}
+                ? "Warnings"
+                : "Healthy"}
           </div>
           <p className="text-xs text-muted-foreground">
             Scrub coverage:{" "}
@@ -92,10 +82,12 @@ export function DashboardStatusCards({ status }: DashboardStatusCardsProps) {
             {status?.totalUsedGB ? `${status.totalUsedGB.toFixed(1)} GB` : "—"}
           </div>
           <p className="text-xs text-muted-foreground">
-            {status?.totalFreeGB ? `${status.totalFreeGB.toFixed(1)} GB free` : ""}
+            {status?.totalFreeGB
+              ? `${status.totalFreeGB.toFixed(1)} GB free`
+              : ""}
           </p>
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

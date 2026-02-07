@@ -1,20 +1,20 @@
-import { useState } from "react";
-import { useWebSocket } from "@/hooks/use-websocket";
-import { useGetConfigQuery } from "@/store/api";
-import { toast } from "sonner";
-import { PageHeader } from "@/pages/components/PageHeader";
-import { RecoveryWarning } from "@/pages/components/recovery/RecoveryWarning";
-import { RecoveryOptionsCard } from "@/pages/components/recovery/RecoveryOptionsCard";
-import { RecoveryOutputCard } from "@/pages/components/recovery/RecoveryOutputCard";
+import { useState } from "react"
+import { useWebSocket } from "@/hooks/use-websocket"
+import { useGetConfigQuery } from "@/store/api"
+import { toast } from "sonner"
+import { PageHeader } from "@/pages/components/PageHeader"
+import { RecoveryWarning } from "@/pages/components/recovery/RecoveryWarning"
+import { RecoveryOptionsCard } from "@/pages/components/recovery/RecoveryOptionsCard"
+import { RecoveryOutputCard } from "@/pages/components/recovery/RecoveryOutputCard"
 
 export function Recovery() {
-  const [filterPath, setFilterPath] = useState("");
-  const [filterMissing, setFilterMissing] = useState(true);
-  const [filterError, setFilterError] = useState(false);
-  const [filterDisk, setFilterDisk] = useState("");
+  const [filterPath, setFilterPath] = useState("")
+  const [filterMissing, setFilterMissing] = useState(true)
+  const [filterError, setFilterError] = useState(false)
+  const [filterDisk, setFilterDisk] = useState("")
 
-  const { data: config } = useGetConfigQuery();
-  const diskNames = config?.data ? Object.keys(config.data).sort() : [];
+  const { data: config } = useGetConfigQuery()
+  const diskNames = config?.data ? Object.keys(config.data).sort() : []
 
   const {
     isConnected,
@@ -29,64 +29,64 @@ export function Recovery() {
       if (exitCode === 0) {
         toast.success("Recovery completed", {
           description: `Exit code: ${exitCode}`,
-        });
+        })
       } else {
         toast.error("Recovery failed", {
           description: `Exit code: ${exitCode}`,
-        });
+        })
       }
     },
     onError: (error) => {
-      toast.error("Recovery error", { description: error });
+      toast.error("Recovery error", { description: error })
     },
-  });
+  })
 
   const handleStartRecovery = () => {
-    const args: string[] = [];
+    const args: string[] = []
 
     if (filterPath) {
-      args.push("-f", filterPath);
+      args.push("-f", filterPath)
     }
     if (filterMissing) {
-      args.push("-m");
+      args.push("-m")
     }
     if (filterError) {
-      args.push("-e");
+      args.push("-e")
     }
     if (filterDisk) {
-      args.push("-d", filterDisk);
+      args.push("-d", filterDisk)
     }
 
-    clearOutput();
-    sendCommand("fix", args);
-  };
+    clearOutput()
+    sendCommand("fix", args)
+  }
 
   const handleAbort = () => {
-    abort();
-  };
+    abort()
+  }
 
   const handleRecoverDeleted = () => {
-    setFilterPath("");
-    setFilterMissing(true);
-    setFilterError(false);
-    setFilterDisk("");
-  };
+    setFilterPath("")
+    setFilterMissing(true)
+    setFilterError(false)
+    setFilterDisk("")
+  }
 
   const handleFixErrors = () => {
-    setFilterPath("");
-    setFilterMissing(false);
-    setFilterError(true);
-    setFilterDisk("");
-  };
+    setFilterPath("")
+    setFilterMissing(false)
+    setFilterError(true)
+    setFilterDisk("")
+  }
 
   const handleFullRecovery = () => {
-    setFilterPath("");
-    setFilterMissing(true);
-    setFilterError(true);
-    setFilterDisk("");
-  };
+    setFilterPath("")
+    setFilterMissing(true)
+    setFilterError(true)
+    setFilterDisk("")
+  }
 
-  const isRecovering = isCommandRunning && currentCommand === "fix";
+  const isRecovering = isCommandRunning && currentCommand === "fix"
 
   return (
     <div className="space-y-6">
@@ -124,5 +124,5 @@ export function Recovery() {
         />
       </div>
     </div>
-  );
+  )
 }
