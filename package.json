@@ -16,7 +16,7 @@
     "build:backend": "bun run --filter @snapraid-webui/backend build",
     "build:frontend": "bun run --filter @snapraid-webui/frontend build",
     "start": "bun run --filter @snapraid-webui/backend start",
-    "lint": "bun run --filter @snapraid-webui/frontend lint",
+    "lint": "bun run --filter @snapraid-webui/frontend lint && bun run --filter @snapraid-webui/backend lint",
     "typecheck": "bun run --filter @snapraid-webui/backend typecheck && bun run --filter @snapraid-webui/frontend typecheck",
     "test": "bun run --filter @snapraid-webui/backend test && bun run --filter @snapraid-webui/frontend test",
     "podman:build": "podman build -f docker/Dockerfile -t snapraid-webui .",
