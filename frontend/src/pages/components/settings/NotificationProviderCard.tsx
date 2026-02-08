@@ -156,7 +156,6 @@ export function NotificationProviderCard({
             variant="outline"
             size="sm"
             onClick={onEdit}
-            disabled={channel !== "telegram"}
           >
             {hasConfig ? (
               <Pencil className="h-4 w-4 mr-1" />

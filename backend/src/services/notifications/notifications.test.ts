@@ -17,6 +17,7 @@ let fetchResponder: (url: string) => {
   ok: boolean
   status: number
   statusText: string
+  text?: () => string | Promise<string>
 }
 const mailCalls: Array<unknown[]> = []
 
@@ -49,6 +50,7 @@ beforeEach(() => {
       status: response.status,
       statusText: response.statusText,
       json: async () => ({ ok: response.ok }),
+      text: async () => response.text?.() ?? "",
     } as Response
   }) as typeof fetch
 })
@@ -571,6 +573,117 @@ describe("testNotificationChannel", () => {
     )
     const result = await notifications.testNotificationChannel("slack")
     expect(result).toBe(true)
+    expect(fetchCalls.length).toBe(1)
+  })
+})
+
+describe("sendDiscordNotification", () => {
+  const baseSettings = {
+    enabled: true,
+    webhookUrl: "https://discord.com/api/webhooks/123/abc",
+    events: [...NOTIFICATION_EVENTS],
+  }
+
+  test("returns false when enabled is false", async () => {
+    const result = await notifications.sendDiscordNotification(
+      { ...baseSettings, enabled: false },
+      "sync_complete",
+      "Title",
+      "Message",
+    )
+    expect(result).toBe(false)
+    expect(fetchCalls.length).toBe(0)
+  })
+
+  test("returns false when webhookUrl is empty", async () => {
+    const result = await notifications.sendDiscordNotification(
+      { ...baseSettings, webhookUrl: "" },
+      "sync_complete",
+      "Title",
+      "Message",
+    )
+    expect(result).toBe(false)
+    expect(fetchCalls.length).toBe(0)
+  })
+
+  test("sends POST to webhook URL with JSON body and correct embed shape", async () => {
+    const result = await notifications.sendDiscordNotification(
+      baseSettings,
+      "sync_complete",
+      "Sync completed",
+      "SnapRAID sync finished successfully.",
+    )
+    expect(result).toBe(true)
+    expect(fetchCalls.length).toBe(1)
+    const [call] = fetchCalls
+    expect(call.url).toBe(baseSettings.webhookUrl)
+    expect(call.options.method).toBe("POST")
+    expect(call.options.headers).toEqual({
+      "Content-Type": "application/json",
+    })
+    const body = JSON.parse(call.options.body as string) as {
+      embeds: Array<{
+        title?: string
+        description?: string
+        color?: number
+        timestamp?: string
+        fields?: Array<{ name: string; value: string; inline?: boolean }>
+      }>
+    }
+    expect(body.embeds).toHaveLength(1)
+    const embed = body.embeds[0]
+    expect(embed.title).toBe("Sync completed")
+    expect(embed.description).toBe("SnapRAID sync finished successfully.")
+    expect(embed.color).toBe(0x00ff00)
+    expect(embed.timestamp).toBeDefined()
+    expect(embed.fields).toBeUndefined()
+  })
+
+  test("includes details as embed fields when provided", async () => {
+    const result = await notifications.sendDiscordNotification(
+      baseSettings,
+      "sync_error",
+      "Sync failed",
+      "SnapRAID sync failed.",
+      { Source: "Manual", "Exit code": "1" },
+    )
+    expect(result).toBe(true)
+    expect(fetchCalls.length).toBe(1)
+    const body = JSON.parse(fetchCalls[0].options.body as string) as {
+      embeds: Array<{
+        fields?: Array<{ name: string; value: string; inline?: boolean }>
+      }>
+    }
+    const embed = body.embeds[0]
+    expect(embed.fields).toHaveLength(2)
+    expect(embed.fields).toContainEqual({
+      name: "Source",
+      value: "Manual",
+      inline: true,
+    })
+    expect(embed.fields).toContainEqual({
+      name: "Exit code",
+      value: "1",
+      inline: true,
+    })
+  })
+
+  test("returns false when fetch returns non-ok response", async () => {
+    const restore = silenceConsole()
+    fetchResponder = () => ({
+      ok: false,
+      status: 404,
+      statusText: "Not Found",
+      text: async () => '{"message": "Unknown Webhook", "code": 10015}',
+    })
+    const result = await notifications.sendDiscordNotification(
+      baseSettings,
+      "sync_complete",
+      "Title",
+      "Message",
+    )
+    restore()
+    expect(result).toBe(false)
     expect(fetchCalls.length).toBe(1)
   })
 })

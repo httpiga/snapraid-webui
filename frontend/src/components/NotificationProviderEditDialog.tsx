@@ -231,13 +231,18 @@ function DiscordForm({
 }) {
   return (
     <div className="space-y-2">
-      <Label htmlFor="edit-discord-webhook">Webhook URL</Label>
+      <Label htmlFor="edit-discord-webhook">Webhook URL (required)</Label>
       <Input
         id="edit-discord-webhook"
+        type="url"
         value={config.webhookUrl}
         onChange={(e) => onChange({ ...config, webhookUrl: e.target.value })}
-        placeholder="https://discord.com/api/webhooks/..."
+        placeholder="https://discord.com/api/webhooks/123456789/abcdef..."
       />
+      <p className="text-sm text-muted-foreground">
+        Create an incoming webhook in your Discord channel (Channel settings →
+        Integrations → Webhooks) and paste the webhook URL here.
+      </p>
     </div>
   )
 }
