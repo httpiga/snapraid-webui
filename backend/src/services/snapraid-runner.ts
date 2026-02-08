@@ -6,6 +6,7 @@ import type {
   SnapRaidStatus,
   DiffReport,
   SyncSafetySettings,
+  FixCommandOptions,
 } from "@snapraid-webui/shared"
 import { SNAPRAID_BIN } from "../config"
 import {
@@ -13,6 +14,7 @@ import {
   parseDiffOutput,
   parseDiskStatus,
 } from "./parsers/index"
+import { computeSyncSafetyViolations } from "./sync-safety-validation"
 
 type OutputCallback = (chunk: string) => void
 
@@ -168,29 +170,7 @@ export class SnapRaidRunner {
     // Run diff command to get current changes (with optional output streaming)
     const { output } = await this.executeCommand("diff", configPath, onOutput)
     const diff = parseDiffOutput(output)
-
-    const violations: string[] = []
-
-    // Check deleted files
-    if (diff.deletedFiles > settings.maxDeletedFiles) {
-      violations.push(
-        `Deleted files (${diff.deletedFiles}) exceeds limit (${settings.maxDeletedFiles})`,
-      )
-    }
-
-    // Check updated files
-    if (diff.modifiedFiles > settings.maxUpdatedFiles) {
-      violations.push(
-        `Updated files (${diff.modifiedFiles}) exceeds limit (${settings.maxUpdatedFiles})`,
-      )
-    }
-
-    // Check added files
-    if (diff.newFiles > settings.maxAddedFiles) {
-      violations.push(
-        `Added files (${diff.newFiles}) exceeds limit (${settings.maxAddedFiles})`,
-      )
-    }
+    const violations = computeSyncSafetyViolations(diff, settings)
 
     return {
       safe: violations.length === 0,
@@ -255,13 +235,7 @@ export class SnapRaidRunner {
   async runFix(
     configPath: string,
     onOutput?: OutputCallback,
-    options: {
-      filter?: string
-      filterMissing?: boolean
-      filterError?: boolean
-      filterDisk?: string
-      extraArgs?: string[]
-    } = {},
+    options: FixCommandOptions & { extraArgs?: string[] } = {},
   ): Promise<{ exitCode: number; output: string }> {
     const args: string[] = [...(options.extraArgs || [])]
 

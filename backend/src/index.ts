@@ -18,6 +18,7 @@ import filesystemRoutes from "./routes/filesystem"
 import { initializeWebSocket } from "./websocket"
 import { initializeScheduler } from "./services/scheduler"
 import { createSessionMiddleware, authMiddleware } from "./middleware/auth"
+import { errorMiddleware } from "./middleware/async-handler"
 
 const app: Express = express()
 const server = createServer(app)
@@ -61,6 +62,9 @@ app.use("/api/notifications", notificationsRoutes)
 app.use("/api/sync-safety", syncSafetyRoutes)
 app.use("/api/advanced", advancedRoutes)
 app.use("/api", filesystemRoutes)
+
+// Error handling for async route handlers (must be after routes)
+app.use(errorMiddleware)
 
 // Health check
 app.get("/api/health", (_req, res) => {

@@ -5,6 +5,9 @@ import path from "path"
 import type { LogFile, SnapRaidCommand } from "@snapraid-webui/shared"
 import { LOGS_DIR } from "../config"
 
+// Re-export for consumers that currently import from this route module
+export { createLogFile, appendToLogFile } from "../services/command-log"
+
 const router: IRouter = Router()
 
 // Ensure logs directory exists
@@ -205,34 +208,5 @@ router.delete("/:filename", async (req, res) => {
     res.status(500).json({ success: false, error: "Failed to delete log file" })
   }
 })
-
-/**
- * Create a log file for a command execution
- */
-export async function createLogFile(
-  command: SnapRaidCommand,
-  content: string,
-): Promise<string> {
-  const timestamp = new Date()
-    .toISOString()
-    .replace(/:/g, "-")
-    .replace(/\.\d{3}Z$/, "")
-  const filename = `${command}-${timestamp}.log`
-  const filePath = path.join(LOGS_DIR, filename)
-
-  await fs.writeFile(filePath, content, "utf-8")
-  return filename
-}
-
-/**
- * Append to a log file
- */
-export async function appendToLogFile(
-  filename: string,
-  content: string,
-): Promise<void> {
-  const filePath = path.join(LOGS_DIR, filename)
-  await fs.appendFile(filePath, content, "utf-8")
-}
 
 export default router

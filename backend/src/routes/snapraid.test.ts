@@ -1,5 +1,6 @@
 import { describe, test, expect } from "bun:test"
 import type { SyncSafetySettings } from "@snapraid-webui/shared"
+import { computeSyncSafetyViolations } from "../services/sync-safety-validation"
 
 describe("Sync safety validation logic", () => {
   test("validation passes when all limits within bounds", () => {
@@ -18,25 +19,7 @@ describe("Sync safety validation logic", () => {
       deletedFiles: 5,
     }
 
-    // Test the validation logic
-    const violations: string[] = []
-
-    if (diff.deletedFiles > settings.maxDeletedFiles) {
-      violations.push(
-        `Deleted files (${diff.deletedFiles}) exceeds limit (${settings.maxDeletedFiles})`,
-      )
-    }
-    if (diff.modifiedFiles > settings.maxUpdatedFiles) {
-      violations.push(
-        `Updated files (${diff.modifiedFiles}) exceeds limit (${settings.maxUpdatedFiles})`,
-      )
-    }
-    if (diff.newFiles > settings.maxAddedFiles) {
-      violations.push(
-        `Added files (${diff.newFiles}) exceeds limit (${settings.maxAddedFiles})`,
-      )
-    }
-
+    const violations = computeSyncSafetyViolations(diff, settings)
     expect(violations).toEqual([])
   })
 
@@ -56,14 +39,7 @@ describe("Sync safety validation logic", () => {
       deletedFiles: 150,
     }
 
-    const violations: string[] = []
-
-    if (diff.deletedFiles > settings.maxDeletedFiles) {
-      violations.push(
-        `Deleted files (${diff.deletedFiles}) exceeds limit (${settings.maxDeletedFiles})`,
-      )
-    }
-
+    const violations = computeSyncSafetyViolations(diff, settings)
     expect(violations).toContain("Deleted files (150) exceeds limit (100)")
   })
 
@@ -83,14 +59,7 @@ describe("Sync safety validation logic", () => {
       deletedFiles: 5,
     }
 
-    const violations: string[] = []
-
-    if (diff.modifiedFiles > settings.maxUpdatedFiles) {
-      violations.push(
-        `Updated files (${diff.modifiedFiles}) exceeds limit (${settings.maxUpdatedFiles})`,
-      )
-    }
-
+    const violations = computeSyncSafetyViolations(diff, settings)
     expect(violations).toContain("Updated files (600) exceeds limit (500)")
   })
 
@@ -110,14 +79,7 @@ describe("Sync safety validation logic", () => {
       deletedFiles: 5,
     }
 
-    const violations: string[] = []
-
-    if (diff.newFiles > settings.maxAddedFiles) {
-      violations.push(
-        `Added files (${diff.newFiles}) exceeds limit (${settings.maxAddedFiles})`,
-      )
-    }
-
+    const violations = computeSyncSafetyViolations(diff, settings)
     expect(violations).toContain("Added files (11000) exceeds limit (10000)")
   })
 
@@ -137,24 +99,7 @@ describe("Sync safety validation logic", () => {
       deletedFiles: 150,
     }
 
-    const violations: string[] = []
-
-    if (diff.deletedFiles > settings.maxDeletedFiles) {
-      violations.push(
-        `Deleted files (${diff.deletedFiles}) exceeds limit (${settings.maxDeletedFiles})`,
-      )
-    }
-    if (diff.modifiedFiles > settings.maxUpdatedFiles) {
-      violations.push(
-        `Updated files (${diff.modifiedFiles}) exceeds limit (${settings.maxUpdatedFiles})`,
-      )
-    }
-    if (diff.newFiles > settings.maxAddedFiles) {
-      violations.push(
-        `Added files (${diff.newFiles}) exceeds limit (${settings.maxAddedFiles})`,
-      )
-    }
-
+    const violations = computeSyncSafetyViolations(diff, settings)
     expect(violations.length).toBe(3)
     expect(violations).toContain("Deleted files (150) exceeds limit (100)")
     expect(violations).toContain("Updated files (600) exceeds limit (500)")
@@ -171,18 +116,26 @@ describe("Sync safety validation logic", () => {
       forceEmpty: false,
     }
 
-    // When disabled, the route should skip validation entirely
+    // When disabled, the route skips validation entirely; we only assert the flag
     expect(settings.enabled).toBe(false)
   })
 
   test("sync_safety_halt notification structure is correct", () => {
-    const violations = ["Deleted files (150) exceeds limit (100)"]
     const diff = {
       deletedFiles: 150,
       modifiedFiles: 20,
       newFiles: 10,
     }
+    const settings: SyncSafetySettings = {
+      enabled: true,
+      maxDeletedFiles: 100,
+      maxUpdatedFiles: 500,
+      maxAddedFiles: 10000,
+      preHash: false,
+      forceEmpty: false,
+    }
 
+    const violations = computeSyncSafetyViolations(diff, settings)
     const notificationDetails = {
       Violations: violations.join("; "),
       "Deleted Files": diff.deletedFiles.toString(),

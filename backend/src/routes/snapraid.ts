@@ -1,128 +1,19 @@
 import { Router, type IRouter } from "express"
-import type { SnapRaidCommand } from "@snapraid-webui/shared"
+import type { SnapRaidCommand, FixCommandOptions } from "@snapraid-webui/shared"
 import { SNAPRAID_CONF_FILE } from "../config"
 import { snapraidRunner } from "../services/snapraid-runner"
-import {
-  sendNotification,
-  getOperationNotificationPayload,
-} from "../services/notifications/index"
 import { validateSyncSafetyWithNotification } from "../services/sync-safety"
+import { prepareArgs } from "../services/command-execution"
 import {
-  loadAdvancedSettings,
-  getAdvancedArgsForCommand,
-} from "../services/advanced-settings"
+  handleSnapraidError,
+  respondIfCommandRunning,
+  getStatusWithDiff,
+  queueLongRunningCommand,
+  VALID_COMMANDS,
+  LONG_RUNNING_COMMANDS,
+} from "./snapraid-handlers"
 
 const router: IRouter = Router()
-type ExpressResponse = import("express").Response
-
-const SNAPRAID_NOT_FOUND_MESSAGE = "SnapRAID binary not found"
-const SNAPRAID_NOT_FOUND_CODE = "SNAPRAID_NOT_FOUND"
-
-function isSnapraidNotFoundError(err: unknown): boolean {
-  return (
-    err instanceof Error &&
-    "code" in err &&
-    (err as Error & { code: string }).code === "SNAPRAID_NOT_FOUND"
-  )
-}
-
-function sendSnapraidNotFound(res: ExpressResponse): void {
-  res.status(503).json({
-    error: SNAPRAID_NOT_FOUND_MESSAGE,
-    code: SNAPRAID_NOT_FOUND_CODE,
-  })
-}
-
-function handleSnapraidError(
-  res: ExpressResponse,
-  error: unknown,
-  logMessage: string,
-  fallback: () => void,
-): void {
-  console.error(logMessage, error)
-  if (isSnapraidNotFoundError(error)) {
-    sendSnapraidNotFound(res)
-    return
-  }
-  fallback()
-}
-
-function respondIfCommandRunning(res: ExpressResponse): boolean {
-  if (!snapraidRunner.isRunning()) {
-    return false
-  }
-  res.status(409).json({
-    success: false,
-    error: "Another command is already running",
-    currentJob: snapraidRunner.getCurrentJob(),
-  })
-  return true
-}
-
-async function getStatusWithDiff() {
-  const status = await snapraidRunner.getStatus(SNAPRAID_CONF_FILE)
-  try {
-    const diff = await snapraidRunner.getDiff(SNAPRAID_CONF_FILE)
-    status.newFiles = diff.newFiles
-    status.modifiedFiles = diff.modifiedFiles
-    status.deletedFiles = diff.deletedFiles
-    if (status.newFiles + status.modifiedFiles + status.deletedFiles > 0) {
-      status.parityUpToDate = false
-    }
-  } catch {
-    // Keep status defaults if diff fails
-  }
-  return status
-}
-
-const LONG_RUNNING_COMMANDS: SnapRaidCommand[] = [
-  "sync",
-  "scrub",
-  "check",
-  "fix",
-]
-
-function queueLongRunningCommand(command: SnapRaidCommand, args: string[]) {
-  snapraidRunner
-    .executeCommand(command, SNAPRAID_CONF_FILE, undefined, args)
-    .then(async (result) => {
-      const payload = getOperationNotificationPayload(command, result.exitCode)
-      if (payload) {
-        try {
-          await sendNotification(
-            payload.event,
-            payload.title,
-            payload.message,
-            payload.details,
-          )
-        } catch (err) {
-          console.error("Failed to send operation notification:", err)
-        }
-      }
-    })
-    .catch((error) => {
-      console.error(`Command ${command} failed:`, error)
-    })
-}
-
-// Valid commands that can be executed
-const VALID_COMMANDS: SnapRaidCommand[] = [
-  "status",
-  "sync",
-  "scrub",
-  "diff",
-  "fix",
-  "check",
-  "pool",
-  "probe",
-  "up",
-  "down",
-  "devices",
-  "list",
-  "dup",
-  "touch",
-  "rehash",
-]
 
 /**
  * GET /api/status
@@ -144,7 +35,7 @@ router.get("/status", async (_req, res) => {
       return
     }
 
-    const status = await getStatusWithDiff()
+    const status = await getStatusWithDiff(SNAPRAID_CONF_FILE)
     res.json(status)
   } catch (error) {
     handleSnapraidError(res, error, "Error getting status:", () => {
@@ -208,10 +99,7 @@ router.post("/command/:cmd", async (req, res) => {
   }
 
   try {
-    // Load advanced settings and merge with user args
-    const advancedSettings = await loadAdvancedSettings()
-    const advancedArgs = getAdvancedArgsForCommand(advancedSettings, command)
-    const finalArgs = [...advancedArgs, ...args]
+    const finalArgs = await prepareArgs(command, args)
 
     // Check sync safety before running sync command
     if (command === "sync") {
@@ -231,7 +119,7 @@ router.post("/command/:cmd", async (req, res) => {
     }
 
     if (LONG_RUNNING_COMMANDS.includes(command)) {
-      queueLongRunningCommand(command, finalArgs)
+      queueLongRunningCommand(command, finalArgs, SNAPRAID_CONF_FILE)
       res.json({
         success: true,
         message: `Command "${command}" started`,
@@ -289,21 +177,15 @@ router.post("/command/abort", (_req, res) => {
  * Run the fix command with options
  */
 router.post("/fix", async (req, res) => {
-  const { filter, filterMissing, filterError, filterDisk } = req.body as {
-    filter?: string
-    filterMissing?: boolean
-    filterError?: boolean
-    filterDisk?: string
-  }
+  const { filter, filterMissing, filterError, filterDisk } =
+    req.body as FixCommandOptions
 
   if (respondIfCommandRunning(res)) {
     return
   }
 
   try {
-    // Load advanced settings and merge with fix options
-    const advancedSettings = await loadAdvancedSettings()
-    const advancedArgs = getAdvancedArgsForCommand(advancedSettings, "fix")
+    const advancedArgs = await prepareArgs("fix", [])
 
     // Start fix command
     snapraidRunner
