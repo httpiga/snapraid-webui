@@ -5,6 +5,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { FolderOpen, HardDrive, Plus, Trash2 } from "lucide-react"
@@ -78,15 +86,31 @@ export function DataDisksCard({
             </div>
           ))}
           {entries.length === 0 && (
-            <p className="text-sm text-muted-foreground text-center py-4">
-              No data disks configured. Add at least one data disk.
-            </p>
+            <Empty className="border py-8">
+              <EmptyHeader>
+                <EmptyMedia variant="icon">
+                  <HardDrive className="h-4 w-4" />
+                </EmptyMedia>
+                <EmptyTitle>No data disks configured</EmptyTitle>
+                <EmptyDescription>
+                  Add at least one data disk to get started.
+                </EmptyDescription>
+              </EmptyHeader>
+              <EmptyContent>
+                <Button onClick={onAdd} size="sm">
+                  <Plus className="h-4 w-4 mr-1" />
+                  Add Disk
+                </Button>
+              </EmptyContent>
+            </Empty>
           )}
         </div>
-        <Button onClick={onAdd} size="sm">
+        {entries.length > 0 && (
+          <Button onClick={onAdd} size="sm">
           <Plus className="h-4 w-4 mr-1" />
           Add Disk
         </Button>
+        )}
       </CardContent>
       <FileSystemDialog
         open={isBrowserOpen}

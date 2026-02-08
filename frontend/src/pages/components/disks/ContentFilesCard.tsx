@@ -5,6 +5,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { FileBraces, FolderOpen, Plus, Trash2 } from "lucide-react"
@@ -71,15 +79,31 @@ export function ContentFilesCard({
             </div>
           ))}
           {content.length === 0 && (
-            <p className="text-sm text-muted-foreground text-center py-4">
-              No content files configured. Add at least two for redundancy.
-            </p>
+            <Empty className="border py-8">
+              <EmptyHeader>
+                <EmptyMedia variant="icon">
+                  <FileBraces className="h-4 w-4" />
+                </EmptyMedia>
+                <EmptyTitle>No content files configured</EmptyTitle>
+                <EmptyDescription>
+                  Add at least two content files for redundancy.
+                </EmptyDescription>
+              </EmptyHeader>
+              <EmptyContent>
+                <Button onClick={onAdd} size="sm">
+                  <Plus className="h-4 w-4 mr-1" />
+                  Add Content
+                </Button>
+              </EmptyContent>
+            </Empty>
           )}
         </div>
-        <Button onClick={onAdd} size="sm">
+        {content.length > 0 && (
+          <Button onClick={onAdd} size="sm">
           <Plus className="h-4 w-4 mr-1" />
           Add Content
         </Button>
+        )}
       </CardContent>
       <FileSystemDialog
         open={isBrowserOpen}

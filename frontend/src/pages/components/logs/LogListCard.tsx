@@ -5,6 +5,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty"
 import { Button } from "@/components/ui/button"
 import { CommandBadge } from "@/components/ui/command-badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -14,7 +21,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Calendar, ChevronDown, Clock, Trash2, User } from "lucide-react"
+import { Calendar, ChevronDown, Clock, FileText, Trash2, User } from "lucide-react"
 import type { LogFile } from "@shared/types"
 
 interface LogListCardProps {
@@ -108,9 +115,17 @@ export function LogListCard({
                 </button>
               ))
             ) : (
-              <p className="text-sm text-muted-foreground text-center py-8">
-                No log files found
-              </p>
+              <Empty className="py-8">
+                <EmptyHeader>
+                  <EmptyMedia variant="icon">
+                    <FileText className="h-4 w-4" />
+                  </EmptyMedia>
+                  <EmptyTitle>No log files found</EmptyTitle>
+                  <EmptyDescription>
+                    Log files from sync and scrub operations will appear here.
+                  </EmptyDescription>
+                </EmptyHeader>
+              </Empty>
             )}
           </div>
         </ScrollArea>

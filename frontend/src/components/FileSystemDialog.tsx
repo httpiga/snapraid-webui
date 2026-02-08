@@ -7,6 +7,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useGetFileSystemEntriesQuery } from "@/store/api"
@@ -102,9 +109,17 @@ export function FileSystemDialog({
           <div className="rounded-lg border">
             <ScrollArea className="h-[320px]">
               {entries.length === 0 && !isFetching ? (
-                <div className="p-6 text-center text-sm text-muted-foreground">
-                  This folder is empty.
-                </div>
+                <Empty className="min-h-[200px] border-0">
+                  <EmptyHeader>
+                    <EmptyMedia variant="icon">
+                      <Folder className="h-4 w-4" />
+                    </EmptyMedia>
+                    <EmptyTitle>This folder is empty</EmptyTitle>
+                    <EmptyDescription>
+                      There are no files or folders in this location.
+                    </EmptyDescription>
+                  </EmptyHeader>
+                </Empty>
               ) : (
                 <div className="divide-y">
                   {entries.map((entry) => (

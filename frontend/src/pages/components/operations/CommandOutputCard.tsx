@@ -5,6 +5,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Terminal } from "lucide-react"
@@ -43,11 +50,25 @@ export function CommandOutputCard({
         </div>
       </CardHeader>
       <CardContent>
-        <ScrollArea className="h-[400px] w-full rounded border bg-black">
-          <pre className="p-4 text-sm font-mono text-green-400 whitespace-pre-wrap">
-            {output || "No output yet. Run a command to see results."}
-          </pre>
-        </ScrollArea>
+        {output ? (
+          <ScrollArea className="h-[400px] w-full rounded border bg-black">
+            <pre className="p-4 text-sm font-mono text-green-400 whitespace-pre-wrap">
+              {output}
+            </pre>
+          </ScrollArea>
+        ) : (
+          <Empty className="h-[400px] border rounded border-dashed">
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <Terminal className="h-4 w-4" />
+              </EmptyMedia>
+              <EmptyTitle>No output yet</EmptyTitle>
+              <EmptyDescription>
+                Run a command to see results here.
+              </EmptyDescription>
+            </EmptyHeader>
+          </Empty>
+        )}
       </CardContent>
     </Card>
   )

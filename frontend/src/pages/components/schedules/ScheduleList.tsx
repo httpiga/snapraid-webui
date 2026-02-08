@@ -1,4 +1,11 @@
 import { Card, CardContent } from "@/components/ui/card"
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Switch } from "@/components/ui/switch"
@@ -24,8 +31,19 @@ export function ScheduleList({
   if (schedules.length === 0) {
     return (
       <Card>
-        <CardContent className="py-8 text-center text-muted-foreground">
-          No schedules configured. Create one to automate SnapRAID operations.
+        <CardContent className="py-8">
+          <Empty className="border border-dashed">
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <Calendar className="h-4 w-4" />
+              </EmptyMedia>
+              <EmptyTitle>No schedules configured</EmptyTitle>
+              <EmptyDescription>
+                Create a schedule from the button above to automate SnapRAID
+                operations.
+              </EmptyDescription>
+            </EmptyHeader>
+          </Empty>
         </CardContent>
       </Card>
     )
