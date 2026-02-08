@@ -63,12 +63,7 @@ export async function getStatusWithDiff(configPath: string) {
   return status
 }
 
-export const LONG_RUNNING_COMMANDS: SnapRaidCommand[] = [
-  "sync",
-  "scrub",
-  "check",
-  "fix",
-]
+export { LONG_RUNNING_COMMANDS } from "@snapraid-webui/shared"
 
 export function queueLongRunningCommand(
   command: SnapRaidCommand,
@@ -80,20 +75,4 @@ export function queueLongRunningCommand(
   })
 }
 
-export const VALID_COMMANDS: SnapRaidCommand[] = [
-  "status",
-  "sync",
-  "scrub",
-  "diff",
-  "fix",
-  "check",
-  "pool",
-  "probe",
-  "up",
-  "down",
-  "devices",
-  "list",
-  "dup",
-  "touch",
-  "rehash",
-]
+export { VALID_COMMANDS } from "@snapraid-webui/shared"

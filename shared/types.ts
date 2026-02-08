@@ -175,6 +175,41 @@ export type SnapRaidCommand =
   | "touch"
   | "rehash"
 
+/** All commands accepted by the API / WebSocket */
+export const VALID_COMMANDS: SnapRaidCommand[] = [
+  "status",
+  "sync",
+  "scrub",
+  "diff",
+  "fix",
+  "check",
+  "pool",
+  "probe",
+  "up",
+  "down",
+  "devices",
+  "list",
+  "dup",
+  "touch",
+  "rehash",
+]
+
+/** Commands that run long and use notification / async flow */
+export const LONG_RUNNING_COMMANDS: SnapRaidCommand[] = [
+  "sync",
+  "scrub",
+  "check",
+  "fix",
+]
+
+/** Options for the SnapRAID fix command (recovery). Aligns backend API and frontend. */
+export interface FixCommandOptions {
+  filter?: string
+  filterMissing?: boolean
+  filterError?: boolean
+  filterDisk?: string
+}
+
 export interface CommandOutput {
   command: string
   output: string

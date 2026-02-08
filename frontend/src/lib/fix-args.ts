@@ -1,19 +1,14 @@
-export interface FixOptions {
-  filterPath?: string
-  filterMissing?: boolean
-  filterError?: boolean
-  filterDisk?: string
-}
+import type { FixCommandOptions } from "@shared/types"
 
 /**
  * Build SnapRAID fix command CLI args from recovery options.
- * Maps: filterPath → -f, filterMissing → -m, filterError → -e, filterDisk → -d.
+ * Maps: filter → -f, filterMissing → -m, filterError → -e, filterDisk → -d.
  */
-export function buildFixArgs(options: FixOptions): string[] {
+export function buildFixArgs(options: FixCommandOptions): string[] {
   const args: string[] = []
 
-  if (options.filterPath) {
-    args.push("-f", options.filterPath)
+  if (options.filter) {
+    args.push("-f", options.filter)
   }
   if (options.filterMissing) {
     args.push("-m")

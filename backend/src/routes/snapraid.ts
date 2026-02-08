@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express"
-import type { SnapRaidCommand } from "@snapraid-webui/shared"
+import type { SnapRaidCommand, FixCommandOptions } from "@snapraid-webui/shared"
 import { SNAPRAID_CONF_FILE } from "../config"
 import { snapraidRunner } from "../services/snapraid-runner"
 import { validateSyncSafetyWithNotification } from "../services/sync-safety"
@@ -177,12 +177,8 @@ router.post("/command/abort", (_req, res) => {
  * Run the fix command with options
  */
 router.post("/fix", async (req, res) => {
-  const { filter, filterMissing, filterError, filterDisk } = req.body as {
-    filter?: string
-    filterMissing?: boolean
-    filterError?: boolean
-    filterDisk?: string
-  }
+  const { filter, filterMissing, filterError, filterDisk } =
+    req.body as FixCommandOptions
 
   if (respondIfCommandRunning(res)) {
     return

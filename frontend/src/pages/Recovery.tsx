@@ -9,7 +9,7 @@ import { RecoveryOptionsCard } from "@/pages/components/recovery/RecoveryOptions
 import { RecoveryOutputCard } from "@/pages/components/recovery/RecoveryOutputCard"
 
 export function Recovery() {
-  const [filterPath, setFilterPath] = useState("")
+  const [filter, setFilter] = useState("")
   const [filterMissing, setFilterMissing] = useState(true)
   const [filterError, setFilterError] = useState(false)
   const [filterDisk, setFilterDisk] = useState("")
@@ -44,7 +44,7 @@ export function Recovery() {
 
   const handleStartRecovery = () => {
     const args = buildFixArgs({
-      filterPath,
+      filter,
       filterMissing,
       filterError,
       filterDisk,
@@ -58,21 +58,21 @@ export function Recovery() {
   }
 
   const handleRecoverDeleted = () => {
-    setFilterPath("")
+    setFilter("")
     setFilterMissing(true)
     setFilterError(false)
     setFilterDisk("")
   }
 
   const handleFixErrors = () => {
-    setFilterPath("")
+    setFilter("")
     setFilterMissing(false)
     setFilterError(true)
     setFilterDisk("")
   }
 
   const handleFullRecovery = () => {
-    setFilterPath("")
+    setFilter("")
     setFilterMissing(true)
     setFilterError(true)
     setFilterDisk("")
@@ -91,14 +91,14 @@ export function Recovery() {
 
       <div className="grid gap-6 md:grid-cols-2">
         <RecoveryOptionsCard
-          filterPath={filterPath}
+          filter={filter}
           filterMissing={filterMissing}
           filterError={filterError}
           filterDisk={filterDisk}
           diskNames={diskNames}
           isRecovering={isRecovering}
           isConnected={isConnected}
-          onFilterPathChange={setFilterPath}
+          onFilterChange={setFilter}
           onFilterMissingChange={setFilterMissing}
           onFilterErrorChange={setFilterError}
           onFilterDiskChange={setFilterDisk}

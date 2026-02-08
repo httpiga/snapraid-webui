@@ -6,6 +6,7 @@ import type {
   SnapRaidStatus,
   DiffReport,
   SyncSafetySettings,
+  FixCommandOptions,
 } from "@snapraid-webui/shared"
 import { SNAPRAID_BIN } from "../config"
 import {
@@ -234,13 +235,7 @@ export class SnapRaidRunner {
   async runFix(
     configPath: string,
     onOutput?: OutputCallback,
-    options: {
-      filter?: string
-      filterMissing?: boolean
-      filterError?: boolean
-      filterDisk?: string
-      extraArgs?: string[]
-    } = {},
+    options: FixCommandOptions & { extraArgs?: string[] } = {},
   ): Promise<{ exitCode: number; output: string }> {
     const args: string[] = [...(options.extraArgs || [])]
 

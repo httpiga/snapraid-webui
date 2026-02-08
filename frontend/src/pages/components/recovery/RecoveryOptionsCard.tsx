@@ -22,14 +22,14 @@ import { useState } from "react"
 import { FileSystemDialog } from "@/components/FileSystemDialog"
 
 interface RecoveryOptionsCardProps {
-  filterPath: string
+  filter: string
   filterMissing: boolean
   filterError: boolean
   filterDisk: string
   diskNames: string[]
   isRecovering: boolean
   isConnected: boolean
-  onFilterPathChange: (value: string) => void
+  onFilterChange: (value: string) => void
   onFilterMissingChange: (value: boolean) => void
   onFilterErrorChange: (value: boolean) => void
   onFilterDiskChange: (value: string) => void
@@ -41,14 +41,14 @@ interface RecoveryOptionsCardProps {
 }
 
 export function RecoveryOptionsCard({
-  filterPath,
+  filter,
   filterMissing,
   filterError,
   filterDisk,
   diskNames,
   isRecovering,
   isConnected,
-  onFilterPathChange,
+  onFilterChange,
   onFilterMissingChange,
   onFilterErrorChange,
   onFilterDiskChange,
@@ -105,7 +105,7 @@ export function RecoveryOptionsCard({
         </Card>
 
         <div className="space-y-2">
-          <Label htmlFor="filterPath">File or Directory Filter</Label>
+          <Label htmlFor="filter">File or Directory Filter</Label>
           <FieldDescription>
             <p className="text-xs text-muted-foreground">
               Limit recovery to specific paths. Supports wildcards:{" "}
@@ -117,9 +117,9 @@ export function RecoveryOptionsCard({
           </FieldDescription>
           <div className="flex items-center gap-2">
             <Input
-              id="filterPath"
-              value={filterPath}
-              onChange={(e) => onFilterPathChange(e.target.value)}
+              id="filter"
+              value={filter}
+              onChange={(e) => onFilterChange(e.target.value)}
               placeholder="e.g. /path/to/file or /directory/"
             />
             <Button
@@ -217,7 +217,7 @@ export function RecoveryOptionsCard({
         title="Select disk folder"
         description="Choose the folder that contains the disk data."
         onSelect={(path) => {
-          onFilterPathChange(path)
+          onFilterChange(path)
         }}
       />
     </Card>
