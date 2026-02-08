@@ -1,5 +1,17 @@
 import type { SlackSettings, NotificationEvent } from "@snapraid-webui/shared"
 
+/** Max length for top-level fallback text (Slack recommends ≤4000). */
+const TEXT_MAX = 4000
+/** Section block fields array limit (Block Kit). */
+const SECTION_FIELDS_MAX = 10
+/** Max length per section field text (Block Kit). */
+const SECTION_FIELD_TEXT_MAX = 2000
+
+function truncate(str: string, max: number): string {
+  if (str.length <= max) return str
+  return str.slice(0, max - 3) + "..."
+}
+
 interface SlackBlock {
   type: string
   text?: {
@@ -14,6 +26,7 @@ interface SlackBlock {
 }
 
 interface SlackMessage {
+  text?: string
   blocks?: SlackBlock[]
   attachments?: Array<{
     color: string
@@ -22,7 +35,8 @@ interface SlackMessage {
 }
 
 /**
- * Send a notification to Slack via webhook
+ * Send a notification to Slack via incoming webhook.
+ * @see https://api.slack.com/messaging/webhooks
  */
 export async function sendSlackNotification(
   settings: SlackSettings,
@@ -57,6 +71,8 @@ export async function sendSlackNotification(
 
   const emoji = emojis[event] || ":bell:"
 
+  const fallbackText = truncate(`${emoji} ${title}\n${message}`, TEXT_MAX)
+
   const blocks: SlackBlock[] = [
     {
       type: "header",
@@ -76,10 +92,12 @@ export async function sendSlackNotification(
   ]
 
   if (details) {
-    const fields = Object.entries(details).map(([key, value]) => ({
-      type: "mrkdwn" as const,
-      text: `*${key}:*\n${value}`,
-    }))
+    const fields = Object.entries(details)
+      .slice(0, SECTION_FIELDS_MAX)
+      .map(([key, value]) => ({
+        type: "mrkdwn" as const,
+        text: truncate(`*${key}:*\n${value}`, SECTION_FIELD_TEXT_MAX),
+      }))
 
     blocks.push({
       type: "section",
@@ -88,6 +106,7 @@ export async function sendSlackNotification(
   }
 
   const payload: SlackMessage = {
+    text: fallbackText,
     attachments: [
       {
         color: colors[event] || "#0099ff",
@@ -104,8 +123,23 @@ export async function sendSlackNotification(
     })
 
     if (!response.ok) {
+      let body: string | undefined
+      try {
+        body = await response.text()
+        try {
+          const parsed = JSON.parse(body) as unknown
+          if (parsed && typeof parsed === "object") {
+            body = JSON.stringify(parsed)
+          }
+        } catch {
+          // not JSON, keep body as-is
+        }
+      } catch {
+        body = undefined
+      }
       console.error(
         `Slack webhook failed: ${response.status} ${response.statusText}`,
+        body !== undefined ? body : "",
       )
       return false
     }

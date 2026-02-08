@@ -687,3 +687,180 @@ describe("sendDiscordNotification", () => {
     expect(fetchCalls.length).toBe(1)
   })
 })
+
+describe("sendSlackNotification", () => {
+  const baseSettings = {
+    enabled: true,
+    webhookUrl: "https://hooks.slack.com/services/T000/B000/XXX",
+    events: [...NOTIFICATION_EVENTS],
+  }
+
+  test("returns false when enabled is false", async () => {
+    const result = await notifications.sendSlackNotification(
+      { ...baseSettings, enabled: false },
+      "sync_complete",
+      "Title",
+      "Message",
+    )
+    expect(result).toBe(false)
+    expect(fetchCalls.length).toBe(0)
+  })
+
+  test("returns false when webhookUrl is empty", async () => {
+    const result = await notifications.sendSlackNotification(
+      { ...baseSettings, webhookUrl: "" },
+      "sync_complete",
+      "Title",
+      "Message",
+    )
+    expect(result).toBe(false)
+    expect(fetchCalls.length).toBe(0)
+  })
+
+  test("sends POST with top-level text and attachments shape", async () => {
+    const result = await notifications.sendSlackNotification(
+      baseSettings,
+      "sync_complete",
+      "Sync completed",
+      "SnapRAID sync finished successfully.",
+    )
+    expect(result).toBe(true)
+    expect(fetchCalls.length).toBe(1)
+    const [call] = fetchCalls
+    expect(call.url).toBe(baseSettings.webhookUrl)
+    expect(call.options.method).toBe("POST")
+    expect(call.options.headers).toEqual({
+      "Content-Type": "application/json",
+    })
+    const body = JSON.parse(call.options.body as string) as {
+      text?: string
+      attachments?: Array<{
+        color: string
+        blocks: Array<{
+          type: string
+          text?: { type: string; text: string; emoji?: boolean }
+          fields?: Array<{ type: string; text: string }>
+        }>
+      }>
+    }
+    expect(body.text).toBeDefined()
+    expect(body.text).toContain("Sync completed")
+    expect(body.text).toContain("SnapRAID sync finished successfully.")
+    expect(body.attachments).toHaveLength(1)
+    const attachment = body.attachments![0]
+    expect(attachment.color).toBe("#36a64f")
+    expect(attachment.blocks).toBeDefined()
+    expect(attachment.blocks.length).toBeGreaterThanOrEqual(2)
+    expect(attachment.blocks[0].type).toBe("header")
+    expect(attachment.blocks[0].text?.text).toContain("Sync completed")
+    expect(attachment.blocks[1].type).toBe("section")
+    expect(attachment.blocks[1].text?.text).toBe(
+      "SnapRAID sync finished successfully.",
+    )
+  })
+
+  test("includes details as section fields when provided", async () => {
+    const result = await notifications.sendSlackNotification(
+      baseSettings,
+      "sync_error",
+      "Sync failed",
+      "SnapRAID sync failed.",
+      { Source: "Manual", "Exit code": "1" },
+    )
+    expect(result).toBe(true)
+    expect(fetchCalls.length).toBe(1)
+    const body = JSON.parse(fetchCalls[0].options.body as string) as {
+      text?: string
+      attachments?: Array<{
+        blocks: Array<{
+          type: string
+          fields?: Array<{ type: string; text: string }>
+        }>
+      }>
+    }
+    const blocks = body.attachments![0].blocks
+    const detailsBlock = blocks.find((b) => b.type === "section" && b.fields)
+    expect(detailsBlock).toBeDefined()
+    expect(detailsBlock!.fields).toHaveLength(2)
+    expect(detailsBlock!.fields).toContainEqual({
+      type: "mrkdwn",
+      text: "*Source:*\nManual",
+    })
+    expect(detailsBlock!.fields).toContainEqual({
+      type: "mrkdwn",
+      text: "*Exit code:*\n1",
+    })
+  })
+
+  test("limits details to 10 fields", async () => {
+    const details: Record<string, string> = {}
+    for (let i = 0; i < 12; i++) {
+      details[`Key${i}`] = `Value${i}`
+    }
+    const result = await notifications.sendSlackNotification(
+      baseSettings,
+      "sync_complete",
+      "Title",
+      "Message",
+      details,
+    )
+    expect(result).toBe(true)
+    const body = JSON.parse(fetchCalls[0].options.body as string) as {
+      attachments?: Array<{
+        blocks: Array<{
+          type: string
+          fields?: Array<{ type: string; text: string }>
+        }>
+      }>
+    }
+    const detailsBlock = body.attachments![0].blocks.find(
+      (b) => b.type === "section" && b.fields,
+    )
+    expect(detailsBlock!.fields).toHaveLength(10)
+  })
+
+  test("truncates detail field text to 2000 characters", async () => {
+    const longValue = "x".repeat(2500)
+    const result = await notifications.sendSlackNotification(
+      baseSettings,
+      "sync_complete",
+      "Title",
+      "Message",
+      { LongKey: longValue },
+    )
+    expect(result).toBe(true)
+    const body = JSON.parse(fetchCalls[0].options.body as string) as {
+      attachments?: Array<{
+        blocks: Array<{
+          type: string
+          fields?: Array<{ type: string; text: string }>
+        }>
+      }>
+    }
+    const detailsBlock = body.attachments![0].blocks.find(
+      (b) => b.type === "section" && b.fields,
+    )
+    expect(detailsBlock!.fields).toHaveLength(1)
+    expect(detailsBlock!.fields![0].text.length).toBe(2000)
+    expect(detailsBlock!.fields![0].text.endsWith("...")).toBe(true)
+  })
+
+  test("returns false when fetch returns non-ok response", async () => {
+    const restore = silenceConsole()
+    fetchResponder = () => ({
+      ok: false,
+      status: 400,
+      statusText: "Bad Request",
+      text: async () => '{"error": "no_text"}',
+    })
+    const result = await notifications.sendSlackNotification(
+      baseSettings,
+      "sync_complete",
+      "Title",
+      "Message",
+    )
+    restore()
+    expect(result).toBe(false)
+    expect(fetchCalls.length).toBe(1)
+  })
+})

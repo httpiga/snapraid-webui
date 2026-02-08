@@ -385,13 +385,18 @@ function SlackForm({
 }) {
   return (
     <div className="space-y-2">
-      <Label htmlFor="edit-slack-webhook">Webhook URL</Label>
+      <Label htmlFor="edit-slack-webhook">Webhook URL (required)</Label>
       <Input
         id="edit-slack-webhook"
+        type="url"
         value={config.webhookUrl}
         onChange={(e) => onChange({ ...config, webhookUrl: e.target.value })}
-        placeholder="https://hooks.slack.com/services/..."
+        placeholder="https://hooks.slack.com/services/T00000000/B00000000/..."
       />
+      <p className="text-sm text-muted-foreground">
+        Create an incoming webhook in your Slack app (Settings → Incoming
+        Webhooks → Add New Webhook to Workspace) and paste the webhook URL here.
+      </p>
     </div>
   )
 }
