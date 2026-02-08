@@ -24,6 +24,7 @@ const mailCalls: Array<unknown[]> = []
 mock.module("nodemailer", () => ({
   default: {
     createTransport: () => ({
+      verify: async () => {},
       sendMail: async (...args: unknown[]) => {
         mailCalls.push(args)
       },

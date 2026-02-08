@@ -359,6 +359,7 @@ export async function testNotificationChannel(
         title,
         message,
         details,
+        { verifyConnection: true },
       )
     case "slack":
       return sendSlackNotification(

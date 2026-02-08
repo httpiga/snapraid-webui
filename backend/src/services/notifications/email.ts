@@ -1,6 +1,44 @@
 import nodemailer from "nodemailer"
 import type { EmailSettings, NotificationEvent } from "@snapraid-webui/shared"
 
+type Transporter = ReturnType<typeof nodemailer.createTransport>
+
+const transporterCache = new Map<string, Transporter>()
+
+function settingsFingerprint(settings: EmailSettings): string {
+  return [
+    settings.smtpHost,
+    settings.smtpPort,
+    settings.smtpSecure,
+    settings.smtpUser ?? "",
+  ].join("\0")
+}
+
+function getOrCreateTransporter(settings: EmailSettings): Transporter {
+  const key = settingsFingerprint(settings)
+  let transporter = transporterCache.get(key)
+  if (!transporter) {
+    transporter = nodemailer.createTransport({
+      host: settings.smtpHost,
+      port: settings.smtpPort,
+      secure: settings.smtpSecure,
+      auth: settings.smtpUser
+        ? {
+            user: settings.smtpUser,
+            pass: settings.smtpPass,
+          }
+        : undefined,
+    })
+    transporterCache.set(key, transporter)
+  }
+  return transporter
+}
+
+export interface SendEmailNotificationOptions {
+  /** If true, verify SMTP connection before sending (e.g. for Test action). */
+  verifyConnection?: boolean
+}
+
 /**
  * Send a notification via email
  */
@@ -10,6 +48,7 @@ export async function sendEmailNotification(
   title: string,
   message: string,
   details?: Record<string, string>,
+  options?: SendEmailNotificationOptions,
 ): Promise<boolean> {
   if (
     !settings.enabled ||
@@ -19,17 +58,7 @@ export async function sendEmailNotification(
     return false
   }
 
-  const transporter = nodemailer.createTransport({
-    host: settings.smtpHost,
-    port: settings.smtpPort,
-    secure: settings.smtpSecure,
-    auth: settings.smtpUser
-      ? {
-          user: settings.smtpUser,
-          pass: settings.smtpPass,
-        }
-      : undefined,
-  })
+  const transporter = getOrCreateTransporter(settings)
 
   // Subject prefix based on event type
   const prefixes: Record<NotificationEvent, string> = {
@@ -90,6 +119,9 @@ export async function sendEmailNotification(
   }
 
   try {
+    if (options?.verifyConnection) {
+      await transporter.verify()
+    }
     await transporter.sendMail({
       from: settings.fromAddress,
       to: settings.toAddresses.join(", "),
@@ -100,7 +132,11 @@ export async function sendEmailNotification(
 
     return true
   } catch (error) {
-    console.error("Email notification error:", error)
+    const err = error as { code?: string; response?: string; message?: string }
+    console.error("Email notification error:", err?.message ?? error)
+    if (err?.code != null || err?.response != null) {
+      console.error("SMTP details:", { code: err.code, response: err.response })
+    }
     return false
   }
 }
