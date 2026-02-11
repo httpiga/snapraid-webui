@@ -1,6 +1,6 @@
 # SnapRAID Web UI
 
-[![Build](https://github.com/httpiga/snapraid-webui/actions/workflows/docker-build.yml/badge.svg?branch=master)](https://github.com/httpiga/snapraid-webui/actions/workflows/docker-build.yml)
+[![Release pipeline](https://github.com/httpiga/snapraid-webui/actions/workflows/release.yml/badge.svg)](https://github.com/httpiga/snapraid-webui/actions/workflows/release.yml)
 [![codecov](https://codecov.io/github/httpiga/snapraid-webui/branch/master/graph/badge.svg?token=5DWND3O0DI)](https://codecov.io/github/httpiga/snapraid-webui)
 [![License](https://img.shields.io/github/license/httpiga/snapraid-webui)](https://github.com/httpiga/snapraid-webui/blob/master/LICENSE.md)
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
