@@ -126,6 +126,10 @@ export async function executeCommandWithStreaming(
 export function initializeWebSocket(server: Server): WebSocketServer {
   const wss = new WebSocketServer({ server, path: "/ws" })
 
+  wss.on("error", (err) => {
+    console.error("WebSocket server error:", err)
+  })
+
   wss.on("connection", (ws) => {
     console.log("WebSocket client connected")
     clients.add(ws)
