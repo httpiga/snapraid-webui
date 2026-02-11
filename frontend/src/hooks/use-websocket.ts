@@ -38,6 +38,16 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
     const ws = new WebSocket(wsUrl)
     wsRef.current = ws
 
+    // Bun's WebSocket test/runtime implementation can surface transport errors through
+    // EventEmitter-style `error` events. Attach a listener early to prevent an
+    // unhandled error from escaping between tests when a socket fails to connect.
+    const wsWithNodeEvents = ws as WebSocket & {
+      on?: (event: string, listener: (...args: unknown[]) => void) => void
+    }
+    wsWithNodeEvents.on?.("error", () => {
+      // `ws.onerror` handles logging; this keeps Node-style emitters from being unhandled.
+    })
+
     ws.onopen = () => {
       console.log("WebSocket connected")
       setIsConnected(true)
