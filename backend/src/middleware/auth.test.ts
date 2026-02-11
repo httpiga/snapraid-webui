@@ -22,9 +22,7 @@ const {
   hashPassword,
 } = await import("./auth")
 
-const describeAuth = process.env.CI ? describe.skip : describe
-
-describeAuth("auth settings", () => {
+describe("auth settings", () => {
   beforeEach(async () => {
     if (existsSync(TEST_APP_CONFIG)) {
       await fs.unlink(TEST_APP_CONFIG)
@@ -62,7 +60,7 @@ describeAuth("auth settings", () => {
   })
 })
 
-describeAuth("authMiddleware", () => {
+describe("authMiddleware", () => {
   beforeEach(async () => {
     if (existsSync(TEST_APP_CONFIG)) {
       await fs.unlink(TEST_APP_CONFIG)
