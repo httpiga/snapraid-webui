@@ -1,5 +1,4 @@
 name: Release pipeline
-
 on:
   release:
     types: [published]
@@ -7,7 +6,6 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IS_RELEASE: ${{ github.event_name == 'release' }}
 
 jobs:
   checks:
@@ -61,7 +59,7 @@ jobs:
           cache-to: type=gha,mode=max
 
   upload-coverage:
-    if: env.IS_RELEASE == 'true'
+    if: github.event_name == 'release'
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
