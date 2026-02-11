@@ -23,9 +23,30 @@ function broadcast(message: WSMessage): void {
   const data = JSON.stringify(message)
   for (const client of clients) {
     if (client.readyState === WebSocket.OPEN) {
-      client.send(data)
+      client.send(data, (error) => {
+        if (error) {
+          console.error("WebSocket broadcast send error:", error)
+          clients.delete(client)
+        }
+      })
     }
   }
+}
+
+/**
+ * Send a message to a specific client and guard against send-time errors
+ */
+function sendToClient(ws: WebSocket, message: WSMessage): void {
+  if (ws.readyState !== WebSocket.OPEN) {
+    return
+  }
+
+  ws.send(JSON.stringify(message), (error) => {
+    if (error) {
+      console.error("WebSocket client send error:", error)
+      clients.delete(ws)
+    }
+  })
 }
 
 /**
@@ -134,24 +155,30 @@ export function initializeWebSocket(server: Server): WebSocketServer {
     console.log("WebSocket client connected")
     clients.add(ws)
 
+    ws.on("close", () => {
+      console.log("WebSocket client disconnected")
+      clients.delete(ws)
+    })
+
+    ws.on("error", (error) => {
+      console.error("WebSocket error:", error)
+      clients.delete(ws)
+    })
+
     // Send connected message
-    ws.send(
-      JSON.stringify({
-        type: "connected",
-        timestamp: new Date().toISOString(),
-      } satisfies WSMessage),
-    )
+    sendToClient(ws, {
+      type: "connected",
+      timestamp: new Date().toISOString(),
+    })
 
     // Send current job status if any
     const currentJob = snapraidRunner.getCurrentJob()
     if (currentJob) {
-      ws.send(
-        JSON.stringify({
-          type: "status",
-          command: currentJob.command,
-          timestamp: currentJob.startTime,
-        } satisfies WSMessage),
-      )
+      sendToClient(ws, {
+        type: "status",
+        command: currentJob.command,
+        timestamp: currentJob.startTime,
+      })
     }
 
     ws.on("message", async (data) => {
@@ -163,13 +190,11 @@ export function initializeWebSocket(server: Server): WebSocketServer {
           const { command, args = [], syncSafetySettings } = message
 
           if (snapraidRunner.isRunning()) {
-            ws.send(
-              JSON.stringify({
-                type: "error",
-                error: "Another command is already running",
-                timestamp: new Date().toISOString(),
-              } satisfies WSMessage),
-            )
+            sendToClient(ws, {
+              type: "error",
+              error: "Another command is already running",
+              timestamp: new Date().toISOString(),
+            })
             return
           }
 
@@ -235,27 +260,15 @@ export function initializeWebSocket(server: Server): WebSocketServer {
         // Handle abort request
         if (message.type === "abort") {
           const aborted = snapraidRunner.abort()
-          ws.send(
-            JSON.stringify({
-              type: aborted ? "status" : "error",
-              error: aborted ? undefined : "No command is running",
-              timestamp: new Date().toISOString(),
-            } satisfies WSMessage),
-          )
+          sendToClient(ws, {
+            type: aborted ? "status" : "error",
+            error: aborted ? undefined : "No command is running",
+            timestamp: new Date().toISOString(),
+          })
         }
       } catch (error) {
         console.error("Error handling WebSocket message:", error)
       }
-    })
-
-    ws.on("close", () => {
-      console.log("WebSocket client disconnected")
-      clients.delete(ws)
-    })
-
-    ws.on("error", (error) => {
-      console.error("WebSocket error:", error)
-      clients.delete(ws)
     })
   })
 

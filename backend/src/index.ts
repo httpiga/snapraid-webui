@@ -20,6 +20,20 @@ import { initializeScheduler } from "./services/scheduler"
 import { createSessionMiddleware, authMiddleware } from "./middleware/auth"
 import { errorMiddleware } from "./middleware/async-handler"
 
+/**
+ * Bun test discovery/execution can evaluate non-test source files in some CI setups.
+ * Guard server startup side-effects in that mode to keep unit tests isolated.
+ */
+export function isTestRuntime(
+  argv: string[] = process.argv,
+  nodeEnv: string | undefined = process.env.NODE_ENV,
+): boolean {
+  return (
+    nodeEnv === "test" ||
+    argv.some((arg) => arg === "test" || arg.includes("bun:test"))
+  )
+}
+
 const app: Express = express()
 const server = createServer(app)
 
@@ -90,14 +104,15 @@ if (existsSync(frontendPath)) {
   })
 }
 
-// Initialize WebSocket
-initializeWebSocket(server)
+async function startServer(): Promise<void> {
+  // Initialize WebSocket
+  initializeWebSocket(server)
 
-// Initialize scheduler
-initializeScheduler().catch(console.error)
+  // Initialize scheduler
+  initializeScheduler().catch(console.error)
 
-server.listen(PORT, () => {
-  console.log(`
+  server.listen(PORT, () => {
+    console.log(`
 ╔═══════════════════════════════════════════════════════╗
 ║           SnapRAID Web UI Server                      ║
 ╠═══════════════════════════════════════════════════════╣
@@ -106,6 +121,14 @@ server.listen(PORT, () => {
 ║  Config path: ${CONFIG_PATH.slice(0, 38).padEnd(38)}║
 ╚═══════════════════════════════════════════════════════╝
   `)
-})
+  })
+}
 
-export { app, server }
+if (import.meta.main && !isTestRuntime()) {
+  startServer().catch((error) => {
+    console.error("Failed to start server:", error)
+    process.exit(1)
+  })
+}
+
+export { app, server, startServer }
