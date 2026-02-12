@@ -38,7 +38,8 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/snapraid-webui
           tags: |
-            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' }}
+            type=ref,event=tag
+            type=raw,value=latest,enable=${{ github.event_name == 'release' }}
             type=sha,prefix=
       - uses: docker/build-push-action@v6
         with:
