@@ -54,6 +54,11 @@ describe("parseStatusOutput", () => {
     expect(status.totalFiles).toBe(12345)
   })
 
+  test("parses total files with thousands separators", () => {
+    const status = parseStatusOutput(" 12,345 files in the array")
+    expect(status.totalFiles).toBe(12345)
+  })
+
   test("parses fragmented files", () => {
     const status = parseStatusOutput(" 100 fragmented files")
     expect(status.fragmentedFiles).toBe(100)
