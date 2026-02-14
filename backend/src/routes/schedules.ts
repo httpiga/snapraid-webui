@@ -75,6 +75,7 @@ router.post("/", async (req, res) => {
       args,
       cronExpression,
       enabled = true,
+      syncSafetyMode,
     } = req.body
 
     // Validate required fields
@@ -92,6 +93,7 @@ router.post("/", async (req, res) => {
       args,
       cronExpression,
       enabled,
+      syncSafetyMode,
     })
 
     res.status(201).json(schedule)

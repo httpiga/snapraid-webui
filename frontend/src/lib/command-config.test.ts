@@ -408,6 +408,14 @@ describe("syncSafetyToArgs and argsToSyncSafety", () => {
     expect(result.forceEmpty).toBe(false)
   })
 
+
+  test("argsToSyncSafety uses saved mode when provided", () => {
+    const result = argsToSyncSafety([], "default")
+    expect(result.mode).toBe("default")
+    expect(result.preHash).toBe(false)
+    expect(result.forceEmpty).toBe(false)
+  })
+
   test("argsToSyncSafety with only pre-hash returns default mode", () => {
     const result = argsToSyncSafety(["--pre-hash"])
     expect(result.mode).toBe("default")
