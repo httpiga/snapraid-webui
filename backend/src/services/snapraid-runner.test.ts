@@ -213,6 +213,7 @@ describe("command helpers", () => {
     expect(status.disks![1].freeGB).toBe(50)
     expect(status.totalUsedGB).toBe(600)
     expect(status.totalFreeGB).toBe(150)
+    expect(status.totalFiles).toBe(13345)
   })
 
   test("getDiff returns parsed diff report", async () => {

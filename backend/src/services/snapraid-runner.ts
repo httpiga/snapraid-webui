@@ -143,6 +143,12 @@ export class SnapRaidRunner {
     if (disks.length > 0) {
       status.totalUsedGB = disks.reduce((sum, d) => sum + d.usedGB, 0)
       status.totalFreeGB = disks.reduce((sum, d) => sum + d.freeGB, 0)
+
+      // SnapRAID status table always includes per-disk file counts, but may not include
+      // a "NNN files" summary line parseable by parseStatusOutput.
+      if (status.totalFiles === undefined) {
+        status.totalFiles = disks.reduce((sum, d) => sum + d.files, 0)
+      }
     }
     return status
   }

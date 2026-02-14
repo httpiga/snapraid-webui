@@ -56,9 +56,9 @@ export function parseStatusOutput(output: string): SnapRaidStatus {
     }
 
     // Parse total files
-    const totalFilesMatch = line.match(/(\d+)\s+files/i)
+    const totalFilesMatch = line.match(/([\d,]+)\s+files/i)
     if (totalFilesMatch) {
-      status.totalFiles = parseInt(totalFilesMatch[1], 10)
+      status.totalFiles = parseInt(totalFilesMatch[1].replace(/,/g, ""), 10)
     }
 
     // Parse fragmented files
