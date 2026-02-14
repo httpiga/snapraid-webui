@@ -11,6 +11,7 @@ describe("parseStatusOutput", () => {
     expect(status.newFiles).toBe(0)
     expect(status.modifiedFiles).toBe(0)
     expect(status.deletedFiles).toBe(0)
+    expect(status.syncInProgress).toBe(false)
     expect(status.rawOutput).toBe("")
   })
 
@@ -32,11 +33,13 @@ describe("parseStatusOutput", () => {
   test("sets parityUpToDate false when sync in progress", () => {
     const status = parseStatusOutput("You have a sync in progress at 45%")
     expect(status.parityUpToDate).toBe(false)
+    expect(status.syncInProgress).toBe(true)
   })
 
   test("sets parityUpToDate true when no sync in progress", () => {
     const status = parseStatusOutput("No sync is in progress.")
     expect(status.parityUpToDate).toBe(true)
+    expect(status.syncInProgress).toBe(false)
   })
 
   test("parses scrub percentage from 'X% of the array is not scrubbed'", () => {

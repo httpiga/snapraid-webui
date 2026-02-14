@@ -34,7 +34,11 @@ export function DashboardStatusCards({
           ) : (
             <>
               <div className="text-2xl font-bold">
-                {status?.parityUpToDate ? "Up to Date" : "Sync Required"}
+                {status?.parityUpToDate
+                  ? "Up to Date"
+                  : status?.syncInProgress
+                    ? "Sync in Progress"
+                    : "Sync Required"}
               </div>
               <p className="text-xs text-muted-foreground">
                 {status?.newFiles || 0} new, {status?.modifiedFiles || 0}{" "}

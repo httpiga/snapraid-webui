@@ -29,7 +29,7 @@ router.get("/status", async (_req, res) => {
         newFiles: 0,
         modifiedFiles: 0,
         deletedFiles: 0,
-        syncInProgress: true,
+        syncInProgress: currentJob.command === "sync",
         rawOutput: `Command "${currentJob.command}" is currently running...`,
       })
       return
