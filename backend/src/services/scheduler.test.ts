@@ -4,16 +4,26 @@ import { mkdtempSync, existsSync } from "fs"
 import path from "path"
 import { tmpdir } from "os"
 import { snapraidRunner } from "./snapraid-runner"
-import * as config from "../config"
 import { silenceConsole } from "../test-utils/silence-console"
 
 const { mock } = await import("bun:test")
 const tmpDir = mkdtempSync(path.join(tmpdir(), "scheduler-test-"))
-const schedulesPath =
-  config.SCHEDULES_FILE || path.join(tmpDir, "schedules.json")
-const snapraidConfPath =
-  config.SNAPRAID_CONF_FILE || path.join(tmpDir, "snapraid.conf")
-const logsDir = config.LOGS_DIR || path.join(tmpDir, "logs")
+
+const TEST_CONFIG = {
+  APP_CONFIG_FILE: path.join(tmpDir, "app-config.json"),
+  SCHEDULES_FILE: path.join(tmpDir, "schedules.json"),
+  SNAPRAID_CONF_FILE: path.join(tmpDir, "snapraid.conf"),
+  LOGS_DIR: path.join(tmpDir, "logs"),
+  PORT: 3000,
+  CONFIG_PATH: tmpDir,
+  SNAPRAID_BIN: "snapraid",
+}
+
+mock.module("../config", () => TEST_CONFIG)
+
+const schedulesPath = TEST_CONFIG.SCHEDULES_FILE
+const snapraidConfPath = TEST_CONFIG.SNAPRAID_CONF_FILE
+const logsDir = TEST_CONFIG.LOGS_DIR
 
 const cronState = {
   scheduled: [] as {
@@ -179,11 +189,26 @@ describe("scheduler execution and notifications", () => {
     await scheduler.initializeScheduler()
     expect(cronState.scheduled.length).toBe(1)
     cronState.scheduled[0].cb()
-    // Wait for async operations to complete (executeScheduledCommand is fire-and-forget)
-    await new Promise((resolve) => setTimeout(resolve, 100))
-    const saved = JSON.parse(await fs.readFile(schedulesPath, "utf-8"))
+    // Poll until the fire-and-forget executeScheduledCommand has updated the file
+    // (fixed timeout was too short on slower CI runners)
+    const deadline = Date.now() + 5000
+    let saved: { schedules: { lastRun?: string; updatedAt?: string }[] } = {
+      schedules: [{}],
+    }
+    while (Date.now() < deadline) {
+      try {
+        saved = JSON.parse(await fs.readFile(schedulesPath, "utf-8"))
+        if (saved.schedules[0].lastRun) break
+      } catch {
+        // file may not be written yet
+      }
+      await new Promise((r) => setTimeout(r, 50))
+    }
     expect(saved.schedules[0].lastRun).toBeDefined()
     expect(saved.schedules[0].updatedAt).toBeDefined()
+    // Let remaining async work (sendNotification, log append) settle
+    // before afterEach deletes the files
+    await new Promise((r) => setTimeout(r, 200))
   })
 
   test("skips schedule when runner is already running", async () => {
