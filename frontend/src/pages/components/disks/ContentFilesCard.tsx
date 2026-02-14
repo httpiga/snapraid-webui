@@ -34,6 +34,12 @@ export function ContentFilesCard({
 }: ContentFilesCardProps) {
   const [isBrowserOpen, setIsBrowserOpen] = useState(false)
   const [browserTarget, setBrowserTarget] = useState<number | null>(null)
+
+  const toContentFilePath = (folderPath: string) => {
+    const normalizedPath = folderPath === "/" ? "" : folderPath.replace(/\/+$/, "")
+    return `${normalizedPath}/snapraid.content`
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -111,8 +117,8 @@ export function ContentFilesCard({
         title="Select disk folder"
         description="Choose the folder that contains the disk data."
         onSelect={(path) => {
-          if (browserTarget) {
-            onUpdate(browserTarget, path)
+          if (browserTarget !== null) {
+            onUpdate(browserTarget, toContentFilePath(path))
           }
         }}
       />

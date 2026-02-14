@@ -34,6 +34,12 @@ export function ParityDisksCard({
 }: ParityDisksCardProps) {
   const [isBrowserOpen, setIsBrowserOpen] = useState(false)
   const [browserTarget, setBrowserTarget] = useState<number | null>(null)
+
+  const toParityFilePath = (folderPath: string) => {
+    const normalizedPath = folderPath === "/" ? "" : folderPath.replace(/\/+$/, "")
+    return `${normalizedPath}/snapraid.parity`
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -118,7 +124,7 @@ export function ParityDisksCard({
         description="Choose the folder that contains the disk data."
         onSelect={(path) => {
           if (browserTarget !== null) {
-            onUpdate(browserTarget, path)
+            onUpdate(browserTarget, toParityFilePath(path))
           }
         }}
       />
