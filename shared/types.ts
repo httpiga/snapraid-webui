@@ -257,6 +257,7 @@ export interface Schedule {
   command: SnapRaidCommand
   configPath: string
   args?: string[]
+  syncSafetyMode?: "disabled" | "default" | "custom"
   cronExpression: string
   enabled: boolean
   lastRun?: string

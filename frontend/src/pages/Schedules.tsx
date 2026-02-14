@@ -103,7 +103,9 @@ export function Schedules() {
 
     if (schedule.command === "sync") {
       // Parse sync safety options from args
-      setSyncSafetyOptions(argsToSyncSafety(schedule.args ?? []))
+      setSyncSafetyOptions(
+        argsToSyncSafety(schedule.args ?? [], schedule.syncSafetyMode),
+      )
     } else {
       const cmdConfig = getCommandConfig(schedule.command)
       setOptionValues(
@@ -140,7 +142,12 @@ export function Schedules() {
       if (editingSchedule) {
         await updateSchedule({
           id: editingSchedule.id,
-          updates: { ...formData, args },
+          updates: {
+            ...formData,
+            args,
+            syncSafetyMode:
+              formData.command === "sync" ? syncSafetyOptions.mode : undefined,
+          },
         }).unwrap()
         toast.success("Schedule updated")
       } else {
@@ -149,6 +156,8 @@ export function Schedules() {
           enabled: true,
           configPath: "",
           args,
+          syncSafetyMode:
+            formData.command === "sync" ? syncSafetyOptions.mode : undefined,
         }).unwrap()
         toast.success("Schedule created")
       }

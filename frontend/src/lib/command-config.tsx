@@ -253,13 +253,24 @@ export function syncSafetyToArgs(
  * Parse CLI args back into sync safety options.
  * This is the inverse of syncSafetyToArgs.
  */
-export function argsToSyncSafety(args: string[] = []): {
+export function argsToSyncSafety(
+  args: string[] = [],
+  savedMode?: "disabled" | "default" | "custom",
+): {
   mode: "disabled" | "default" | "custom"
   preHash: boolean
   forceEmpty: boolean
 } {
   const preHash = args.includes("--pre-hash")
   const forceEmpty = args.includes("--force-empty")
+
+  if (savedMode) {
+    return {
+      mode: savedMode,
+      preHash,
+      forceEmpty,
+    }
+  }
 
   // Determine mode: if no flags at all, it's disabled; otherwise default
   // (custom mode can't be determined from args alone since safety limits
