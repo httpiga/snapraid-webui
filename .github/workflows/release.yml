@@ -72,9 +72,19 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: coverage
-      - name: Upload coverage to Codecov
+      - name: Upload backend coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: backend/coverage/lcov.info,frontend/coverage/lcov.info
+          files: backend/coverage/lcov.info
           fail_ci_if_error: false
+          # Paths in backend lcov are relative to backend/ (e.g. src/foo.ts)
+          network_prefix: backend/
+      - name: Upload frontend coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: frontend/coverage/lcov.info
+          fail_ci_if_error: false
+          # Paths in frontend lcov are relative to frontend/ (e.g. src/foo.ts)
+          network_prefix: frontend/
