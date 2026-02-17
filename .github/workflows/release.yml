@@ -1,5 +1,7 @@
 name: Release pipeline
 on:
+  push:
+    branches: [master]
   release:
     types: [published]
   workflow_dispatch:
@@ -29,6 +31,7 @@ jobs:
             frontend/coverage
 
   build-and-push:
+    if: github.event_name == 'release' || github.event_name == 'workflow_dispatch'
     needs: checks
     runs-on: ubuntu-latest
     permissions:
@@ -61,8 +64,8 @@ jobs:
           cache-to: type=gha,mode=max
 
   upload-coverage:
-    if: github.event_name == 'release'
-    needs: build-and-push
+    if: github.event_name == 'release' || github.event_name == 'push'
+    needs: checks
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
