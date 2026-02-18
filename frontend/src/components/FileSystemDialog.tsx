@@ -134,7 +134,7 @@ export function FileSystemDialog({
                       )}
                       onClick={() => {
                         if (entry.isDirectory) {
-                          setSelectedPath(entry.path)
+                          setCurrentPath(entry.path)
                         }
                       }}
                     >
@@ -146,19 +146,7 @@ export function FileSystemDialog({
                         )}
                         <span className="font-medium">{entry.name}</span>
                       </div>
-                      {entry.isDirectory ? (
-                        <Button
-                          type="button"
-                          size="sm"
-                          variant="ghost"
-                          onClick={(event) => {
-                            event.stopPropagation()
-                            setCurrentPath(entry.path)
-                          }}
-                        >
-                          Open
-                        </Button>
-                      ) : (
+                      {!entry.isDirectory && (
                         <span className="text-xs text-muted-foreground">
                           {entry.size !== undefined
                             ? `${entry.size} B`
