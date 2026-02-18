@@ -4,17 +4,18 @@ import { render } from "@testing-library/react"
 import { PageLoading } from "./PageLoading"
 
 describe("PageLoading", () => {
-  test("renders message", () => {
-    render(<PageLoading message="Loading configuration..." />)
-    expect(document.body.textContent).toContain("Loading configuration...")
+  test("renders skeleton placeholders", () => {
+    const { container } = render(
+      <PageLoading message="Loading configuration..." />,
+    )
+    const skeletons = container.querySelectorAll('[data-slot="skeleton"]')
+    expect(skeletons.length).toBeGreaterThan(0)
   })
 
-  test("uses muted-foreground class for message", () => {
-    const { container } = render(
-      <PageLoading message="Please wait" />,
-    )
-    const messageEl = container.querySelector(".text-muted-foreground")
-    expect(messageEl).not.toBeNull()
-    expect(messageEl?.textContent).toBe("Please wait")
+  test("has accessible status with message", () => {
+    const { container } = render(<PageLoading message="Please wait" />)
+    const status = container.querySelector('[role="status"]')
+    expect(status).not.toBeNull()
+    expect(status?.getAttribute("aria-label")).toBe("Please wait")
   })
 })
