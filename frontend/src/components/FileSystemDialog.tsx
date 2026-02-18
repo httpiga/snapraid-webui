@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/empty"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { Skeleton } from "@/components/ui/skeleton"
 import { useGetFileSystemEntriesQuery } from "@/store/api"
 import { cn } from "@/lib/utils"
 import { Folder, File, ArrowUp, RefreshCw } from "lucide-react"
@@ -101,8 +102,8 @@ export function FileSystemDialog({
               />
               Refresh
             </Button>
-            <div className="text-sm text-muted-foreground truncate">
-              {data?.path ?? "Loading..."}
+            <div className="text-sm text-muted-foreground truncate min-w-0 flex-1">
+              {data?.path ?? <Skeleton className="h-4 w-48 inline-block" />}
             </div>
           </div>
 
