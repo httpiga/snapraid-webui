@@ -18,7 +18,7 @@ import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useGetFileSystemEntriesQuery } from "@/store/api"
-import { cn } from "@/lib/utils"
+import { cn, formatFileSize } from "@/lib/utils"
 import { Folder, File, ArrowUp, RefreshCw } from "lucide-react"
 
 interface FileSystemDialogProps {
@@ -149,7 +149,7 @@ export function FileSystemDialog({
                       {!entry.isDirectory && (
                         <span className="text-xs text-muted-foreground">
                           {entry.size !== undefined
-                            ? `${entry.size} B`
+                            ? formatFileSize(entry.size)
                             : "File"}
                         </span>
                       )}
