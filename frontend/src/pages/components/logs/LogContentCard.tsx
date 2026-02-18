@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Download } from "lucide-react"
 import type { LogFile } from "@shared/types"
 
@@ -63,13 +64,24 @@ export function LogContentCard({
       <CardContent>
         <ScrollArea className="h-[500px] w-full rounded border bg-black">
           <pre className="p-4 text-sm font-mono text-green-400 whitespace-pre-wrap">
-            {isLoadingContent
-              ? "Loading..."
-              : logContent
-                ? logContent
-                : selectedLog
-                  ? "Failed to load log content"
-                  : "Select a log file from the list to view its content"}
+            {isLoadingContent ? (
+              <span className="block space-y-2">
+                <Skeleton className="h-4 w-full bg-white/10" />
+                <Skeleton className="h-4 w-full bg-white/10" />
+                <Skeleton className="h-4 w-full bg-white/10" />
+                <Skeleton className="h-4 w-[75%] bg-white/10" />
+                <Skeleton className="h-4 w-full bg-white/10" />
+                <Skeleton className="h-4 w-[60%] bg-white/10" />
+                <Skeleton className="h-4 w-full bg-white/10" />
+                <Skeleton className="h-4 w-[80%] bg-white/10" />
+              </span>
+            ) : logContent ? (
+              logContent
+            ) : selectedLog ? (
+              "Failed to load log content"
+            ) : (
+              "Select a log file from the list to view its content"
+            )}
           </pre>
         </ScrollArea>
       </CardContent>
