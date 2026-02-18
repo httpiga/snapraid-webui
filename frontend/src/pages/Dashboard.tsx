@@ -1,7 +1,6 @@
 import { useGetStatusQuery, useGetSchedulesQuery } from "@/store/api"
 import { getApiErrorMessage } from "@/lib/api-error"
 import { PageHeader } from "@/pages/components/PageHeader"
-import { PageLoading } from "@/pages/components/PageLoading"
 import { DashboardStatusCards } from "@/pages/components/dashboard/DashboardStatusCards"
 import { DashboardScheduleCard } from "@/pages/components/dashboard/DashboardScheduleCard"
 import { DashboardDiskStatusCard } from "@/pages/components/dashboard/DashboardDiskStatusCard"
@@ -9,18 +8,15 @@ import { DashboardDiskStatusCard } from "@/pages/components/dashboard/DashboardD
 export function Dashboard() {
   const {
     data: status,
-    isLoading,
+    isLoading: isStatusLoading,
     error,
   } = useGetStatusQuery(undefined, {
     refetchOnMountOrArgChange: true,
   })
-  const { data: schedules = [] } = useGetSchedulesQuery()
+  const { data: schedules = [], isLoading: isSchedulesLoading } =
+    useGetSchedulesQuery()
 
-  if (isLoading) {
-    return <PageLoading message="Loading status..." />
-  }
-
-  if (error) {
+  if (error && !isStatusLoading) {
     const message =
       getApiErrorMessage(error) ||
       "Failed to load status. Is the backend running?"
@@ -38,14 +34,20 @@ export function Dashboard() {
         description="Overview of your SnapRAID array status"
       />
 
-      <DashboardStatusCards status={status} />
+      <DashboardStatusCards status={status} isLoading={isStatusLoading} />
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <DashboardScheduleCard schedules={schedules} />
+        <DashboardScheduleCard
+          schedules={schedules}
+          isLoading={isSchedulesLoading}
+        />
       </div>
 
-      {status?.disks && status.disks.length > 0 ? (
-        <DashboardDiskStatusCard disks={status.disks} />
+      {isStatusLoading || (status?.disks && status.disks.length > 0) ? (
+        <DashboardDiskStatusCard
+          disks={status?.disks ?? []}
+          isLoading={isStatusLoading}
+        />
       ) : null}
     </div>
   )
