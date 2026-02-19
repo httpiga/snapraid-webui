@@ -16,6 +16,7 @@ export function parseStatusOutput(output: string): SnapRaidStatus {
     newFiles: 0,
     modifiedFiles: 0,
     deletedFiles: 0,
+    syncInProgress: false,
     rawOutput: output,
   }
 
@@ -34,13 +35,15 @@ export function parseStatusOutput(output: string): SnapRaidStatus {
     }
 
     // Check parity status (SnapRAID status output: "No sync is in progress" vs "NOT fully synced" / "sync in progress at X%")
-    if (
-      line.includes("NOT fully synced") ||
-      line.includes("You have a sync in progress at")
-    ) {
+    if (line.includes("You have a sync in progress at")) {
       status.parityUpToDate = false
+      status.syncInProgress = true
+    } else if (line.includes("NOT fully synced")) {
+      status.parityUpToDate = false
+      status.syncInProgress = false
     } else if (line.includes("No sync is in progress")) {
       status.parityUpToDate = true
+      status.syncInProgress = false
     }
 
     // new/modified/deleted counts come from 'snapraid diff', not status; status parser leaves them 0
