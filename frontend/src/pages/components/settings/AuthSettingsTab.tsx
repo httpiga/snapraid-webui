@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import {
   useGetAuthSettingsQuery,
   useUpdateAuthSettingsMutation,
@@ -18,27 +18,23 @@ import { toast } from "sonner"
 import { getApiErrorMessage } from "@/lib/api-error"
 import { PageLoading } from "@/pages/components/PageLoading"
 
-export function AuthSettingsTab() {
-  const {
-    data: settings,
-    isLoading,
-    isError,
-    error,
-    refetch,
-  } = useGetAuthSettingsQuery()
-  const [updateAuthSettings, { isLoading: isSaving }] =
-    useUpdateAuthSettingsMutation()
-  const [enabled, setEnabled] = useState(false)
-  const [username, setUsername] = useState("admin")
+function AuthSettingsForm({
+  settings,
+  onSave,
+  isSaving,
+}: {
+  settings: { enabled: boolean; username: string; hasPassword?: boolean }
+  onSave: (values: {
+    enabled: boolean
+    username?: string
+    password?: string
+  }) => Promise<void>
+  isSaving: boolean
+}) {
+  const [enabled, setEnabled] = useState(settings.enabled)
+  const [username, setUsername] = useState(settings.username)
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
-
-  useEffect(() => {
-    if (settings) {
-      setEnabled(settings.enabled)
-      setUsername(settings.username)
-    }
-  }, [settings])
 
   const handleSave = async () => {
     if (enabled && !username.trim()) {
@@ -60,11 +56,11 @@ export function AuthSettingsTab() {
     }
 
     try {
-      await updateAuthSettings({
+      await onSave({
         enabled,
         username: username.trim() ? username.trim() : undefined,
         password: password.trim() ? password : undefined,
-      }).unwrap()
+      })
       toast.success("Authentication settings saved")
       setPassword("")
       setConfirmPassword("")
@@ -73,26 +69,6 @@ export function AuthSettingsTab() {
         description: getApiErrorMessage(error),
       })
     }
-  }
-
-  if (isError) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Authentication</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-sm text-muted-foreground">
-            {getApiErrorMessage(error)}
-          </p>
-          <Button onClick={() => refetch()}>Retry</Button>
-        </CardContent>
-      </Card>
-    )
-  }
-
-  if (isLoading || !settings) {
-    return <PageLoading message="Loading authentication settings..." />
   }
 
   return (
@@ -158,5 +134,58 @@ export function AuthSettingsTab() {
         </CardContent>
       </Card>
     </div>
+  )
+}
+
+export function AuthSettingsTab() {
+  const {
+    data: settings,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useGetAuthSettingsQuery()
+  const [updateAuthSettings, { isLoading: isSaving }] =
+    useUpdateAuthSettingsMutation()
+
+  const handleSave = async (values: {
+    enabled: boolean
+    username?: string
+    password?: string
+  }) => {
+    await updateAuthSettings({
+      enabled: values.enabled,
+      username: values.username,
+      password: values.password,
+    }).unwrap()
+  }
+
+  if (isError) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Authentication</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            {getApiErrorMessage(error)}
+          </p>
+          <Button onClick={() => refetch()}>Retry</Button>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  if (isLoading || !settings) {
+    return <PageLoading message="Loading authentication settings..." />
+  }
+
+  return (
+    <AuthSettingsForm
+      key={`${settings.enabled}-${settings.username}`}
+      settings={settings}
+      onSave={handleSave}
+      isSaving={isSaving}
+    />
   )
 }

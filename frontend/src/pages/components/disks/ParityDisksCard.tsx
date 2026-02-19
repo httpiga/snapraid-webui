@@ -36,7 +36,8 @@ export function ParityDisksCard({
   const [browserTarget, setBrowserTarget] = useState<number | null>(null)
 
   const toParityFilePath = (folderPath: string) => {
-    const normalizedPath = folderPath === "/" ? "" : folderPath.replace(/\/+$/, "")
+    const normalizedPath =
+      folderPath === "/" ? "" : folderPath.replace(/\/+$/, "")
     return `${normalizedPath}/snapraid.parity`
   }
 
@@ -58,7 +59,7 @@ export function ParityDisksCard({
       <CardContent className="space-y-3">
         <div className="space-y-3">
           {parity.map((path, index) => (
-            <div key={index} className="flex items-center gap-2">
+            <div key={path} className="flex items-center gap-2">
               <Input
                 value={index === 0 ? "parity" : `${index + 1}-parity`}
                 disabled={true}
@@ -112,9 +113,9 @@ export function ParityDisksCard({
         </div>
         {parity.length > 0 && (
           <Button onClick={onAdd} size="sm">
-          <Plus className="h-4 w-4 mr-1" />
-          Add Parity
-        </Button>
+            <Plus className="h-4 w-4 mr-1" />
+            Add Parity
+          </Button>
         )}
       </CardContent>
       <FileSystemDialog

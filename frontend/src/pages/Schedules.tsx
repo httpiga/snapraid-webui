@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react"
+import { useReducer, type FormEvent } from "react"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 import { Plus } from "lucide-react"
@@ -41,6 +41,108 @@ const CRON_PRESETS = [
 /** Option values for the selected command (key -> value) */
 type OptionValues = Record<string, unknown>
 
+const initialFormData: ScheduleFormData = {
+  name: "",
+  command: "sync",
+  cronExpression: "0 2 * * *",
+  enabled: true,
+}
+
+const initialSyncSafetyOptions: SyncSafetyOptions = {
+  mode: "default",
+  preHash: false,
+  forceEmpty: false,
+  maxDeletedFiles: 100,
+  maxUpdatedFiles: 500,
+  maxAddedFiles: 10000,
+}
+
+type SchedulesFormState = {
+  showForm: boolean
+  editingSchedule: Schedule | null
+  cronPreset: string
+  formData: ScheduleFormData
+  optionValues: OptionValues
+  syncSafetyOptions: SyncSafetyOptions
+}
+
+const initialState: SchedulesFormState = {
+  showForm: false,
+  editingSchedule: null,
+  cronPreset: "0 2 * * *",
+  formData: initialFormData,
+  optionValues: {},
+  syncSafetyOptions: initialSyncSafetyOptions,
+}
+
+type SchedulesFormAction =
+  | { type: "RESET" }
+  | { type: "OPEN_NEW" }
+  | { type: "EDIT"; schedule: Schedule }
+  | { type: "SET_FORM_DATA"; payload: ScheduleFormData }
+  | { type: "SET_CRON_PRESET"; payload: string }
+  | { type: "SET_OPTION_VALUES"; payload: OptionValues }
+  | { type: "SET_SYNC_SAFETY_OPTIONS"; payload: SyncSafetyOptions }
+  | { type: "SET_SHOW_FORM"; payload: boolean }
+
+function schedulesFormReducer(
+  state: SchedulesFormState,
+  action: SchedulesFormAction,
+): SchedulesFormState {
+  switch (action.type) {
+    case "RESET":
+      return initialState
+    case "OPEN_NEW":
+      return { ...initialState, showForm: true }
+    case "EDIT": {
+      const schedule = action.schedule
+      const formData: ScheduleFormData = {
+        name: schedule.name,
+        command: schedule.command,
+        cronExpression: schedule.cronExpression,
+        enabled: schedule.enabled,
+      }
+      const syncSafetyOptions =
+        schedule.command === "sync"
+          ? argsToSyncSafety(schedule.args ?? [], schedule.syncSafetyMode)
+          : state.syncSafetyOptions
+      const optionValues =
+        schedule.command !== "sync"
+          ? (() => {
+              const cmdConfig = getCommandConfig(schedule.command)
+              return cmdConfig
+                ? argsToOptions(cmdConfig, schedule.args ?? [])
+                : {}
+            })()
+          : {}
+      const preset = CRON_PRESETS.find(
+        (p) => p.value === schedule.cronExpression,
+      )
+      return {
+        ...state,
+        showForm: true,
+        editingSchedule: schedule,
+        formData,
+        cronPreset: preset ? preset.value : "custom",
+        optionValues,
+        syncSafetyOptions,
+      }
+    }
+    case "SET_FORM_DATA":
+      return { ...state, formData: action.payload }
+    case "SET_CRON_PRESET":
+      return { ...state, cronPreset: action.payload }
+    case "SET_OPTION_VALUES":
+      return { ...state, optionValues: action.payload }
+    case "SET_SYNC_SAFETY_OPTIONS":
+      return { ...state, syncSafetyOptions: action.payload }
+    case "SET_SHOW_FORM":
+      return { ...state, showForm: action.payload }
+    default:
+      return state
+  }
+}
+
 export function Schedules() {
   const { data: schedules, isLoading } = useGetSchedulesQuery()
   const { data: defaultSyncSafetySettings } = useGetSyncSafetySettingsQuery()
@@ -48,76 +150,22 @@ export function Schedules() {
   const [updateSchedule] = useUpdateScheduleMutation()
   const [deleteSchedule] = useDeleteScheduleMutation()
 
-  const [showForm, setShowForm] = useState(false)
-  const [editingSchedule, setEditingSchedule] = useState<Schedule | null>(null)
-  const [cronPreset, setCronPreset] = useState("custom")
-  const [formData, setFormData] = useState<ScheduleFormData>({
-    name: "",
-    command: "sync",
-    cronExpression: "0 2 * * *",
-    enabled: true,
-  })
-  const [optionValues, setOptionValues] = useState<OptionValues>({})
-  const [syncSafetyOptions, setSyncSafetyOptions] = useState<SyncSafetyOptions>(
-    {
-      mode: "default",
-      preHash: false,
-      forceEmpty: false,
-      maxDeletedFiles: 100,
-      maxUpdatedFiles: 500,
-      maxAddedFiles: 10000,
-    },
-  )
+  const [state, dispatch] = useReducer(schedulesFormReducer, initialState)
+  const {
+    showForm,
+    editingSchedule,
+    cronPreset,
+    formData,
+    optionValues,
+    syncSafetyOptions,
+  } = state
 
   const selectedCommandConfig = getCommandConfig(formData.command) ?? null
 
-  const resetForm = () => {
-    setFormData({
-      name: "",
-      command: "sync",
-      cronExpression: "0 2 * * *",
-      enabled: true,
-    })
-    setOptionValues({})
-    setSyncSafetyOptions({
-      mode: "default",
-      preHash: false,
-      forceEmpty: false,
-      maxDeletedFiles: 100,
-      maxUpdatedFiles: 500,
-      maxAddedFiles: 10000,
-    })
-    setCronPreset("0 2 * * *")
-    setEditingSchedule(null)
-    setShowForm(false)
-  }
+  const resetForm = () => dispatch({ type: "RESET" })
 
   const handleEdit = (schedule: Schedule) => {
-    setEditingSchedule(schedule)
-    setFormData({
-      name: schedule.name,
-      command: schedule.command,
-      cronExpression: schedule.cronExpression,
-      enabled: schedule.enabled,
-    })
-
-    if (schedule.command === "sync") {
-      // Parse sync safety options from args
-      setSyncSafetyOptions(
-        argsToSyncSafety(schedule.args ?? [], schedule.syncSafetyMode),
-      )
-    } else {
-      const cmdConfig = getCommandConfig(schedule.command)
-      setOptionValues(
-        cmdConfig ? argsToOptions(cmdConfig, schedule.args ?? []) : {},
-      )
-    }
-
-    const preset = CRON_PRESETS.find(
-      (presetOption) => presetOption.value === schedule.cronExpression,
-    )
-    setCronPreset(preset ? preset.value : "custom")
-    setShowForm(true)
+    dispatch({ type: "EDIT", schedule })
   }
 
   const handleSubmit = async (e: FormEvent) => {
@@ -204,7 +252,7 @@ export function Schedules() {
         title="Schedules"
         description="Automate sync and scrub operations"
         actions={
-          <Button onClick={() => setShowForm(true)}>
+          <Button onClick={() => dispatch({ type: "OPEN_NEW" })}>
             <Plus className="h-4 w-4 mr-1" />
             New Schedule
           </Button>
@@ -228,10 +276,18 @@ export function Schedules() {
         }}
         onSubmit={handleSubmit}
         onCancel={resetForm}
-        onFormDataChange={setFormData}
-        onCronPresetChange={setCronPreset}
-        onOptionValuesChange={setOptionValues}
-        onSyncSafetyOptionsChange={setSyncSafetyOptions}
+        onFormDataChange={(payload) =>
+          dispatch({ type: "SET_FORM_DATA", payload })
+        }
+        onCronPresetChange={(payload) =>
+          dispatch({ type: "SET_CRON_PRESET", payload })
+        }
+        onOptionValuesChange={(payload) =>
+          dispatch({ type: "SET_OPTION_VALUES", payload })
+        }
+        onSyncSafetyOptionsChange={(payload) =>
+          dispatch({ type: "SET_SYNC_SAFETY_OPTIONS", payload })
+        }
       />
 
       <ScheduleList

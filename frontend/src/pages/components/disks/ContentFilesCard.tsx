@@ -36,7 +36,8 @@ export function ContentFilesCard({
   const [browserTarget, setBrowserTarget] = useState<number | null>(null)
 
   const toContentFilePath = (folderPath: string) => {
-    const normalizedPath = folderPath === "/" ? "" : folderPath.replace(/\/+$/, "")
+    const normalizedPath =
+      folderPath === "/" ? "" : folderPath.replace(/\/+$/, "")
     return `${normalizedPath}/snapraid.content`
   }
 
@@ -58,7 +59,7 @@ export function ContentFilesCard({
       <CardContent className="space-y-3">
         <div className="space-y-3">
           {content.map((path, index) => (
-            <div key={index} className="flex items-center gap-2">
+            <div key={path} className="flex items-center gap-2">
               <Input
                 value={path}
                 onChange={(e) => onUpdate(index, e.target.value)}
@@ -106,9 +107,9 @@ export function ContentFilesCard({
         </div>
         {content.length > 0 && (
           <Button onClick={onAdd} size="sm">
-          <Plus className="h-4 w-4 mr-1" />
-          Add Content
-        </Button>
+            <Plus className="h-4 w-4 mr-1" />
+            Add Content
+          </Button>
         )}
       </CardContent>
       <FileSystemDialog

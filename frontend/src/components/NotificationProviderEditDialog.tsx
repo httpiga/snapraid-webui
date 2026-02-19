@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import {
   Dialog,
   DialogContent,
@@ -75,8 +75,8 @@ export function NotificationProviderEditDialog({
     scrub_error: "Scrub error",
   }
 
-  useEffect(() => {
-    if (open) {
+  const handleOpenChange = (nextOpen: boolean) => {
+    if (nextOpen) {
       const currentConfig = getChannelConfig(settings, channel)
       setDraft({
         ...currentConfig,
@@ -86,7 +86,8 @@ export function NotificationProviderEditDialog({
             : [...NOTIFICATION_EVENTS],
       })
     }
-  }, [open, settings, channel])
+    onOpenChange(nextOpen)
+  }
 
   const handleSave = async () => {
     setSaving(true)
@@ -134,7 +135,7 @@ export function NotificationProviderEditDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-md" showCloseButton>
         <DialogHeader>
           <DialogTitle>Edit {title} configuration</DialogTitle>
@@ -206,7 +207,7 @@ export function NotificationProviderEditDialog({
             <div className="flex justify-end gap-2">
               <Button
                 variant="outline"
-                onClick={() => onOpenChange(false)}
+                onClick={() => handleOpenChange(false)}
                 disabled={saving || testing}
               >
                 Cancel

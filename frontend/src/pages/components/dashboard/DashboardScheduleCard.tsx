@@ -67,9 +67,9 @@ export function DashboardScheduleCard({
       <CardContent>
         {isLoading ? (
           <ul className="divide-y divide-border">
-            {[1, 2, 3, 4].map((i) => (
+            {([1, 2, 3, 4] as const).map((skeletonId) => (
               <li
-                key={i}
+                key={skeletonId}
                 className="flex flex-wrap items-center gap-3 py-3 first:pt-0 last:pb-0"
               >
                 <Skeleton className="h-6 w-20" />

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react"
+import { useMemo, useState } from "react"
 import {
   Dialog,
   DialogContent,
@@ -39,26 +39,20 @@ export function FileSystemDialog({
   initialPath,
 }: FileSystemDialogProps) {
   const [currentPath, setCurrentPath] = useState<string | undefined>(undefined)
-  const [selectedPath, setSelectedPath] = useState<string | null>(null)
 
   const { data, isFetching, refetch } = useGetFileSystemEntriesQuery(
     { path: currentPath },
     { skip: !open },
   )
 
-  useEffect(() => {
-    if (open) {
-      setCurrentPath(initialPath)
-    } else {
-      setSelectedPath(null)
-    }
-  }, [open, initialPath])
+  const selectedPath = data?.path ?? null
 
-  useEffect(() => {
-    if (data?.path) {
-      setSelectedPath(data.path)
+  const handleOpenChange = (nextOpen: boolean) => {
+    if (nextOpen) {
+      setCurrentPath(initialPath)
     }
-  }, [data?.path])
+    onOpenChange(nextOpen)
+  }
 
   const entries = useMemo(() => data?.entries ?? [], [data?.entries])
 
@@ -69,7 +63,7 @@ export function FileSystemDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-3xl" showCloseButton>
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
@@ -165,7 +159,7 @@ export function FileSystemDialog({
           <Button
             type="button"
             variant="outline"
-            onClick={() => onOpenChange(false)}
+            onClick={() => handleOpenChange(false)}
           >
             Cancel
           </Button>

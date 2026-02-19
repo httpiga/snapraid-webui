@@ -30,8 +30,8 @@ export function DashboardDiskStatusCard({
       <CardContent>
         <div className="space-y-4">
           {isLoading
-            ? [1, 2, 3, 4].map((i) => (
-                <div key={i} className="flex items-center gap-4">
+            ? ([1, 2, 3, 4] as const).map((skeletonId) => (
+                <div key={skeletonId} className="flex items-center gap-4">
                   <Skeleton className="h-4 w-24" />
                   <div className="flex-1">
                     <Skeleton className="h-2 w-full rounded-full" />
