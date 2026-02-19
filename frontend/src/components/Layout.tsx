@@ -29,6 +29,14 @@ const navigation = [
 const SIDEBAR_WIDTH_EXPANDED = "16rem" /* 256px / w-64 */
 const SIDEBAR_WIDTH_COLLAPSED = "4rem" /* 64px / w-16 */
 
+const APP_VERSION =
+  typeof import.meta.env.VITE_APP_VERSION === "string" &&
+  import.meta.env.VITE_APP_VERSION !== ""
+    ? import.meta.env.VITE_APP_VERSION
+    : "dev"
+
+const GITHUB_RELEASES_URL = "https://github.com/httpiga/snapraid-webui/releases"
+
 export function Layout() {
   const location = useLocation()
   const [collapsed, setCollapsed] = useState(false)
@@ -97,7 +105,12 @@ export function Layout() {
             )
           })}
         </nav>
-        <div className="mt-auto border-t p-2">
+        <div
+          className={cn(
+            "mt-auto border-t p-2 space-x-2",
+            collapsed ? "flex-col" : "flex items-center",
+          )}
+        >
           <div
             className={cn(
               "flex",
@@ -105,6 +118,17 @@ export function Layout() {
             )}
           >
             <ModeToggle />
+          </div>
+          <div className={cn(collapsed ? "hidden" : "flex justify-start")}>
+            <a
+              href={GITHUB_RELEASES_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-muted-foreground hover:text-foreground truncate"
+              title="View releases"
+            >
+              {APP_VERSION.startsWith("v") ? APP_VERSION : `v${APP_VERSION}`}
+            </a>
           </div>
         </div>
       </aside>
