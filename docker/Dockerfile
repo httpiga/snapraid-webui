@@ -18,6 +18,8 @@ COPY backend/ /temp/dev/backend/
 
 # Build frontend
 FROM base AS frontend-builder
+ARG VERSION=dev
+ENV VITE_APP_VERSION=$VERSION
 COPY --from=install /temp/dev /app
 RUN cd /app/frontend && bun run build
 
