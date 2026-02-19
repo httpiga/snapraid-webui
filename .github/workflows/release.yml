@@ -23,7 +23,7 @@ jobs:
       # Run tests with coverage per package so each writes to its own coverage/ dir (backend + frontend)
       - run: cd backend && bun test --coverage --coverage-reporter=lcov
       - run: cd frontend && bun test --coverage --coverage-reporter=lcov
-      - run: bunx playwright install chromium --with-deps
+      - run: bunx playwright install --with-deps
       - run: bun run test:e2e
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v4
