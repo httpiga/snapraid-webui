@@ -1,6 +1,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
-import { AlertCircle, CheckCircle, FileText, HardDrive } from "lucide-react"
+import {
+  AlertCircle,
+  CheckCircle,
+  FileText,
+  HardDrive,
+  Helicopter,
+} from "lucide-react"
 import type { SnapRaidStatus } from "@shared/types"
 
 interface DashboardStatusCardsProps {
@@ -21,6 +27,8 @@ export function DashboardStatusCards({
             <Skeleton className="h-4 w-4 rounded-full" />
           ) : status?.parityUpToDate ? (
             <CheckCircle className="h-4 w-4 text-green-500" />
+          ) : status?.syncInProgress ? (
+            <Helicopter className="h-4 w-4 text-blue-500" />
           ) : (
             <AlertCircle className="h-4 w-4 text-yellow-500" />
           )}
@@ -37,7 +45,7 @@ export function DashboardStatusCards({
                 {status?.parityUpToDate
                   ? "Up to Date"
                   : status?.syncInProgress
-                    ? "Sync in Progress"
+                    ? "Sync in Progress..."
                     : "Sync Required"}
               </div>
               <p className="text-xs text-muted-foreground">
