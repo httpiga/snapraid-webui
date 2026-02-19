@@ -10,6 +10,7 @@
   ],
   "scripts": {
     "dev": "concurrently \"bun run dev:backend\" \"bun run dev:frontend\"",
+    "dev:e2e": "concurrently \"bun run --filter @snapraid-webui/backend dev\" \"bun run --filter @snapraid-webui/frontend dev\"",
     "dev:backend": "bun run --elide-lines=0 --filter @snapraid-webui/backend dev",
     "dev:frontend": "bun run --elide-lines=0 --filter @snapraid-webui/frontend dev",
     "build": "bun run build:frontend && bun run build:backend",
@@ -19,6 +20,7 @@
     "lint": "bun run --filter @snapraid-webui/frontend lint && bun run --filter @snapraid-webui/backend lint",
     "typecheck": "bun run --filter @snapraid-webui/backend typecheck && bun run --filter @snapraid-webui/frontend typecheck",
     "test": "bun run --filter @snapraid-webui/backend test && bun run --filter @snapraid-webui/frontend test",
+    "test:e2e": "playwright test -c e2e/playwright.config.ts",
     "podman:build": "podman build -f docker/Dockerfile -t snapraid-webui .",
     "podman:start": "podman run -d -p 3000:3000 snapraid-webui",
     "virtual-disks:setup": "bash scripts/setup-virtual-disks.sh setup",
@@ -27,6 +29,7 @@
     "prepare": "husky"
   },
   "devDependencies": {
+    "@playwright/test": "^1.49.0",
     "@types/node": "^22.10.0",
     "concurrently": "^9.1.0",
     "husky": "^9.1.7",
