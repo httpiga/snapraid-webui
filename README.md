@@ -1,3 +1,6 @@
+> [!WARNING]
+> This project has been discontinued in favor of the official [snapraid-daemon](https://github.com/amadvance/snapraid-daemon) from the main snapraid maintainer.
+
 # SnapRAID Web UI
 
 [![Release pipeline](https://github.com/httpiga/snapraid-webui/actions/workflows/release.yml/badge.svg)](https://github.com/httpiga/snapraid-webui/actions/workflows/release.yml)
